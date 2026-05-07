@@ -3,7 +3,7 @@ package com.mazanex.perfil.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "perfiles_usuarios")
+@Table(name = "usuarios") 
 public class Usuario {
 
     @Id
@@ -32,12 +32,16 @@ public class Usuario {
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+    
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
+    
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+    
     public String getAvatarUrl() { return avatarUrl; }
     public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
+    
     public String getBannerUrl() { return bannerUrl; }
     public void setBannerUrl(String bannerUrl) { this.bannerUrl = bannerUrl; }
 }
