@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/perfil") 
+@RequestMapping("/api/perfil")
 @CrossOrigin(origins = "*")
 public class PerfilController {
 
@@ -20,23 +20,12 @@ public class PerfilController {
     @Autowired
     private UsuarioRepository perfilRepository;
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Usuario> actualizarPerfil(@PathVariable Long id, @RequestBody Usuario data) {
-        return perfilRepository.findById(id).map(usuario -> {
-            if (data.getNombre() != null) usuario.setNombre(data.getNombre());
-            if (data.getAvatarUrl() != null) usuario.setAvatarUrl(data.getAvatarUrl());
-            if (data.getBannerUrl() != null) usuario.setBannerUrl(data.getBannerUrl());
-            
-            Usuario actualizado = perfilRepository.save(usuario);
-            return ResponseEntity.ok(actualizado);
-        }).orElse(ResponseEntity.notFound().build());
-    }
-
     @PostMapping("/sync")
     public ResponseEntity<Usuario> sync(@RequestBody Usuario data) {
         return perfilRepository.findByEmail(data.getEmail())
             .map(usuarioExistente -> {
                 usuarioExistente.setNombre(data.getNombre());
+                // Se eliminó la línea del avatarUrl aquí
                 return ResponseEntity.ok(perfilRepository.save(usuarioExistente));
             })
             .orElseGet(() -> {
