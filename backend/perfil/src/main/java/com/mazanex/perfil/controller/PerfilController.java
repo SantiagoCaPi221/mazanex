@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/perfil")
+@RequestMapping("/perfil") 
 @CrossOrigin(origins = "*")
 public class PerfilController {
 
@@ -20,13 +20,15 @@ public class PerfilController {
     @Autowired
     private UsuarioRepository perfilRepository;
 
-    @PutMapping("/perfil/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Usuario> actualizarPerfil(@PathVariable Long id, @RequestBody Usuario data) {
         return perfilRepository.findById(id).map(usuario -> {
             if (data.getNombre() != null) usuario.setNombre(data.getNombre());
             if (data.getAvatarUrl() != null) usuario.setAvatarUrl(data.getAvatarUrl());
             if (data.getBannerUrl() != null) usuario.setBannerUrl(data.getBannerUrl());
-            return ResponseEntity.ok(perfilRepository.save(usuario));
+            
+            Usuario actualizado = perfilRepository.save(usuario);
+            return ResponseEntity.ok(actualizado);
         }).orElse(ResponseEntity.notFound().build());
     }
 
