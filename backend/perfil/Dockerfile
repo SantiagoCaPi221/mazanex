@@ -2,8 +2,8 @@ FROM maven:3.8.5-openjdk-17 AS build
 WORKDIR /app
 
 # 1. Copiamos los archivos críticos
-COPY pom.xml .
-COPY perfil/ ./perfil/
+COPY backend/pom.xml .
+COPY backend/perfil/ ./perfil/
 
 # 2. Debug (Para ver en los logs si todo está en su sitio)
 RUN ls -la && ls -la perfil/
