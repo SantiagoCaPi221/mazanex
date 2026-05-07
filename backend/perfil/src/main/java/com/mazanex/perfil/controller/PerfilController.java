@@ -20,12 +20,23 @@ public class PerfilController {
     @Autowired
     private UsuarioRepository perfilRepository;
 
+    @PutMapping("/perfil/{id}")
+    public ResponseEntity<Usuario> actualizarPerfil(@PathVariable Long id, @RequestBody Usuario data) {
+        return perfilRepository.findById(id).map(usuario -> {
+            if (data.getNombre() != null) usuario.setNombre(data.getNombre());
+            if (data.getAvatarUrl() != null) usuario.setAvatarUrl(data.getAvatarUrl());
+            if (data.getBannerUrl() != null) usuario.setBannerUrl(data.getBannerUrl());
+            return ResponseEntity.ok(perfilRepository.save(usuario));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
     @PostMapping("/sync")
     public ResponseEntity<Usuario> sync(@RequestBody Usuario data) {
         return perfilRepository.findByEmail(data.getEmail())
             .map(usuarioExistente -> {
                 usuarioExistente.setNombre(data.getNombre());
-                // Se eliminó la línea del avatarUrl aquí
+                usuarioExistente.setAvatarUrl(data.getAvatarUrl());
+                usuarioExistente.setBannerUrl(data.getBannerUrl());
                 return ResponseEntity.ok(perfilRepository.save(usuarioExistente));
             })
             .orElseGet(() -> {
