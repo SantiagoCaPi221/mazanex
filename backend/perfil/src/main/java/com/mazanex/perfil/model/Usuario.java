@@ -17,12 +17,17 @@ public class Usuario {
     @Column(columnDefinition = "LONGTEXT")
     private String avatarUrl;
 
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String bannerUrl;
+
     public Usuario() {}
 
-    public Usuario(String nombre, String email, String avatarUrl) {
+    public Usuario(String nombre, String email, String avatarUrl, String bannerUrl) {
         this.nombre = nombre;
         this.email = email;
         this.avatarUrl = avatarUrl;
+        this.bannerUrl = bannerUrl;
     }
 
     public Long getId() { return id; }
@@ -33,4 +38,6 @@ public class Usuario {
     public void setEmail(String email) { this.email = email; }
     public String getAvatarUrl() { return avatarUrl; }
     public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
+    public String getBannerUrl() { return bannerUrl; }
+    public void setBannerUrl(String bannerUrl) { this.bannerUrl = bannerUrl; }
 }
