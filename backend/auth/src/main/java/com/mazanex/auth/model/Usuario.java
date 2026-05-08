@@ -26,9 +26,13 @@ public class Usuario {
     @Column(name = "biografia")
     private String biografia;
 
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String fondoUrl;
+
     public Usuario() {}
 
-    public Usuario(Long id, String nombre, String email, String password, String rol, String avatarUrl, String bannerUrl, String biografia) {
+    public Usuario(Long id, String nombre, String email, String password, String rol, String avatarUrl, String bannerUrl, String biografia, String fondoUrl) {
         this.id = id;
         this.nombre = nombre;
         this.email = email;
@@ -37,6 +41,7 @@ public class Usuario {
         this.avatarUrl = avatarUrl;
         this.bannerUrl = bannerUrl;
         this.biografia = biografia;
+        this.fondoUrl = fondoUrl;
     }
 
     public Long getId() { return id; }
@@ -62,4 +67,7 @@ public class Usuario {
 
     public String getBiografia() { return biografia; }
     public void setBiografia(String biografia) { this.biografia = biografia; }
+
+    public String getFondoUrl() { return fondoUrl; }
+    public void setFondoUrl(String fondoUrl) { this.fondoUrl = fondoUrl; }
 }
