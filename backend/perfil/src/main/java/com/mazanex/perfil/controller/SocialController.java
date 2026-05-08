@@ -112,5 +112,25 @@ public class SocialController {
     boolean bSigueA = seguidorRepository.findBySeguidorAndSeguido(b, a).isPresent();
 
     return ResponseEntity.ok(aSigueB && bSigueA);
-}
+    }
+
+    @PostMapping("/enviar-solicitud/{solicitanteId}/{receptorId}")
+    public ResponseEntity<?> enviarSolicitud(@PathVariable Long solicitanteId, @PathVariable Long receptorId) {
+        // 1. Verificar si ya existe una solicitud pendiente o si ya son amigos
+        // 2. Guardar SolicitudAmistad con estado "PENDIENTE"
+        return ResponseEntity.ok("{\"status\": \"pending\"}");
+    }
+
+    @PostMapping("/aceptar-solicitud/{solicitudId}")
+    public ResponseEntity<?> aceptarSolicitud(@PathVariable Long solicitudId) {
+        SolicitudAmistad sol = solicitudRepository.findById(solicitudId).orElse(null);
+        if (sol != null) {
+            sol.setEstado("ACEPTADA");
+            solicitudRepository.save(sol);
+    
+            seguidorRepository.save(new Seguidor(sol.getSolicitante(), sol.getReceptor()));
+            seguidorRepository.save(new Seguidor(sol.getReceptor(), sol.getSolicitante()));
+        }
+        return ResponseEntity.ok("{\"status\": \"friends\"}");
+    }
 }
