@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/social")
+@RequestMapping("/api/perfil/social")
 @CrossOrigin(origins = "*")
 public class SocialController {
 
