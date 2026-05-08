@@ -90,4 +90,17 @@ public class SocialController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
+    @GetMapping("/estado-amistad/{usuarioA}/{usuarioB}")
+    public ResponseEntity<Boolean> esSeguimientoMutuo(@PathVariable Long usuarioA, @PathVariable Long usuarioB) {
+    Usuario a = usuarioRepository.findById(usuarioA).orElse(null);
+    Usuario b = usuarioRepository.findById(usuarioB).orElse(null);
+    
+    if (a == null || b == null) return ResponseEntity.ok(false);
+
+    // Verificamos si A sigue a B Y si B sigue a A
+    boolean aSigueB = seguidorRepository.findBySeguidorAndSeguido(a, b).isPresent();
+    boolean bSigueA = seguidorRepository.findBySeguidorAndSeguido(b, a).isPresent();
+
+    return ResponseEntity.ok(aSigueB && bSigueA);
+}
 }
