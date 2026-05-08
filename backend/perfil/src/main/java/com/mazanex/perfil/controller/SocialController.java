@@ -26,7 +26,7 @@ public class SocialController {
     @Autowired
     private NotificacionRepository notificacionRepository; 
 
-    @PostMapping("/seguir/{seguidorId}/{seguidoId}")
+   @PostMapping("/seguir/{seguidorId}/{seguidoId}")
     public ResponseEntity<?> seguirUsuario(@PathVariable Long seguidorId, @PathVariable Long seguidoId) {
         if (seguidorId.equals(seguidoId)) return ResponseEntity.badRequest().body("No puedes seguirte a ti mismo");
 
@@ -38,17 +38,13 @@ public class SocialController {
         return seguidorRepository.findBySeguidorAndSeguido(seguidor, seguido)
                 .map(relacion -> {
                     seguidorRepository.delete(relacion);
-                    return ResponseEntity.ok("Dejado de seguir");
+                    return ResponseEntity.ok().body("{\"status\": \"unfollowed\"}");
                 })
                 .orElseGet(() -> {
-                    // 1. Guarda la relación de seguidor
                     seguidorRepository.save(new Seguidor(seguidor, seguido));
-                    
-                    // 2. CREA LA NOTIFICACIÓN REAL
                     String mensaje = seguidor.getNombre() + " ha comenzado a seguirte.";
                     notificacionRepository.save(new Notificacion(seguido, "FOLLOW", mensaje));
-                    
-                    return ResponseEntity.ok("Siguiendo");
+                    return ResponseEntity.ok().body("{\"status\": \"followed\"}");
                 });
     }
 
@@ -82,14 +78,21 @@ public class SocialController {
     }
     
     @GetMapping("/publico/{id}")
-    public ResponseEntity<Usuario> obtenerPerfilPublico(@PathVariable Long id) {
+    public ResponseEntity<?> obtenerPerfilPublico(@PathVariable Long id) {
         return usuarioRepository.findById(id)
                 .map(u -> {
-                    u.setEmail("Oculto"); 
-                    return ResponseEntity.ok(u);
+                    java.util.Map<String, Object> publico = new java.util.HashMap<>();
+                    publico.put("id", u.getId());
+                    publico.put("nombre", u.getNombre());
+                    publico.put("biografia", u.getBiografia());
+                    publico.put("avatarUrl", u.getAvatarUrl());
+                    publico.put("bannerUrl", u.getBannerUrl());
+                    publico.put("fondoUrl", u.getFondoUrl());
+                    return ResponseEntity.ok(publico);
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
+    
     @GetMapping("/estado-amistad/{usuarioA}/{usuarioB}")
     public ResponseEntity<Boolean> esSeguimientoMutuo(@PathVariable Long usuarioA, @PathVariable Long usuarioB) {
     Usuario a = usuarioRepository.findById(usuarioA).orElse(null);
