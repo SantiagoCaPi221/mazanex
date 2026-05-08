@@ -3,14 +3,18 @@ package com.mazanex.perfil.controller;
 import com.mazanex.perfil.model.Seguidor;
 import com.mazanex.perfil.model.Usuario;
 import com.mazanex.perfil.model.Notificacion;
+import com.mazanex.perfil.model.SolicitudAmistad;
 import com.mazanex.perfil.repository.SeguidorRepository;
 import com.mazanex.perfil.repository.UsuarioRepository;
 import com.mazanex.perfil.repository.NotificacionRepository;
+import com.mazanex.perfil.repository.SolicitudAmistadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/perfil/social")
@@ -24,71 +28,112 @@ public class SocialController {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
-    private NotificacionRepository notificacionRepository; 
+    private NotificacionRepository notificacionRepository;
 
-   @PostMapping("/seguir/{seguidorId}/{seguidoId}")
-    public ResponseEntity<?> seguirUsuario(@PathVariable Long seguidorId, @PathVariable Long seguidoId) {
-        if (seguidorId.equals(seguidoId)) return ResponseEntity.badRequest().body("No puedes seguirte a ti mismo");
+    @Autowired
+    private SolicitudAmistadRepository solicitudRepository;
 
-        Usuario seguidor = usuarioRepository.findById(seguidorId).orElse(null);
-        Usuario seguido = usuarioRepository.findById(seguidoId).orElse(null);
+    // --- SOLICITUDES DE AMISTAD ---
 
-        if (seguidor == null || seguido == null) return ResponseEntity.notFound().build();
+    @PostMapping("/enviar-solicitud/{solicitanteId}/{receptorId}")
+    public ResponseEntity<?> enviarSolicitud(@PathVariable Long solicitanteId, @PathVariable Long receptorId) {
+        if (solicitanteId.equals(receptorId)) return ResponseEntity.badRequest().body("No puedes agregarte a ti mismo");
 
-        return seguidorRepository.findBySeguidorAndSeguido(seguidor, seguido)
-                .map(relacion -> {
-                    seguidorRepository.delete(relacion);
-                    return ResponseEntity.ok().body("{\"status\": \"unfollowed\"}");
-                })
-                .orElseGet(() -> {
-                    seguidorRepository.save(new Seguidor(seguidor, seguido));
-                    String mensaje = seguidor.getNombre() + " ha comenzado a seguirte.";
-                    notificacionRepository.save(new Notificacion(seguido, "FOLLOW", mensaje));
-                    return ResponseEntity.ok().body("{\"status\": \"followed\"}");
-                });
+        Usuario solicitante = usuarioRepository.findById(solicitanteId).orElse(null);
+        Usuario receptor = usuarioRepository.findById(receptorId).orElse(null);
+
+        if (solicitante == null || receptor == null) return ResponseEntity.notFound().build();
+
+        // Verificar si ya existe alguna solicitud en cualquier dirección
+        boolean yaExiste = solicitudRepository.existsBySolicitanteAndReceptor(solicitante, receptor) || 
+                          solicitudRepository.existsBySolicitanteAndReceptor(receptor, solicitante);
+        
+        if (yaExiste) return ResponseEntity.badRequest().body("{\"error\": \"Ya existe una solicitud o amistad\"}");
+
+        // Guardar solicitud pendiente
+        SolicitudAmistad nuevaSolicitud = new SolicitudAmistad(solicitante, receptor, "PENDIENTE");
+        solicitudRepository.save(nuevaSolicitud);
+
+        // Notificar al receptor
+        String mensaje = solicitante.getNombre() + " te ha enviado una solicitud de amistad.";
+        notificacionRepository.save(new Notificacion(receptor, "FRIEND_REQUEST", mensaje));
+
+        return ResponseEntity.ok("{\"status\": \"PENDIENTE\"}");
     }
 
-   @GetMapping("/siguiendo/{id}")
-    public ResponseEntity<?> obtenerSiguiendo(@PathVariable Long id) {
-    return usuarioRepository.findById(id)
-            .map(u -> {
-                // Extraemos solo el ID de la persona a la que seguimos
-                List<Long> idsSeguidos = seguidorRepository.findBySeguidor(u)
-                    .stream()
-                    .map(s -> s.getSeguido().getId())
-                    .toList();
-                return ResponseEntity.ok(idsSeguidos);
-            })
-            .orElse(ResponseEntity.notFound().build());
-}
+    @PostMapping("/aceptar-solicitud/{solicitanteId}/{receptorId}")
+    public ResponseEntity<?> aceptarSolicitud(@PathVariable Long solicitanteId, @PathVariable Long receptorId) {
+        Usuario solicitante = usuarioRepository.findById(solicitanteId).orElse(null);
+        Usuario receptor = usuarioRepository.findById(receptorId).orElse(null);
 
-    // NUEVO ENDPOINT: Para que Next.js pida las notificaciones
-    @GetMapping("/notificaciones/{usuarioId}")
-    public ResponseEntity<List<Notificacion>> obtenerNotificaciones(@PathVariable Long usuarioId) {
-        return usuarioRepository.findById(usuarioId)
-                .map(u -> ResponseEntity.ok(notificacionRepository.findByUsuarioDestinoOrderByFechaDesc(u)))
+        return solicitudRepository.findBySolicitanteAndReceptor(solicitante, receptor)
+                .map(sol -> {
+                    sol.setEstado("ACEPTADA");
+                    solicitudRepository.save(sol);
+
+                    // Para mantener compatibilidad con el sistema de seguidores:
+                    // Se siguen mutuamente de forma automática
+                    seguidorRepository.save(new Seguidor(solicitante, receptor));
+                    seguidorRepository.save(new Seguidor(receptor, solicitante));
+
+                    // Notificar al solicitante que fue aceptado
+                    String mensaje = receptor.getNombre() + " aceptó tu solicitud de amistad.";
+                    notificacionRepository.save(new Notificacion(solicitante, "FRIEND_ACCEPT", mensaje));
+
+                    return ResponseEntity.ok("{\"status\": \"ACEPTADA\"}");
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
-    // Marcar todas las notificaciones de un usuario como leídas
-    @PutMapping("/notificaciones/{usuarioId}/leer")
-    public ResponseEntity<?> marcarNotificacionesComoLeidas(@PathVariable Long usuarioId) {
-        return usuarioRepository.findById(usuarioId).map(u -> {
-            List<Notificacion> notificaciones = notificacionRepository.findByUsuarioDestinoOrderByFechaDesc(u);
-            for (Notificacion n : notificaciones) {
-                if (!n.isLeida()) {
-                    n.setLeida(true);
-                    notificacionRepository.save(n); // Guarda el cambio en la BD
-                }
-            }
-            return ResponseEntity.ok("Notificaciones marcadas como leídas");
-        }).orElse(ResponseEntity.notFound().build());
+
+    @GetMapping("/estado-relacion/{idA}/{idB}")
+    public ResponseEntity<?> obtenerEstadoRelacion(@PathVariable Long idA, @PathVariable Long idB) {
+        Usuario a = usuarioRepository.findById(idA).orElse(null);
+        Usuario b = usuarioRepository.findById(idB).orElse(null);
+        
+        if (a == null || b == null) return ResponseEntity.notFound().build();
+
+        Map<String, Object> response = new HashMap<>();
+        
+        // Buscamos si A le pidió a B
+        var sol1 = solicitudRepository.findBySolicitanteAndReceptor(a, b);
+        if (sol1.isPresent()) {
+            response.put("estado", sol1.get().getEstado());
+            response.put("soySolicitante", true);
+            return ResponseEntity.ok(response);
+        }
+
+        // Buscamos si B le pidió a A
+        var sol2 = solicitudRepository.findBySolicitanteAndReceptor(b, a);
+        if (sol2.isPresent()) {
+            response.put("estado", sol2.get().getEstado());
+            response.put("soySolicitante", false);
+            return ResponseEntity.ok(response);
+        }
+
+        response.put("estado", "NADA");
+        return ResponseEntity.ok(response);
     }
-    
+
+    // --- SEGUIDORES Y PERFIL ---
+
+    @GetMapping("/siguiendo/{id}")
+    public ResponseEntity<?> obtenerSiguiendo(@PathVariable Long id) {
+        return usuarioRepository.findById(id)
+                .map(u -> {
+                    List<Long> idsSeguidos = seguidorRepository.findBySeguidor(u)
+                            .stream()
+                            .map(s -> s.getSeguido().getId())
+                            .toList();
+                    return ResponseEntity.ok(idsSeguidos);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/publico/{id}")
     public ResponseEntity<?> obtenerPerfilPublico(@PathVariable Long id) {
         return usuarioRepository.findById(id)
                 .map(u -> {
-                    java.util.Map<String, Object> publico = new java.util.HashMap<>();
+                    Map<String, Object> publico = new HashMap<>();
                     publico.put("id", u.getId());
                     publico.put("nombre", u.getNombre());
                     publico.put("biografia", u.getBiografia());
@@ -99,38 +144,25 @@ public class SocialController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
-    
-    @GetMapping("/estado-amistad/{usuarioA}/{usuarioB}")
-    public ResponseEntity<Boolean> esSeguimientoMutuo(@PathVariable Long usuarioA, @PathVariable Long usuarioB) {
-    Usuario a = usuarioRepository.findById(usuarioA).orElse(null);
-    Usuario b = usuarioRepository.findById(usuarioB).orElse(null);
-    
-    if (a == null || b == null) return ResponseEntity.ok(false);
 
-    // Verificamos si A sigue a B Y si B sigue a A
-    boolean aSigueB = seguidorRepository.findBySeguidorAndSeguido(a, b).isPresent();
-    boolean bSigueA = seguidorRepository.findBySeguidorAndSeguido(b, a).isPresent();
-
-    return ResponseEntity.ok(aSigueB && bSigueA);
+    @GetMapping("/notificaciones/{usuarioId}")
+    public ResponseEntity<List<Notificacion>> obtenerNotificaciones(@PathVariable Long usuarioId) {
+        return usuarioRepository.findById(usuarioId)
+                .map(u -> ResponseEntity.ok(notificacionRepository.findByUsuarioDestinoOrderByFechaDesc(u)))
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/enviar-solicitud/{solicitanteId}/{receptorId}")
-    public ResponseEntity<?> enviarSolicitud(@PathVariable Long solicitanteId, @PathVariable Long receptorId) {
-        // 1. Verificar si ya existe una solicitud pendiente o si ya son amigos
-        // 2. Guardar SolicitudAmistad con estado "PENDIENTE"
-        return ResponseEntity.ok("{\"status\": \"pending\"}");
-    }
-
-    @PostMapping("/aceptar-solicitud/{solicitudId}")
-    public ResponseEntity<?> aceptarSolicitud(@PathVariable Long solicitudId) {
-        SolicitudAmistad sol = solicitudRepository.findById(solicitudId).orElse(null);
-        if (sol != null) {
-            sol.setEstado("ACEPTADA");
-            solicitudRepository.save(sol);
-    
-            seguidorRepository.save(new Seguidor(sol.getSolicitante(), sol.getReceptor()));
-            seguidorRepository.save(new Seguidor(sol.getReceptor(), sol.getSolicitante()));
-        }
-        return ResponseEntity.ok("{\"status\": \"friends\"}");
+    @PutMapping("/notificaciones/{usuarioId}/leer")
+    public ResponseEntity<?> marcarNotificacionesComoLeidas(@PathVariable Long usuarioId) {
+        return usuarioRepository.findById(usuarioId).map(u -> {
+            List<Notificacion> notificaciones = notificacionRepository.findByUsuarioDestinoOrderByFechaDesc(u);
+            for (Notificacion n : notificaciones) {
+                if (!n.isLeida()) {
+                    n.setLeida(true);
+                    notificacionRepository.save(n);
+                }
+            }
+            return ResponseEntity.ok("Notificaciones marcadas como leídas");
+        }).orElse(ResponseEntity.notFound().build());
     }
 }
