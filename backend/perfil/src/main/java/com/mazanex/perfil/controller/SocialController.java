@@ -80,4 +80,16 @@ public class SocialController {
             return ResponseEntity.ok("Notificaciones marcadas como leídas");
         }).orElse(ResponseEntity.notFound().build());
     }
+    
+    @GetMapping("/publico/{id}")
+    public ResponseEntity<Usuario> obtenerPerfilPublico(@PathVariable Long id) {
+    return usuarioRepository.findById(id)
+            .map(u -> {
+                // Creamos una copia o limpiamos los campos sensibles
+                u.setPassword(null); // Nunca enviar la clave
+                u.setEmail("Oculto"); // Opcional: ocultar el correo en el muro
+                return ResponseEntity.ok(u);
+            })
+            .orElse(ResponseEntity.notFound().build());
+}
 }
