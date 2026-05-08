@@ -66,4 +66,18 @@ public class SocialController {
                 .map(u -> ResponseEntity.ok(notificacionRepository.findByUsuarioDestinoOrderByFechaDesc(u)))
                 .orElse(ResponseEntity.notFound().build());
     }
+    // Marcar todas las notificaciones de un usuario como leídas
+    @PutMapping("/notificaciones/{usuarioId}/leer")
+    public ResponseEntity<?> marcarNotificacionesComoLeidas(@PathVariable Long usuarioId) {
+        return usuarioRepository.findById(usuarioId).map(u -> {
+            List<Notificacion> notificaciones = notificacionRepository.findByUsuarioDestinoOrderByFechaDesc(u);
+            for (Notificacion n : notificaciones) {
+                if (!n.isLeida()) {
+                    n.setLeida(true);
+                    notificacionRepository.save(n); // Guarda el cambio en la BD
+                }
+            }
+            return ResponseEntity.ok("Notificaciones marcadas como leídas");
+        }).orElse(ResponseEntity.notFound().build());
+    }
 }
