@@ -52,18 +52,15 @@ public class SocialController {
     public ResponseEntity<?> obtenerSiguiendo(@PathVariable Long id) {
     return usuarioRepository.findById(id)
             .map(u -> {
-                List<java.util.Map<String, Object>> lista = seguidorRepository.findBySeguidor(u)
-                    .stream().map(s -> {
-                        java.util.Map<String, Object> map = new java.util.HashMap<>();
-                        map.put("id", s.getSeguido().getId());
-                        map.put("nombre", s.getSeguido().getNombre());
-                        map.put("avatarUrl", s.getSeguido().getAvatarUrl());
-                        return map;
-                    }).toList();
-                return ResponseEntity.ok(lista);
+                // Extraemos solo el ID de la persona a la que seguimos
+                List<Long> idsSeguidos = seguidorRepository.findBySeguidor(u)
+                    .stream()
+                    .map(s -> s.getSeguido().getId())
+                    .toList();
+                return ResponseEntity.ok(idsSeguidos);
             })
             .orElse(ResponseEntity.notFound().build());
-    }
+}
 
     // NUEVO ENDPOINT: Para que Next.js pida las notificaciones
     @GetMapping("/notificaciones/{usuarioId}")
