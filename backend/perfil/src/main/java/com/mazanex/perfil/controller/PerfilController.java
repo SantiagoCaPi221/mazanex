@@ -27,6 +27,9 @@ public class PerfilController {
             if (data.getAvatarUrl() != null) usuario.setAvatarUrl(data.getAvatarUrl());
             if (data.getBannerUrl() != null) usuario.setBannerUrl(data.getBannerUrl());
             if (data.getBiografia() != null) usuario.setBiografia(data.getBiografia());
+            // Guardamos el nuevo fondo global
+            if (data.getFondoUrl() != null) usuario.setFondoUrl(data.getFondoUrl());
+            
             return ResponseEntity.ok(perfilRepository.save(usuario));
         }).orElse(ResponseEntity.notFound().build());
     }
@@ -39,6 +42,8 @@ public class PerfilController {
                 usuarioExistente.setAvatarUrl(data.getAvatarUrl());
                 usuarioExistente.setBannerUrl(data.getBannerUrl());
                 if (data.getBiografia() != null) usuarioExistente.setBiografia(data.getBiografia());
+                if (data.getFondoUrl() != null) usuarioExistente.setFondoUrl(data.getFondoUrl());
+                
                 return ResponseEntity.ok(perfilRepository.save(usuarioExistente));
             })
             .orElseGet(() -> {
