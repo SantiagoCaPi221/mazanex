@@ -49,5 +49,23 @@ public class JuegoController {
     
     // Suponiendo que tienes un PuntajeRepository que busca por usuario
     return ResponseEntity.ok(puntajeRepository.findByUsuario(usuario));
+    }
+
+    @PostMapping("/reportar/{id}")
+    public ResponseEntity<?> reportarPuntaje(@PathVariable Long id) {
+    return puntajeRepository.findById(id).map(p -> {
+        // Incrementamos el contador
+        p.setReportes(p.getReportes() + 1);
+        
+        // REGLA DE ORO: A los 3 reportes, fuera del sistema
+        if (p.getReportes() >= 3) {
+            puntajeRepository.delete(p);
+            return ResponseEntity.ok("{\"status\": \"DELETED\", \"message\": \"El puntaje ha sido eliminado por la comunidad por ser considerado falso.\"}");
+        }
+        
+        // Si tiene menos de 3, solo guardamos el nuevo conteo
+        Puntaje actualizado = puntajeRepository.save(p);
+        return ResponseEntity.ok(actualizado);
+    }).orElse(ResponseEntity.notFound().build());
 }
 }
