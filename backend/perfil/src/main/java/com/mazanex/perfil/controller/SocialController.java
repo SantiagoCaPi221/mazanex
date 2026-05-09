@@ -35,22 +35,16 @@ public class SocialController {
 
     @PostMapping("/enviar-solicitud/{solicitanteId}/{receptorId}")
     public ResponseEntity<?> enviarSolicitud(@PathVariable Long solicitanteId, @PathVariable Long receptorId) {
-        if (solicitanteId.equals(receptorId)) return ResponseEntity.badRequest().body("No puedes agregarte a ti mismo");
-
         Usuario solicitante = usuarioRepository.findById(solicitanteId).orElse(null);
         Usuario receptor = usuarioRepository.findById(receptorId).orElse(null);
 
         if (solicitante == null || receptor == null) return ResponseEntity.notFound().build();
 
-        boolean yaExiste = solicitudRepository.existsBySolicitanteAndReceptor(solicitante, receptor) || 
-                          solicitudRepository.existsBySolicitanteAndReceptor(receptor, solicitante);
-        
-        if (yaExiste) return ResponseEntity.badRequest().body("{\"error\": \"Ya existe una solicitud o amistad\"}");
-
+        // Guardamos la solicitud
         solicitudRepository.save(new SolicitudAmistad(solicitante, receptor, "PENDIENTE"));
         
+        // GUARDAMOS EL ID DEL EMISOR (solicitanteId)
         String mensaje = solicitante.getNombre() + " te ha enviado una solicitud de amistad.";
-        // Este ya estaba bien (4 argumentos)
         notificacionRepository.save(new Notificacion(receptor, "FRIEND_REQUEST", mensaje, solicitanteId));
 
         return ResponseEntity.ok("{\"status\": \"PENDIENTE\"}");
@@ -66,12 +60,12 @@ public class SocialController {
                     sol.setEstado("ACEPTADA");
                     solicitudRepository.save(sol);
 
+                    // Crear amistad mutua en seguidores para desbloquear perfil
                     seguidorRepository.save(new Seguidor(solicitante, receptor));
                     seguidorRepository.save(new Seguidor(receptor, solicitante));
 
-                    // FIX APLICADO: Ahora pasamos el receptorId como 4to argumento
-                    String mensaje = receptor.getNombre() + " aceptó tu solicitud de amistad.";
-                    notificacionRepository.save(new Notificacion(solicitante, "FRIEND_ACCEPT", mensaje, receptorId));
+                    // Notificar al que envió que fue aceptado
+                    notificacionRepository.save(new Notificacion(solicitante, "FRIEND_ACCEPT", receptor.getNombre() + " aceptó tu amistad.", receptorId));
 
                     return ResponseEntity.ok("{\"status\": \"ACEPTADA\"}");
                 })
