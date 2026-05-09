@@ -35,31 +35,29 @@ public class SocialController {
 
     // --- SOLICITUDES DE AMISTAD ---
 
-    @PostMapping("/enviar-solicitud/{solicitanteId}/{receptorId}")
+   @PostMapping("/enviar-solicitud/{solicitanteId}/{receptorId}")
     public ResponseEntity<?> enviarSolicitud(@PathVariable Long solicitanteId, @PathVariable Long receptorId) {
-        if (solicitanteId.equals(receptorId)) return ResponseEntity.badRequest().body("No puedes agregarte a ti mismo");
+    if (solicitanteId.equals(receptorId)) return ResponseEntity.badRequest().body("No puedes agregarte a ti mismo");
 
-        Usuario solicitante = usuarioRepository.findById(solicitanteId).orElse(null);
-        Usuario receptor = usuarioRepository.findById(receptorId).orElse(null);
+    Usuario solicitante = usuarioRepository.findById(solicitanteId).orElse(null);
+    Usuario receptor = usuarioRepository.findById(receptorId).orElse(null);
 
-        if (solicitante == null || receptor == null) return ResponseEntity.notFound().build();
+    if (solicitante == null || receptor == null) return ResponseEntity.notFound().build();
 
-        // Verificar si ya existe alguna solicitud en cualquier dirección
-        boolean yaExiste = solicitudRepository.existsBySolicitanteAndReceptor(solicitante, receptor) || 
-                          solicitudRepository.existsBySolicitanteAndReceptor(receptor, solicitante);
-        
-        if (yaExiste) return ResponseEntity.badRequest().body("{\"error\": \"Ya existe una solicitud o amistad\"}");
+    // Verificar si ya existe alguna solicitud en cualquier dirección
+    boolean yaExiste = solicitudRepository.existsBySolicitanteAndReceptor(solicitante, receptor) || 
+                      solicitudRepository.existsBySolicitanteAndReceptor(receptor, solicitante);
+    
+    if (yaExiste) return ResponseEntity.badRequest().body("{\"error\": \"Ya existe una solicitud o amistad\"}");
 
-        // Guardar solicitud pendiente
-        SolicitudAmistad nuevaSolicitud = new SolicitudAmistad(solicitante, receptor, "PENDIENTE");
-        solicitudRepository.save(nuevaSolicitud);
+    // Guardar solicitud pendiente
+    SolicitudAmistad nuevaSolicitud = new SolicitudAmistad(solicitante, receptor, "PENDIENTE");
+    solicitudRepository.save(nuevaSolicitud);
+    String mensaje = solicitante.getNombre() + " te ha enviado una solicitud de amistad.";
+    notificacionRepository.save(new Notificacion(receptor, "FRIEND_REQUEST", mensaje, solicitanteId));
 
-        // Notificar al receptor
-        String mensaje = solicitante.getNombre() + " te ha enviado una solicitud de amistad.";
-        notificacionRepository.save(new Notificacion(receptor, "FRIEND_REQUEST", mensaje));
-
-        return ResponseEntity.ok("{\"status\": \"PENDIENTE\"}");
-    }
+    return ResponseEntity.ok("{\"status\": \"PENDIENTE\"}");
+}
 
     @PostMapping("/aceptar-solicitud/{solicitanteId}/{receptorId}")
     public ResponseEntity<?> aceptarSolicitud(@PathVariable Long solicitanteId, @PathVariable Long receptorId) {
@@ -165,4 +163,6 @@ public class SocialController {
             return ResponseEntity.ok("Notificaciones marcadas como leídas");
         }).orElse(ResponseEntity.notFound().build());
     }
+
+    
 }
