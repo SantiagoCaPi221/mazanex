@@ -51,6 +51,29 @@ public class JuegoController {
     return ResponseEntity.ok(puntajeRepository.findByUsuario(usuario));
     }
 
+    @PostMapping("/guardar-record")
+    public ResponseEntity<?> guardarRecord(@RequestBody Puntaje nuevoPuntaje) {
+    // Buscamos si ya existe un record para este usuario en este juego
+    Optional<Puntaje> existente = puntajeRepository.findByUsuarioAndJuego(
+        nuevoPuntaje.getUsuario(), nuevoPuntaje.getJuego()
+    );
+
+    if (existente.isPresent()) {
+        Puntaje p = existente.get();
+        // Solo actualizamos si el nuevo puntaje es mayor
+        if (nuevoPuntaje.getPuntajeMaximo() > p.getPuntajeMaximo()) {
+            p.setPuntajeMaximo(nuevoPuntaje.getPuntajeMaximo());
+            p.setScreenshotUrl(nuevoPuntaje.getScreenshotUrl());
+            p.setVerificado(false); // Resetear verificación al subir nuevo record
+            p.setReportes(0);
+            return ResponseEntity.ok(puntajeRepository.save(p));
+        }
+        return ResponseEntity.badRequest().body("El puntaje no supera tu record actual.");
+    }
+    
+    return ResponseEntity.ok(puntajeRepository.save(nuevoPuntaje));
+    }
+
     @PostMapping("/reportar/{id}")
     public ResponseEntity<?> reportarPuntaje(@PathVariable Long id) {
     return puntajeRepository.findById(id).map(p -> {
@@ -67,5 +90,5 @@ public class JuegoController {
         Puntaje actualizado = puntajeRepository.save(p);
         return ResponseEntity.ok(actualizado);
     }).orElse(ResponseEntity.notFound().build());
-}
+    }
 }
