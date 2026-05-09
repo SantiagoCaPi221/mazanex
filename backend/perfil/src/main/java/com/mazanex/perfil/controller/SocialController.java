@@ -151,4 +151,34 @@ public class SocialController {
             return ResponseEntity.ok("Notificaciones marcadas como leídas");
         }).orElse(ResponseEntity.notFound().build());
     }
+    @DeleteMapping("/cancelar-solicitud/{solicitanteId}/{receptorId}")
+    public ResponseEntity<?> cancelarSolicitud(@PathVariable Long solicitanteId, @PathVariable Long receptorId) {
+    Usuario solicitante = usuarioRepository.findById(solicitanteId).orElse(null);
+    Usuario receptor = usuarioRepository.findById(receptorId).orElse(null);
+
+    return solicitudRepository.findBySolicitanteAndReceptor(solicitante, receptor)
+            .map(sol -> {
+                solicitudRepository.delete(sol);
+                return ResponseEntity.ok("{\"status\": \"NADA\"}");
+            })
+            .orElse(ResponseEntity.notFound().build());
+}
+
+    @DeleteMapping("/eliminar-amigo/{usuarioId}/{amigoId}")
+    public ResponseEntity<?> eliminarAmigo(@PathVariable Long usuarioId, @PathVariable Long amigoId) {
+    Usuario user = usuarioRepository.findById(usuarioId).orElse(null);
+    Usuario amigo = usuarioRepository.findById(amigoId).orElse(null);
+
+    if (user == null || amigo == null) return ResponseEntity.notFound().build();
+
+    // 1. Borramos la solicitud en cualquier dirección
+    solicitudRepository.findBySolicitanteAndReceptor(user, amigo).ifPresent(solicitudRepository::delete);
+    solicitudRepository.findBySolicitanteAndReceptor(amigo, user).ifPresent(solicitudRepository::delete);
+
+    // 2. Borramos los seguidores mutuos para que el perfil se bloquee
+    seguidorRepository.findBySeguidorAndSeguido(user, amigo).ifPresent(seguidorRepository::delete);
+    seguidorRepository.findBySeguidorAndSeguido(amigo, user).ifPresent(seguidorRepository::delete);
+
+    return ResponseEntity.ok("{\"status\": \"NADA\"}");
+}
 }
