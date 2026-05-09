@@ -33,31 +33,28 @@ public class SocialController {
     @Autowired
     private SolicitudAmistadRepository solicitudRepository;
 
-    // --- SOLICITUDES DE AMISTAD ---
-
-   @PostMapping("/enviar-solicitud/{solicitanteId}/{receptorId}")
+    @PostMapping("/enviar-solicitud/{solicitanteId}/{receptorId}")
     public ResponseEntity<?> enviarSolicitud(@PathVariable Long solicitanteId, @PathVariable Long receptorId) {
-    if (solicitanteId.equals(receptorId)) return ResponseEntity.badRequest().body("No puedes agregarte a ti mismo");
+        if (solicitanteId.equals(receptorId)) return ResponseEntity.badRequest().body("No puedes agregarte a ti mismo");
 
-    Usuario solicitante = usuarioRepository.findById(solicitanteId).orElse(null);
-    Usuario receptor = usuarioRepository.findById(receptorId).orElse(null);
+        Usuario solicitante = usuarioRepository.findById(solicitanteId).orElse(null);
+        Usuario receptor = usuarioRepository.findById(receptorId).orElse(null);
 
-    if (solicitante == null || receptor == null) return ResponseEntity.notFound().build();
+        if (solicitante == null || receptor == null) return ResponseEntity.notFound().build();
 
-    // Verificar si ya existe alguna solicitud en cualquier dirección
-    boolean yaExiste = solicitudRepository.existsBySolicitanteAndReceptor(solicitante, receptor) || 
-                      solicitudRepository.existsBySolicitanteAndReceptor(receptor, solicitante);
-    
-    if (yaExiste) return ResponseEntity.badRequest().body("{\"error\": \"Ya existe una solicitud o amistad\"}");
+        boolean yaExiste = solicitudRepository.existsBySolicitanteAndReceptor(solicitante, receptor) || 
+                          solicitudRepository.existsBySolicitanteAndReceptor(receptor, solicitante);
+        
+        if (yaExiste) return ResponseEntity.badRequest().body("{\"error\": \"Ya existe una solicitud o amistad\"}");
 
-    // Guardar solicitud pendiente
-    SolicitudAmistad nuevaSolicitud = new SolicitudAmistad(solicitante, receptor, "PENDIENTE");
-    solicitudRepository.save(nuevaSolicitud);
-    String mensaje = solicitante.getNombre() + " te ha enviado una solicitud de amistad.";
-    notificacionRepository.save(new Notificacion(receptor, "FRIEND_REQUEST", mensaje, solicitanteId));
+        solicitudRepository.save(new SolicitudAmistad(solicitante, receptor, "PENDIENTE"));
+        
+        String mensaje = solicitante.getNombre() + " te ha enviado una solicitud de amistad.";
+        // Este ya estaba bien (4 argumentos)
+        notificacionRepository.save(new Notificacion(receptor, "FRIEND_REQUEST", mensaje, solicitanteId));
 
-    return ResponseEntity.ok("{\"status\": \"PENDIENTE\"}");
-}
+        return ResponseEntity.ok("{\"status\": \"PENDIENTE\"}");
+    }
 
     @PostMapping("/aceptar-solicitud/{solicitanteId}/{receptorId}")
     public ResponseEntity<?> aceptarSolicitud(@PathVariable Long solicitanteId, @PathVariable Long receptorId) {
@@ -69,14 +66,12 @@ public class SocialController {
                     sol.setEstado("ACEPTADA");
                     solicitudRepository.save(sol);
 
-                    // Para mantener compatibilidad con el sistema de seguidores:
-                    // Se siguen mutuamente de forma automática
                     seguidorRepository.save(new Seguidor(solicitante, receptor));
                     seguidorRepository.save(new Seguidor(receptor, solicitante));
 
-                    // Notificar al solicitante que fue aceptado
+                    // FIX APLICADO: Ahora pasamos el receptorId como 4to argumento
                     String mensaje = receptor.getNombre() + " aceptó tu solicitud de amistad.";
-                    notificacionRepository.save(new Notificacion(solicitante, "FRIEND_ACCEPT", mensaje));
+                    notificacionRepository.save(new Notificacion(solicitante, "FRIEND_ACCEPT", mensaje, receptorId));
 
                     return ResponseEntity.ok("{\"status\": \"ACEPTADA\"}");
                 })
@@ -91,8 +86,6 @@ public class SocialController {
         if (a == null || b == null) return ResponseEntity.notFound().build();
 
         Map<String, Object> response = new HashMap<>();
-        
-        // Buscamos si A le pidió a B
         var sol1 = solicitudRepository.findBySolicitanteAndReceptor(a, b);
         if (sol1.isPresent()) {
             response.put("estado", sol1.get().getEstado());
@@ -100,7 +93,6 @@ public class SocialController {
             return ResponseEntity.ok(response);
         }
 
-        // Buscamos si B le pidió a A
         var sol2 = solicitudRepository.findBySolicitanteAndReceptor(b, a);
         if (sol2.isPresent()) {
             response.put("estado", sol2.get().getEstado());
@@ -112,16 +104,12 @@ public class SocialController {
         return ResponseEntity.ok(response);
     }
 
-    // --- SEGUIDORES Y PERFIL ---
-
     @GetMapping("/siguiendo/{id}")
     public ResponseEntity<?> obtenerSiguiendo(@PathVariable Long id) {
         return usuarioRepository.findById(id)
                 .map(u -> {
                     List<Long> idsSeguidos = seguidorRepository.findBySeguidor(u)
-                            .stream()
-                            .map(s -> s.getSeguido().getId())
-                            .toList();
+                            .stream().map(s -> s.getSeguido().getId()).toList();
                     return ResponseEntity.ok(idsSeguidos);
                 })
                 .orElse(ResponseEntity.notFound().build());
@@ -131,14 +119,14 @@ public class SocialController {
     public ResponseEntity<?> obtenerPerfilPublico(@PathVariable Long id) {
         return usuarioRepository.findById(id)
                 .map(u -> {
-                    Map<String, Object> publico = new HashMap<>();
-                    publico.put("id", u.getId());
-                    publico.put("nombre", u.getNombre());
-                    publico.put("biografia", u.getBiografia());
-                    publico.put("avatarUrl", u.getAvatarUrl());
-                    publico.put("bannerUrl", u.getBannerUrl());
-                    publico.put("fondoUrl", u.getFondoUrl());
-                    return ResponseEntity.ok(publico);
+                    Map<String, Object> p = new HashMap<>();
+                    p.put("id", u.getId());
+                    p.put("nombre", u.getNombre());
+                    p.put("biografia", u.getBiografia());
+                    p.put("avatarUrl", u.getAvatarUrl());
+                    p.put("bannerUrl", u.getBannerUrl());
+                    p.put("fondoUrl", u.getFondoUrl());
+                    return ResponseEntity.ok(p);
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -163,6 +151,4 @@ public class SocialController {
             return ResponseEntity.ok("Notificaciones marcadas como leídas");
         }).orElse(ResponseEntity.notFound().build());
     }
-
-    
 }
