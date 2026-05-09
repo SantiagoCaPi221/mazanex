@@ -41,4 +41,13 @@ public class JuegoController {
     public ResponseEntity<List<Puntaje>> obtenerRanking(@PathVariable String juego) {
         return ResponseEntity.ok(puntajeRepository.findByJuegoOrderByPuntajeMaximoDesc(juego));
     }
+
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<List<Puntaje>> obtenerPuntajesPorUsuario(@PathVariable Long usuarioId) {
+    Usuario usuario = usuarioRepository.findById(usuarioId).orElse(null);
+    if (usuario == null) return ResponseEntity.notFound().build();
+    
+    // Suponiendo que tienes un PuntajeRepository que busca por usuario
+    return ResponseEntity.ok(puntajeRepository.findByUsuario(usuario));
+}
 }
