@@ -52,43 +52,42 @@ public class JuegoController {
     }
 
     @PostMapping("/guardar-record")
-    public ResponseEntity<?> guardarRecord(@RequestBody Puntaje nuevoPuntaje) {
-    // Buscamos si ya existe un record para este usuario en este juego
-    Optional<Puntaje> existente = puntajeRepository.findByUsuarioAndJuego(
-        nuevoPuntaje.getUsuario(), nuevoPuntaje.getJuego()
-    );
+    public ResponseEntity<?> guardarRecord(@RequestBody PuntajeRequest req) {
+        // Buscamos si ya tiene un récord en ese juego
+        Optional<Puntaje> existente = puntajeRepository.findByUsuarioAndJuego(req.getUsuario(), req.getJuego());
 
-    if (existente.isPresent()) {
-        Puntaje p = existente.get();
-        // Solo actualizamos si el nuevo puntaje es mayor
-        if (nuevoPuntaje.getPuntajeMaximo() > p.getPuntajeMaximo()) {
-            p.setPuntajeMaximo(nuevoPuntaje.getPuntajeMaximo());
-            p.setScreenshotUrl(nuevoPuntaje.getScreenshotUrl());
-            p.setVerificado(false); // Resetear verificación al subir nuevo record
-            p.setReportes(0);
-            return ResponseEntity.ok(puntajeRepository.save(p));
+        if (existente.isPresent()) {
+            Puntaje p = existente.get();
+            // Solo actualizamos si el nuevo puntaje es SUPERIOR
+            if (req.getPuntajeMaximo() > p.getPuntajeMaximo()) {
+                p.setPuntajeMaximo(req.getPuntajeMaximo());
+                p.setScreenshotUrl(req.getScreenshotUrl());
+                p.setReportes(0); // Se limpia el historial de reportes al subir nueva prueba
+                return ResponseEntity.ok(puntajeRepository.save(p));
+            }
+            return ResponseEntity.badRequest().body("Puntaje inferior al actual.");
         }
-        return ResponseEntity.badRequest().body("El puntaje no supera tu record actual.");
+
+        // Si es nuevo récord, creamos el objeto
+        Puntaje nuevo = new Puntaje(req.getUsuario(), req.getJuego(), req.getPuntajeMaximo(), req.getScreenshotUrl());
+        return ResponseEntity.ok(puntajeRepository.save(nuevo));
     }
     
     return ResponseEntity.ok(puntajeRepository.save(nuevoPuntaje));
     }
 
     @PostMapping("/reportar/{id}")
-    public ResponseEntity<?> reportarPuntaje(@PathVariable Long id) {
-    return puntajeRepository.findById(id).map(p -> {
-        // Incrementamos el contador
-        p.setReportes(p.getReportes() + 1);
-        
-        // REGLA DE ORO: A los 3 reportes, fuera del sistema
-        if (p.getReportes() >= 3) {
-            puntajeRepository.delete(p);
-            return ResponseEntity.ok("{\"status\": \"DELETED\", \"message\": \"El puntaje ha sido eliminado por la comunidad por ser considerado falso.\"}");
-        }
-        
-        // Si tiene menos de 3, solo guardamos el nuevo conteo
-        Puntaje actualizado = puntajeRepository.save(p);
-        return ResponseEntity.ok(actualizado);
-    }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> reportar(@PathVariable Long id) {
+        return puntajeRepository.findById(id).map(p -> {
+            p.setReportes(p.getReportes() + 1);
+            
+            if (p.getReportes() >= 3) {
+                puntajeRepository.delete(p);
+                return ResponseEntity.ok("{\"status\": \"DELETED\"}");
+            }
+            
+            puntajeRepository.save(p);
+            return ResponseEntity.ok("{\"status\": \"REPORTED\", \"count\": " + p.getReportes() + "}");
+        }).orElse(ResponseEntity.notFound().build());
     }
 }
