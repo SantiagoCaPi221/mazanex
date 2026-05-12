@@ -25,7 +25,9 @@ public class Puntaje {
 
     @Column(nullable = false)
     private Integer puntajeMaximo;
-
+    
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     @Column(name = "screenshot_url")
     private String screenshotUrl;
 
