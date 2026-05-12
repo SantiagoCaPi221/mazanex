@@ -1,72 +1,49 @@
-package com.mazanex.auth.service;
-
-import com.mazanex.auth.model.Usuario;
-import com.mazanex.auth.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.Optional;
-
-class UsuarioFactory {
-    public static Usuario crearCliente(String nombre, String email, String password) {
-        Usuario u = new Usuario();
-        u.setNombre(nombre);
-        u.setEmail(email);
-        u.setPassword(password);
-        u.setRol("CLIENTE");
-        return u;
-    }
-}
-
 @Service
 public class AuthService {
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UserRepository userRepository;
 
-    public List<Usuario> listarTodos() {
-        return usuarioRepository.findAll();
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
-    public Optional<Usuario> obtenerPorId(Long id) {
-        return usuarioRepository.findById(id);
+    public User registerUser(User user) {
+        if (user.getRole() == null || user.getRole().isEmpty()) {
+            user.setRole("USER");
+        }
+        return userRepository.save(user);
     }
 
-    public Usuario login(String identificador, String password) {
-        return validarCredenciales(identificador, password);
+    public User login(String identifier, String password) {
+        return userRepository.findByEmail(identifier)
+                .or(() -> userRepository.findByName(identifier))
+                .filter(u -> u.getPassword().equals(password))
+                .orElse(null);
     }
 
-    public Usuario registrarOActualizar(Usuario data) {
-        return usuarioRepository.findByEmail(data.getEmail())
-                .map(existente -> {
-                    existente.setNombre(data.getNombre());
-                    return usuarioRepository.save(existente);
-                })
-                .orElseGet(() -> {
-                    Usuario nuevo = UsuarioFactory.crearCliente(data.getNombre(), data.getEmail(), data.getPassword());
-                    return usuarioRepository.save(nuevo);
-                });
+    public User updateProfile(Long id, User data) {
+        return userRepository.findById(id).map(existingUser -> {
+            if (data.getName() != null) existingUser.setName(data.getName());
+            if (data.getEmail() != null) existingUser.setEmail(data.getEmail());
+            if (data.getRole() != null) existingUser.setRole(data.getRole());
+            if (data.getAvatarUrl() != null) existingUser.setAvatarUrl(data.getAvatarUrl());
+            if (data.getBannerUrl() != null) existingUser.setBannerUrl(data.getBannerUrl());
+            if (data.getBio() != null) existingUser.setBio(data.getBio());
+            if (data.getBackgroundUrl() != null) existingUser.setBackgroundUrl(data.getBackgroundUrl());
+            
+            if (data.getPassword() != null && !data.getPassword().isEmpty()) {
+                existingUser.setPassword(data.getPassword());
+            }
+            return userRepository.save(existingUser);
+        }).orElse(null);
     }
 
-    public boolean eliminar(Long id) {
-        if (usuarioRepository.existsById(id)) {
-            usuarioRepository.deleteById(id);
+    public boolean deleteUser(Long id) {
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
             return true;
         }
         return false;
-    }
-
-    public Usuario registrarUsuario(Usuario usuario) {
-        if (usuario.getRol() == null || usuario.getRol().isEmpty()) {
-            usuario.setRol("USER");
-        }
-        return usuarioRepository.save(usuario);
-    }
-
-    public Usuario validarCredenciales(String identificador, String password) {
-        return usuarioRepository.findByEmail(identificador)
-                .or(() -> usuarioRepository.findByNombre(identificador))
-                .filter(u -> u.getPassword().equals(password))
-                .orElse(null);
     }
 }
