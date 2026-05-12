@@ -32,6 +32,11 @@ public class SocialController {
         return ResponseEntity.ok(socialService.getRelationshipStatus(idA, idB));
     }
 
+    @GetMapping("/following/{id}")
+    public ResponseEntity<List<Long>> getFollowing(@PathVariable Long id) {
+        return ResponseEntity.ok(socialService.getFollowingIds(id));
+    }
+
     @GetMapping("/notifications/{userId}")
     public ResponseEntity<List<Notification>> getNotifications(@PathVariable Long userId) {
         return ResponseEntity.ok(socialService.getNotifications(userId));
@@ -41,6 +46,12 @@ public class SocialController {
     public ResponseEntity<Void> markAsRead(@PathVariable Long userId) {
         socialService.markAsRead(userId);
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/cancel-request/{senderId}/{receiverId}")
+    public ResponseEntity<Map<String, String>> cancel(@PathVariable Long senderId, @PathVariable Long receiverId) {
+        socialService.cancelRequest(senderId, receiverId);
+        return ResponseEntity.ok(Map.of("status", "NONE"));
     }
 
     @DeleteMapping("/remove-friend/{userId}/{friendId}")
