@@ -8,12 +8,15 @@ import java.util.Optional;
 
 public interface PuntajeRepository extends JpaRepository<Puntaje, Long> {
     
-    // NUEVO: Fundamental para mostrar todos los juegos en el perfil del usuario
+    // Muestra todos los puntajes en el perfil del usuario (Muro de Evidencias)
     List<Puntaje> findByUsuario(Usuario usuario);
 
-    // Para buscar si un usuario ya tiene un récord en un juego específico (para actualizarlo)
-    Optional<Puntaje> findByUsuarioAndJuego(Usuario usuario, String juego);
+    // Busca el récord exacto de un usuario en un juego Y en una categoría específica
+    Optional<Puntaje> findByUsuarioAndJuegoAndModo(Usuario usuario, String juego, String modo);
     
-    // Para el ranking de la comunidad: mejores puntajes de un juego
+    // Para el ranking de la comunidad general (mezclando todos los modos de un juego)
     List<Puntaje> findByJuegoOrderByPuntajeMaximoDesc(String juego);
+
+    // NUEVO (Opcional para el futuro): Para sacar el Top 10 de un juego en una dificultad específica
+    List<Puntaje> findByJuegoAndModoOrderByPuntajeMaximoDesc(String juego, String modo);
 }
