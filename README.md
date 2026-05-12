@@ -37,5 +37,5 @@ Para hacer funcionar la plataforma completa de forma local, necesitas tener inst
 ## 🧭 4. Documentación por Áreas
 
 Haz clic en los siguientes enlaces para revisar el detalle de cada parte del proyecto durante la presentación:
-### 💻 [Revisar el FRONTEND (Pantallas y Estado Global) ──►](./frontend/README-FRONTEND.md)
-### ⚙️ [Revisar el BACKEND (Servidores, Java y MySQL) ──►](./backend/README-BACKEND.md)
+### 💻 [Revisar el FRONTEND (Pantallas y Estado Global) ──►](./frontend/README.md)
+### ⚙️ [Revisar el BACKEND (Servidores, Java y MySQL) ──►](./backend/README.md)
