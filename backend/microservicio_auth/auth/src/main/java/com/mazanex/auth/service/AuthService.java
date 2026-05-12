@@ -22,6 +22,7 @@ public class AuthService {
         if (user.getRole() == null || user.getRole().isEmpty()) {
             user.setRole("USER");
         }
+        // Nota para el futuro: Aquí es donde implementarías la encriptación (ej. BCrypt)
         return userRepository.save(user);
     }
 
@@ -42,11 +43,23 @@ public class AuthService {
             if (data.getBio() != null) existingUser.setBio(data.getBio());
             if (data.getBackgroundUrl() != null) existingUser.setBackgroundUrl(data.getBackgroundUrl());
             
-            if (data.getPassword() != null && !data.getPassword().isEmpty()) {
-                existingUser.setPassword(data.getPassword());
-            }
+        
             return userRepository.save(existingUser);
         }).orElse(null);
+    }
+
+    public User updatePassword(Long userId, String currentPassword, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Comparamos la contraseña enviada con la guardada en la base de datos
+        if (!user.getPassword().equals(currentPassword)) {
+            throw new IllegalArgumentException("La contraseña actual es incorrecta");
+        }
+
+        // Si coincide, guardamos la nueva
+        user.setPassword(newPassword);
+        return userRepository.save(user);
     }
 
     public boolean deleteUser(Long id) {

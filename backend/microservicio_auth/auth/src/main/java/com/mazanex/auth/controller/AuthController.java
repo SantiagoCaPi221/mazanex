@@ -1,6 +1,7 @@
 package com.mazanex.auth.controller;
 
 import com.mazanex.auth.model.User;
+import com.mazanex.auth.model.PasswordUpdateDTO; // Asegúrate de importar tu DTO
 import com.mazanex.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,21 @@ public class AuthController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(updated);
+    }
+
+    // --- NUEVO ENDPOINT DE SEGURIDAD ---
+    @PutMapping("/{id}/password")
+    public ResponseEntity<?> updatePassword(@PathVariable Long id, @RequestBody PasswordUpdateDTO request) {
+        try {
+            User updatedUser = authService.updatePassword(id, request.getCurrentPassword(), request.getNewPassword());
+            return ResponseEntity.ok(updatedUser);
+        } catch (IllegalArgumentException e) {
+            // Error 400 si la clave actual es incorrecta
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            // Error 500 para fallos del servidor
+            return ResponseEntity.internalServerError().body("Error al actualizar la credencial.");
+        }
     }
 
     @DeleteMapping("/{id}")
