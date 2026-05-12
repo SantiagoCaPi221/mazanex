@@ -38,6 +38,6 @@ Para hacer funcionar la plataforma completa de forma local, necesitas tener inst
 
 Haz clic en los siguientes enlaces para revisar el detalle de cada parte del proyecto durante la presentación:
 
-### 💻 [Revisar el FRONTEND (Pantallas y Estado Global) ──►](./README-FRONTEND.md)
+### 💻 [Revisar el FRONTEND (Pantallas y Estado Global) ──►](/README-FRONTEND.md)
 
-### ⚙️ [Revisar el BACKEND (Servidores, Java y MySQL) ──►](./README-BACKEND.md)
+### ⚙️ [Revisar el BACKEND (Servidores, Java y MySQL) ──►](/README-BACKEND.md)
