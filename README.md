@@ -129,6 +129,6 @@ FULLSTACK-4 (Raiz del Monorepo)
 ```
 ## 🧭 8. Documentación Detallada por Áreas
 
-### 💻 [Revisar el Módulo de FRONTEND ──►](/frontend/README.md)
+### 💻 [Módulo de Frontend](./frontend/README.md)
 
-### ⚙️ [Revisar el Módulo de BACKEND ──►](/backend/README.md)
+### ⚙️ [Módulo de Backend](./backend/README.md)
