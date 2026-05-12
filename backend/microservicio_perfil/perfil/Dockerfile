@@ -1,27 +1,25 @@
-# ETAPA 1: Construcción (Build)
+# ETAPA 1: Build
 FROM maven:3.8.5-openjdk-17 AS build
 WORKDIR /app
 
-# 1. Copiamos los archivos de configuración de Maven primero
-# Asumiendo que ejecutas el comando desde 'microservicio_perfil'
+# Al estar en el Root Directory, copiamos directamente el pom.xml
 COPY pom.xml .
-COPY perfil/pom.xml ./perfil/
+RUN mvn dependency:go-offline
 
-# 2. Descargamos las dependencias (esto se cachea si no cambias los pom)
-RUN mvn -f perfil/pom.xml dependency:go-offline
+# Copiamos el código fuente y compilamos
+COPY src ./src
+RUN mvn clean package -DskipTests
 
-# 3. Copiamos el código fuente y compilamos
-COPY perfil/src ./perfil/src
-RUN mvn -f perfil/pom.xml clean package -DskipTests
-
-# ETAPA 2: Ejecución (Runtime)
+# ETAPA 2: Runtime
 FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
 
-# 4. Copiamos solo el JAR resultante de la etapa anterior
-# El nombre del JAR suele seguir el patrón 'perfil-0.0.1-SNAPSHOT.jar'
-COPY --from=build /app/perfil/target/*.jar app.jar
+# Railway inyecta una variable de entorno $PORT, Spring debe escucharla
+# Copiamos el JAR
+COPY --from=build /app/target/*.jar app.jar
 
-# 5. Configuración final
+# Exponemos el puerto (Railway suele usar el 8080 por defecto si no se especifica)
 EXPOSE 8082
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# IMPORTANTE: Pasamos el puerto de Railway a Spring Boot
+ENTRYPOINT ["java", "-Dserver.port=${PORT:8082}", "-jar", "app.jar"]
