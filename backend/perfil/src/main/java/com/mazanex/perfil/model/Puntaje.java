@@ -27,10 +27,9 @@ public class Puntaje {
     private Integer puntajeMaximo;
     
     @Lob
-    @Column(columnDefinition = "LONGTEXT")
-    @Column(name = "screenshot_url")
+    @Column(name = "screenshot_url", columnDefinition = "LONGTEXT")
     private String screenshotUrl;
-
+    
     // Contador de reportes de la comunidad (a los 3 se elimina)
     @Column(nullable = false)
     private Integer reportes = 0;
