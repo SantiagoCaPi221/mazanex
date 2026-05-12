@@ -16,15 +16,16 @@ public class Puntaje {
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
-    // Nombre del juego (ej: "SNAKE", "KOF", "SMASH")
     @Column(nullable = false)
     private String juego;
 
-    // El puntaje más alto
+    // MODO DEL JUEGO (Ej: "PRO - ELITE", "MEDIANO - NORMAL")
+    @Column(name = "modo", nullable = true)
+    private String modo;
+
     @Column(nullable = false)
     private Integer puntajeMaximo;
 
-    // URL de la captura de pantalla (Muro de Evidencias)
     @Column(name = "screenshot_url")
     private String screenshotUrl;
 
@@ -42,10 +43,11 @@ public class Puntaje {
 
     public Puntaje() {}
 
-    // Constructor actualizado para incluir la evidencia
-    public Puntaje(Usuario usuario, String juego, Integer puntajeMaximo, String screenshotUrl) {
+    // Constructor actualizado para incluir la evidencia y el modo
+    public Puntaje(Usuario usuario, String juego, String modo, Integer puntajeMaximo, String screenshotUrl) {
         this.usuario = usuario;
         this.juego = juego;
+        this.modo = modo;
         this.puntajeMaximo = puntajeMaximo;
         this.screenshotUrl = screenshotUrl;
         this.reportes = 0;
@@ -67,6 +69,9 @@ public class Puntaje {
     
     public String getJuego() { return juego; }
     public void setJuego(String juego) { this.juego = juego; }
+
+    public String getModo() { return modo; }
+    public void setModo(String modo) { this.modo = modo; }
     
     public Integer getPuntajeMaximo() { return puntajeMaximo; }
     public void setPuntajeMaximo(Integer puntajeMaximo) { this.puntajeMaximo = puntajeMaximo; }
@@ -81,4 +86,5 @@ public class Puntaje {
     public void setVerificado(Boolean verificado) { this.verificado = verificado; }
 
     public LocalDateTime getFechaCarga() { return fechaCarga; }
+    public void setFechaCarga(LocalDateTime fechaCarga) { this.fechaCarga = fechaCarga; }
 }
