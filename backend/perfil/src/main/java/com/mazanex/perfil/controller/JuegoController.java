@@ -23,23 +23,37 @@ public class JuegoController {
         Usuario usuarioRef = new Usuario();
         usuarioRef.setId(req.getUsuarioId());
 
-        // Buscamos si el usuario ya tiene un récord en este juego específico
-        Optional<Puntaje> existente = puntajeRepository.findByUsuarioAndJuego(usuarioRef, req.getJuego());
+        /**
+         * CAMBIO CLAVE: Ahora buscamos por Usuario, Juego Y Modo.
+         * Esto permite tener récords separados para "MINI - ELITE" y "GRANDE - SLOW".
+         */
+        Optional<Puntaje> existente = puntajeRepository.findByUsuarioAndJuegoAndModo(
+            usuarioRef, 
+            req.getJuego(), 
+            req.getModo()
+        );
 
         if (existente.isPresent()) {
             Puntaje p = existente.get();
-            // Solo actualizamos si el nuevo puntaje es superior al récord anterior
+            // Solo actualizamos si el nuevo puntaje es superior al récord anterior en este modo
             if (req.getPuntajeMaximo() > p.getPuntajeMaximo()) {
                 p.setPuntajeMaximo(req.getPuntajeMaximo());
                 p.setScreenshotUrl(req.getScreenshotUrl());
-                p.setReportes(0); // Limpiamos reportes al actualizar con nueva evidencia
+                p.setReportes(0); // Limpiamos reportes al actualizar evidencia
                 return ResponseEntity.ok(puntajeRepository.save(p));
             }
-            return ResponseEntity.badRequest().body("{\"error\": \"El puntaje no supera al récord actual.\"}");
+            return ResponseEntity.badRequest().body("{\"error\": \"El puntaje no supera al récord actual en este modo.\"}");
         }
 
-        // Si no existe, creamos el nuevo récord usando la referencia del usuario
-        Puntaje nuevo = new Puntaje(usuarioRef, req.getJuego(), req.getPuntajeMaximo(), req.getScreenshotUrl());
+        // Si no existe, creamos el nuevo récord incluyendo el modo
+        Puntaje nuevo = new Puntaje(
+            usuarioRef, 
+            req.getJuego(), 
+            req.getModo(), 
+            req.getPuntajeMaximo(), 
+            req.getScreenshotUrl()
+        );
+        
         return ResponseEntity.ok(puntajeRepository.save(nuevo));
     }
 
@@ -48,7 +62,6 @@ public class JuegoController {
         return puntajeRepository.findById(id).map(p -> {
             p.setReportes(p.getReportes() + 1);
             
-            // Lógica de auto-moderación: a los 3 reportes se elimina
             if (p.getReportes() >= 3) {
                 puntajeRepository.delete(p);
                 return ResponseEntity.ok("{\"status\": \"DELETED\"}");
@@ -59,9 +72,13 @@ public class JuegoController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * DTO actualizado para recibir el modo desde el frontend.
+     */
     public static class PuntajeRequest {
         private Long usuarioId; 
         private String juego;
+        private String modo; // NUEVO
         private Integer puntajeMaximo;
         private String screenshotUrl;
 
@@ -71,6 +88,9 @@ public class JuegoController {
 
         public String getJuego() { return juego; }
         public void setJuego(String juego) { this.juego = juego; }
+
+        public String getModo() { return modo; }
+        public void setModo(String modo) { this.modo = modo; }
 
         public Integer getPuntajeMaximo() { return puntajeMaximo; }
         public void setPuntajeMaximo(Integer puntajeMaximo) { this.puntajeMaximo = puntajeMaximo; }
