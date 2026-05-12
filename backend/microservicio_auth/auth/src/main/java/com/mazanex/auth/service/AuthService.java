@@ -1,3 +1,13 @@
+package com.mazanex.auth.service;
+
+import com.mazanex.auth.model.User;
+import com.mazanex.auth.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class AuthService {
 

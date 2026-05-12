@@ -1,3 +1,15 @@
+package com.mazanex.auth.controller;
+
+import com.mazanex.auth.model.User;
+import com.mazanex.auth.service.AuthService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*")
@@ -9,13 +21,17 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody User user) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(user));
+        User newUser = authService.registerUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
     @PostMapping("/login")
     public ResponseEntity<User> login(@RequestBody User loginData) {
         User user = authService.login(loginData.getEmail(), loginData.getPassword());
-        return (user != null) ? ResponseEntity.ok(user) : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @GetMapping("/users")
@@ -26,7 +42,10 @@ public class AuthController {
     @PutMapping("/profile/{id}")
     public ResponseEntity<User> updateProfile(@PathVariable Long id, @RequestBody User data) {
         User updated = authService.updateProfile(id, data);
-        return (updated != null) ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
+        if (updated == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
