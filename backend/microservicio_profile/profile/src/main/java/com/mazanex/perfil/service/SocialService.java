@@ -39,7 +39,6 @@ public class SocialService {
             req.setStatus("ACCEPTED");
             requestRepository.save(req);
             
-            // Amistad mutua en la tabla de seguidores
             followerRepository.save(new Follower(sender, receiver));
             followerRepository.save(new Follower(receiver, sender));
             
@@ -52,7 +51,6 @@ public class SocialService {
     public Map<String, Object> getRelationshipStatus(Long idA, Long idB) {
         User a = userRepository.findById(idA).orElseThrow();
         User b = userRepository.findById(idB).orElseThrow();
-        
         Map<String, Object> response = new HashMap<>();
         
         var sol1 = requestRepository.findBySenderAndReceiver(a, b);
@@ -74,23 +72,36 @@ public class SocialService {
     }
 
     @Transactional
+    public void cancelRequest(Long senderId, Long receiverId) {
+        User sender = userRepository.findById(senderId).orElseThrow();
+        User receiver = userRepository.findById(receiverId).orElseThrow();
+        requestRepository.findBySenderAndReceiver(sender, receiver).ifPresent(requestRepository::delete);
+    }
+
+    @Transactional
     public void removeFriend(Long userId, Long friendId) {
         User user = userRepository.findById(userId).orElseThrow();
         User friend = userRepository.findById(friendId).orElseThrow();
-
-        // Borramos solicitudes en ambas direcciones
         requestRepository.findBySenderAndReceiver(user, friend).ifPresent(requestRepository::delete);
         requestRepository.findBySenderAndReceiver(friend, user).ifPresent(requestRepository::delete);
-
-        // Borramos seguidores mutuos
         followerRepository.findByFollowerAndFollowed(user, friend).ifPresent(followerRepository::delete);
         followerRepository.findByFollowerAndFollowed(friend, user).ifPresent(followerRepository::delete);
     }
-    
-    // Métodos de lectura que tenías en el controller
+
     public List<Notification> getNotifications(Long userId) {
         User u = userRepository.findById(userId).orElseThrow();
         return notificationRepository.findByTargetUserOrderByDateDesc(u);
+    }
+
+    @Transactional
+    public void markAsRead(Long userId) {
+        User u = userRepository.findById(userId).orElseThrow();
+        notificationRepository.findByTargetUserOrderByDateDesc(u).forEach(n -> {
+            if (!n.isRead()) {
+                n.setRead(true);
+                notificationRepository.save(n);
+            }
+        });
     }
 
     public Map<String, Object> getPublicProfile(Long id) {
@@ -103,5 +114,11 @@ public class SocialService {
         p.put("bannerUrl", u.getBannerUrl());
         p.put("backgroundUrl", u.getBackgroundUrl());
         return p;
+    }
+
+    public List<Long> getFollowingIds(Long id) {
+        User u = userRepository.findById(id).orElseThrow();
+        return followerRepository.findByFollower(u).stream()
+                .map(f -> f.getFollowed().getId()).toList();
     }
 }
