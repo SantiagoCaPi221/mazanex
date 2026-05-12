@@ -2,8 +2,8 @@ FROM maven:3.8.5-openjdk-17 AS build
 WORKDIR /app
 
 # 1. Copiamos los archivos críticos uno por uno para asegurar que entren
-COPY backend/pom.xml .
-COPY backend/auth/ ./auth/
+COPY backend/microservicio_auth/pom.xml .
+COPY backend/microservicio_auth/auth/ ./auth/
 
 # 2. Listamos archivos para ver si de verdad se copiaron (esto saldrá en el log)
 RUN ls -la && ls -la auth/
