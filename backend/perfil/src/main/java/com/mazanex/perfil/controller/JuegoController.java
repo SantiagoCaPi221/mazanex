@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional; 
 
 @RestController
-@RequestMapping("/api/gateway/perfil/juegos")
+@RequestMapping("/api/perfil/juegos") 
 public class JuegoController {
 
     @Autowired
@@ -18,8 +18,13 @@ public class JuegoController {
 
     @PostMapping("/guardar-record")
     public ResponseEntity<?> guardarRecord(@RequestBody PuntajeRequest req) {
+        
+        // Creamos una referencia del usuario solo con el ID que manda el frontend
+        Usuario usuarioRef = new Usuario();
+        usuarioRef.setId(req.getUsuarioId());
+
         // Buscamos si el usuario ya tiene un récord en este juego específico
-        Optional<Puntaje> existente = puntajeRepository.findByUsuarioAndJuego(req.getUsuario(), req.getJuego());
+        Optional<Puntaje> existente = puntajeRepository.findByUsuarioAndJuego(usuarioRef, req.getJuego());
 
         if (existente.isPresent()) {
             Puntaje p = existente.get();
@@ -33,8 +38,8 @@ public class JuegoController {
             return ResponseEntity.badRequest().body("{\"error\": \"El puntaje no supera al récord actual.\"}");
         }
 
-        // Si no existe, creamos el nuevo récord
-        Puntaje nuevo = new Puntaje(req.getUsuario(), req.getJuego(), req.getPuntajeMaximo(), req.getScreenshotUrl());
+        // Si no existe, creamos el nuevo récord usando la referencia del usuario
+        Puntaje nuevo = new Puntaje(usuarioRef, req.getJuego(), req.getPuntajeMaximo(), req.getScreenshotUrl());
         return ResponseEntity.ok(puntajeRepository.save(nuevo));
     }
 
@@ -55,14 +60,14 @@ public class JuegoController {
     }
 
     public static class PuntajeRequest {
-        private Usuario usuario;
+        private Long usuarioId; 
         private String juego;
         private Integer puntajeMaximo;
         private String screenshotUrl;
 
-        // Getters y Setters necesarios para Jackson (JSON)
-        public Usuario getUsuario() { return usuario; }
-        public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+        // Getters y Setters
+        public Long getUsuarioId() { return usuarioId; }
+        public void setUsuarioId(Long usuarioId) { this.usuarioId = usuarioId; }
 
         public String getJuego() { return juego; }
         public void setJuego(String juego) { this.juego = juego; }
