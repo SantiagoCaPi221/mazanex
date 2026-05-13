@@ -12,7 +12,6 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, Lo
     boolean existsBySenderAndReceiver(User sender, User receiver);
     Optional<FriendRequest> findBySenderAndReceiver(User sender, User receiver);
 
-    // Métodos basados en ID necesarios para el nuevo SocialService
     Optional<FriendRequest> findBySenderIdAndReceiverId(Long senderId, Long receiverId);
     boolean existsBySenderIdAndReceiverId(Long senderId, Long receiverId);
 }
