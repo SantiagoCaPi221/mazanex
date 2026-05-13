@@ -9,9 +9,10 @@ import java.util.Optional;
 @Repository
 public interface FriendRequestRepository extends JpaRepository<FriendRequest, Long> {
     
-    // El booleano que faltaba para validar antes de enviar
     boolean existsBySenderAndReceiver(User sender, User receiver);
-
-    // Para buscar la solicitud específica al momento de aceptar o rechazar
     Optional<FriendRequest> findBySenderAndReceiver(User sender, User receiver);
+
+    // Métodos basados en ID necesarios para el nuevo SocialService
+    Optional<FriendRequest> findBySenderIdAndReceiverId(Long senderId, Long receiverId);
+    boolean existsBySenderIdAndReceiverId(Long senderId, Long receiverId);
 }
