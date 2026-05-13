@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "notifications")
 @Data
-@NoArgsConstructor // <--- Esto es lo que "realmente funciona" para Hibernate
+@NoArgsConstructor 
 public class Notification {
     
     @Id
@@ -16,7 +16,7 @@ public class Notification {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "target_user_id") // Asegura el nombre de la columna en la DB
+    @JoinColumn(name = "target_user_id") 
     private User targetUser;
 
     private String message;
