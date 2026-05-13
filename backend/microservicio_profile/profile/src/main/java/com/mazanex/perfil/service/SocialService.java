@@ -17,32 +17,29 @@ public class SocialService {
 
     @Transactional
     public Map<String, String> sendRequest(Long senderId, Long receiverId) {
-        try {
-            if (senderId.equals(receiverId)) {
-                return Map.of("status", "SELF_REQUEST_ERROR");
-            }
-
-            User sender = userRepository.findById(senderId)
-                    .orElseThrow(() -> new RuntimeException("Sender not found"));
-            User receiver = userRepository.findById(receiverId)
-                    .orElseThrow(() -> new RuntimeException("Receiver not found"));
-
-            boolean alreadySent = requestRepository.existsBySenderIdAndReceiverId(senderId, receiverId);
-            boolean alreadyReceived = requestRepository.existsBySenderIdAndReceiverId(receiverId, senderId);
-
-            if (alreadySent || alreadyReceived) {
-                return Map.of("status", "ALREADY_SENT");
-            }
-
-            requestRepository.save(new FriendRequest(sender, receiver, "PENDING"));
-            
-            String msg = sender.getName() + " te ha enviado una solicitud de amistad.";
-            notificationRepository.save(new Notification(receiver, "FRIEND_REQUEST", msg, senderId));
-            
-            return Map.of("status", "PENDING");
-        } catch (Exception e) {
-            return Map.of("status", "ERROR");
+        if (senderId == null || receiverId == null) {
+            return Map.of("status", "INVALID_PARAMS");
         }
+
+        if (senderId.equals(receiverId)) {
+            return Map.of("status", "SELF_REQUEST_ERROR");
+        }
+
+        User sender = userRepository.findById(senderId)
+                .orElseThrow(() -> new RuntimeException("Sender no encontrado con ID: " + senderId));
+        User receiver = userRepository.findById(receiverId)
+                .orElseThrow(() -> new RuntimeException("Receiver no encontrado con ID: " + receiverId));
+
+        if (requestRepository.existsBySenderIdAndReceiverId(senderId, receiverId)) {
+            return Map.of("status", "ALREADY_SENT");
+        }
+
+        requestRepository.save(new FriendRequest(sender, receiver, "PENDING"));
+        
+        String msg = sender.getName() + " te ha enviado una solicitud de amistad.";
+        notificationRepository.save(new Notification(receiver, "FRIEND_REQUEST", msg, senderId));
+        
+        return Map.of("status", "PENDING");
     }
 
     @Transactional
@@ -70,39 +67,31 @@ public class SocialService {
 
     public Map<String, Object> getRelationshipStatus(Long idA, Long idB) {
         Map<String, Object> response = new HashMap<>();
-        
         var sol1 = requestRepository.findBySenderIdAndReceiverId(idA, idB);
         if (sol1.isPresent()) {
             response.put("status", sol1.get().getStatus());
             response.put("isSender", true);
             return response;
         }
-
         var sol2 = requestRepository.findBySenderIdAndReceiverId(idB, idA);
         if (sol2.isPresent()) {
             response.put("status", sol2.get().getStatus());
             response.put("isSender", false);
             return response;
         }
-
         response.put("status", "NONE");
         return response;
     }
 
-    @Transactional
-    public void cancelRequest(Long senderId, Long receiverId) {
-        requestRepository.findBySenderIdAndReceiverId(senderId, receiverId)
-                .ifPresent(requestRepository::delete);
+    @Transactional public void cancelRequest(Long senderId, Long receiverId) {
+        requestRepository.findBySenderIdAndReceiverId(senderId, receiverId).ifPresent(requestRepository::delete);
     }
 
-    @Transactional
-    public void removeFriend(Long userId, Long friendId) {
+    @Transactional public void removeFriend(Long userId, Long friendId) {
         requestRepository.findBySenderIdAndReceiverId(userId, friendId).ifPresent(requestRepository::delete);
         requestRepository.findBySenderIdAndReceiverId(friendId, userId).ifPresent(requestRepository::delete);
-        
         User u = userRepository.findById(userId).orElse(null);
         User f = userRepository.findById(friendId).orElse(null);
-        
         if (u != null && f != null) {
             followerRepository.findByFollowerAndFollowed(u, f).ifPresent(followerRepository::delete);
             followerRepository.findByFollowerAndFollowed(f, u).ifPresent(followerRepository::delete);
@@ -115,8 +104,7 @@ public class SocialService {
                 .orElse(Collections.emptyList());
     }
 
-    @Transactional
-    public void markAsRead(Long userId) {
+    @Transactional public void markAsRead(Long userId) {
         userRepository.findById(userId).ifPresent(u -> {
             List<Notification> notes = notificationRepository.findByTargetUserOrderByDateDesc(u);
             notes.forEach(n -> n.setRead(true));
@@ -138,8 +126,7 @@ public class SocialService {
 
     public List<Long> getFollowingIds(Long id) {
         return userRepository.findById(id)
-                .map(u -> followerRepository.findByFollower(u).stream()
-                        .map(f -> f.getFollowed().getId()).toList())
+                .map(u -> followerRepository.findByFollower(u).stream().map(f -> f.getFollowed().getId()).toList())
                 .orElse(Collections.emptyList());
     }
 }
