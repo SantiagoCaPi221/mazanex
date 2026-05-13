@@ -15,7 +15,7 @@ public class SocialService {
     @Autowired private NotificationRepository notificationRepository;
     @Autowired private FriendRequestRepository requestRepository;
 
-    @Transactional 
+    @Transactional
     public Map<String, String> sendRequest(Long senderId, Long receiverId) {
         try {
             if (senderId.equals(receiverId)) {
@@ -27,38 +27,33 @@ public class SocialService {
             User receiver = userRepository.findById(receiverId)
                     .orElseThrow(() -> new RuntimeException("Receiver not found"));
 
-            // Verificar si ya existe en cualquier dirección
-            boolean alreadySent = requestRepository.existsBySenderAndReceiver(sender, receiver);
-            boolean alreadyReceived = requestRepository.existsBySenderAndReceiver(receiver, sender);
+            boolean alreadySent = requestRepository.existsBySenderIdAndReceiverId(senderId, receiverId);
+            boolean alreadyReceived = requestRepository.existsBySenderIdAndReceiverId(receiverId, senderId);
 
             if (alreadySent || alreadyReceived) {
                 return Map.of("status", "ALREADY_SENT");
             }
 
-            // Guardar solicitud
             requestRepository.save(new FriendRequest(sender, receiver, "PENDING"));
             
-            // Guardar notificación
             String msg = sender.getName() + " te ha enviado una solicitud de amistad.";
             notificationRepository.save(new Notification(receiver, "FRIEND_REQUEST", msg, senderId));
             
             return Map.of("status", "PENDING");
         } catch (Exception e) {
-            System.err.println("Error en sendRequest: " + e.getMessage());
             return Map.of("status", "ERROR");
         }
     }
 
     @Transactional
     public Map<String, String> acceptRequest(Long senderId, Long receiverId) {
-        return requestRepository.findBySenderAndReceiverId(senderId, receiverId).map(req -> {
+        return requestRepository.findBySenderIdAndReceiverId(senderId, receiverId).map(req -> {
             req.setStatus("ACCEPTED");
             requestRepository.save(req);
             
             User sender = req.getSender();
             User receiver = req.getReceiver();
             
-            // Evitar duplicados en seguidores
             if (!followerRepository.existsByFollowerAndFollowed(sender, receiver)) {
                 followerRepository.save(new Follower(sender, receiver));
             }
@@ -67,7 +62,7 @@ public class SocialService {
             }
             
             notificationRepository.save(new Notification(sender, "FRIEND_ACCEPT", 
-                receiver.getName() + " aceptó tu amistad.", receiverId));
+                receiver.getName() + " aceptó tu solicitud.", receiverId));
             
             return Map.of("status", "ACCEPTED");
         }).orElse(Map.of("status", "ERROR"));
@@ -76,7 +71,6 @@ public class SocialService {
     public Map<String, Object> getRelationshipStatus(Long idA, Long idB) {
         Map<String, Object> response = new HashMap<>();
         
-        // Buscamos la solicitud en ambas direcciones
         var sol1 = requestRepository.findBySenderIdAndReceiverId(idA, idB);
         if (sol1.isPresent()) {
             response.put("status", sol1.get().getStatus());
@@ -103,11 +97,9 @@ public class SocialService {
 
     @Transactional
     public void removeFriend(Long userId, Long friendId) {
-        // Limpiar solicitudes
         requestRepository.findBySenderIdAndReceiverId(userId, friendId).ifPresent(requestRepository::delete);
         requestRepository.findBySenderIdAndReceiverId(friendId, userId).ifPresent(requestRepository::delete);
         
-        // Limpiar seguidores (Amistad bidireccional)
         User u = userRepository.findById(userId).orElse(null);
         User f = userRepository.findById(friendId).orElse(null);
         
@@ -128,9 +120,26 @@ public class SocialService {
         userRepository.findById(userId).ifPresent(u -> {
             List<Notification> notes = notificationRepository.findByTargetUserOrderByDateDesc(u);
             notes.forEach(n -> n.setRead(true));
-            notificationRepository.saveAll(notes); // Más eficiente que guardar una por una
+            notificationRepository.saveAll(notes);
         });
     }
 
-    // ... resto de métodos (getPublicProfile, getFollowingIds) se ven bien
+    public Map<String, Object> getPublicProfile(Long id) {
+        return userRepository.findById(id).map(u -> {
+            Map<String, Object> p = new HashMap<>();
+            p.put("id", u.getId());
+            p.put("name", u.getName());
+            p.put("bio", u.getBio());
+            p.put("avatarUrl", u.getAvatarUrl());
+            p.put("bannerUrl", u.getBannerUrl());
+            return p;
+        }).orElse(Collections.emptyMap());
+    }
+
+    public List<Long> getFollowingIds(Long id) {
+        return userRepository.findById(id)
+                .map(u -> followerRepository.findByFollower(u).stream()
+                        .map(f -> f.getFollowed().getId()).toList())
+                .orElse(Collections.emptyList());
+    }
 }
