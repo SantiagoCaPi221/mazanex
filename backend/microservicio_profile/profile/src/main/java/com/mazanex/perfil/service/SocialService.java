@@ -15,7 +15,7 @@ public class SocialService {
     @Autowired private NotificationRepository notificationRepository;
     @Autowired private FriendRequestRepository requestRepository;
 
-    @Transactional // IMPORTANTE: Para que si falla la notificación, no se guarde la solicitud (o viceversa)
+    @Transactional 
     public Map<String, String> sendRequest(Long senderId, Long receiverId) {
         try {
             if (senderId.equals(receiverId)) {
