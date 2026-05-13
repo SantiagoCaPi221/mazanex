@@ -1,12 +1,14 @@
 package com.mazanex.profile.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "friend_requests")
-@Data
+@Getter // Usamos Getter/Setter por separado para evitar errores de recursión
+@Setter
 @NoArgsConstructor
 public class FriendRequest {
     @Id
@@ -14,12 +16,14 @@ public class FriendRequest {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "sender_id")
     private User sender;
 
     @ManyToOne
+    @JoinColumn(name = "receiver_id")
     private User receiver;
 
-    private String status; // PENDING, ACCEPTED, REJECTED
+    private String status;
 
     public FriendRequest(User sender, User receiver, String status) {
         this.sender = sender;
