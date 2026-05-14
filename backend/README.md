@@ -1,123 +1,182 @@
-# Sistema de Gestión de Proyectos - Innovatech
+# Backend - Innovatech
 
-## Descripción
+## Descripción 
 
-Innovatech es una plataforma de gestión de proyectos basada en arquitectura de microservicios. Permite administrar tareas, usuarios, recursos y métricas, mejorando la organización del trabajo y la visibilidad del estado de los proyectos.
-
-El sistema está diseñado para ser escalable, seguro y fácil de mantener.
+Backend de Innovatech compuesto por microservicios independientes desarrollados en **Java 17** con **Spring Boot 3.4.5** y **Maven**. Implementa autenticación y gestión de perfiles de usuario con arquitectura limpia y patrones de diseño consolidados.
 
 ---
 
 ## Arquitectura
+```
+├── Auth (Puerto 8081)
+│   ├── Autenticación y registro de usuarios
+│   ├── Validación de credenciales
+│   ├── Gestión de roles (USER, CLIENTE, ADMIN)   
+│
+└── Perfil (Puerto 8082)
+    ├── Gestión de perfiles de usuario
+    ├── Actualización de datos
+    
+```
 
-La solución se basa en microservicios desplegados en un entorno orquestado. Cada componente cumple una función específica y se comunica mediante APIs REST sobre HTTPS utilizando JSON.
+---
 
-### Componentes principales
+## Microservicios
 
-#### Frontend
-- Desarrollado con Next.js 14 y TypeScript  
-- Permite la interacción de los usuarios con el sistema  
-- Consume los servicios backend mediante HTTPS  
+### Auth (Puerto 8081)
 
-#### API Gateway
-- Implementado con KrakenD  
-- Centraliza las solicitudes del cliente  
-- Valida tokens JWT  
-- Enruta las peticiones a los microservicios  
+| Endpoint | Método | Descripción |
+|----------|--------|-------------|
+| `/api/auth/register` | POST | Registrar usuario |
+| `/api/auth/login` | POST | Validar credenciales |
+| `/api/auth/usuarios` | GET | Listar usuarios |
+| `/api/auth/perfil/{id}` | PUT | Actualizar perfil |
+| `/api/auth/{id}` | DELETE | Eliminar usuario |
 
-#### Microservicios (Backend)
-Desarrollados en Java 21 con Spring Boot:
+### Perfil (Puerto 8082)
 
-- **Project Service**
-  - Gestión de proyectos y tareas  
+| Endpoint | Método | Descripción |
+|----------|--------|-------------|
+| `/api/perfil` | GET | Obtener perfil |
+| `/api/perfil` | PUT | Actualizar perfil |
+| `/api/perfil/{id}` | GET | Obtener por ID |
 
-- **Resource Service**
-  - Gestión de recursos y disponibilidad  
+---
 
-- **Auth Service**
-  - Autenticación de usuarios  
-  - Generación de JWT  
-  - Control de acceso basado en roles (RBAC)  
+## Estructura del Proyecto
 
-- **Analytics Service**
-  - Generación de métricas e indicadores (KPI)  
-
-#### Base de datos
-- PostgreSQL 16  
-- Cada microservicio posee su propia base de datos  
-
-#### Contenedores y Orquestación
-- Docker para empaquetar los servicios  
-- Kubernetes para despliegue, escalabilidad y alta disponibilidad  
+```
+backend/
+├── auth/
+│   ├── src/main/java/com/mazanex/auth/
+│   │   ├── AuthApplication.java
+│   │   ├── controller/    (Enrutamiento HTTP)
+│   │   ├── service/       (Lógica de negocio)
+│   │   ├── repository/    (Acceso a datos)
+│   │   └── model/         (Entidades)
+│   ├── pom.xml
+│   └── dockerfile
+│
+└── perfil/
+    ├── src/main/java/com/mazanex/perfil/
+    │   ├── PerfilApplication.java
+    │   ├── controller/
+    │   ├── service/
+    │   ├── repository/
+    │   └── model/
+    ├── pom.xml
+    └── dockerfile
+```
 
 ---
 
 ## Seguridad
 
-El sistema implementa:
+- **Autenticación**: JWT (JJWT 0.9.1) para tokens seguros
+- **RBAC**: Control de acceso basado en roles (USER, CLIENTE, ADMIN)
+- **CORS**: Habilitado para integración con frontend
 
-- Autenticación mediante JWT  
-- Autorización basada en roles (RBAC)  
-- Validación de tokens en el API Gateway  
-- Comunicación segura mediante HTTPS  
+---
+## Patrones y Arquitectura Utilizada
+### Repository Pattern
+Se implementa mediante `JpaRepository` , lo que permite abstraer el acceso a datos y separar la lógica de negocio de la persistencia.
+
+Este patrón facilita las operaciones CRUD, mejora la testabilidad mediante mocks y permite cambiar la base de datos (por ejemplo, de H2 a MySQL) sin afectar la lógica del sistema.
+
+En el proyecto es utilizado en ambos módulos `(auth y perfil)` a través de `UsuarioRepository`, reduciendo duplicación de código y mejorando el desacoplamiento.
+
+### Strategy Pattern
+
+Permite seleccionar algoritmos o estrategias en tiempo de ejecución, promoviendo el principio de "abierto-cerrado" (Open-Closed Principle). En `PerfilService`, se implementa con la interfaz `ProcesamientoStrategy` y la clase `RegistroSimpleStrategy`, lo que permite extender el procesamiento de perfiles sin modificar el código existente (ej. agregar nuevas estrategias para validaciones complejas).
+
+Se aplica únicamente donde existe variabilidad en la lógica, evitando sobreingeniería y manteniendo el sistema flexible y extensible.
 
 ---
 
-## Tecnologías utilizadas
+## Tecnologías
 
-| Tecnología     | Versión |
-|----------------|--------|
-| Java           | 21 (LTS) |
-| Spring Boot    | 3.x |
-| PostgreSQL     | 16 |
-| KrakenD        | 2.x |
-| Next.js        | 14 |
-| TypeScript     | 5.x |
-| Docker         | Última |
-| Kubernetes     | Última |
-
----
-
-## Funcionamiento general
-
-1. El usuario interactúa con el frontend  
-2. Las solicitudes se envían al API Gateway  
-3. El Gateway valida el token JWT  
-4. La solicitud se redirige al microservicio correspondiente  
-5. El microservicio procesa la información y responde en formato JSON  
+| Tecnología | Versión |
+|------------|---------|
+| Java | 17 LTS |
+| Spring Boot | 3.4.5 |
+| Spring Data JPA | Incluida |
+| JWT (JJWT) | 0.9.1 |
+| H2 Database | Latest (dev) |
+| MySQL Connector | Latest (prod) |
+| SpringDoc OpenAPI | 2.1.0 |
+| Lombok | Latest |
+| Maven | 3.8.1+ |
 
 ---
 
-## Características del sistema
+## Ejecutar Localmente
 
-- Arquitectura desacoplada  
-- Escalabilidad horizontal  
-- Alta disponibilidad  
-- Seguridad centralizada  
-- Resiliencia ante fallos  
+### Requisitos
+
+```bash
+java -version    # Java 17 o superior
+mvn -version     # Maven 3.8.1 o superior
+GitHub Desktop  # Clonacion de repositorio 
+```
+
+### Compilar
+
+```bash
+git clone https://github.com/makasuim/fullstack-4.git
+cd fullstack-4
+```
+
+### Ejecutar
+
+**Terminal 1 - Auth (8081)**:
+```bash
+cd auth
+mvn spring-boot:run
+```
+
+**Terminal 2 - Perfil (8082)**:
+```bash
+cd perfil
+mvn spring-boot:run
+```
+
+### Verificar
+
+```bash
+# Auth funcionando
+curl http://localhost:8081/api/auth/usuarios
+
+# Perfil funcionando
+curl http://localhost:8082/api/perfil
+
+# Swagger
+# Auth: http://localhost:8081/swagger-ui.html
+# Perfil: http://localhost:8082/swagger-ui.html
+```
 
 ---
 
-## Estructura de los microservicios
+## Configuración
 
-Cada microservicio sigue una estructura estándar:
+### Desarrollo (H2 en memoria)
+Configuración automática en memoria.
+Los archivos `application.properties` ya están configurados para H2. No requiere cambios.
 
-- Controller: manejo de solicitudes HTTP  
-- Service: lógica de negocio  
-- Repository: acceso a datos  
-- Entity: modelo de base de datos  
-- DTO: transferencia de datos  
+### Producción (MySQL)
 
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/innovatech_auth
+spring.datasource.username=root
+spring.datasource.password=${DB_PASSWORD}
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
+```
 ---
+### Funcionamiento del sistema 
+1. El cliente realiza una solicitud HTTP desde el frontend o un cliente REST (por ejemplo, `POST /auth/register` o `GET /perfil/usuarios`). Esta petición es recibida por el Controller correspondiente (`AuthController o PerfilController`), el cual valida los datos básicos de entrada y delega el procesamiento al servicio de negocio.
+   
+2. El Service (`AuthService o PerfilService`) contiene la lógica principal del sistema, aplicando reglas de negocio, validaciones y, en el caso del módulo de perfil, utilizando el Strategy Pattern para definir distintos comportamientos de procesamiento.
 
-## Diagrama de Contenedores
+3. Posteriormente, el Repository (`UsuarioRepository`) se encarga del acceso a datos, interactuando con la base de datos mediante `JpaRepository`, lo que permite operaciones CRUD sin implementación manual de SQL.
 
->
-> <img width="1919" height="2925" alt="Diagrama de contenedores  (1)" src="https://github.com/user-attachments/assets/82afb61c-b1fd-4fb1-9d3b-dd2d795040c3" />
-
-
----
-
-## Conclusión
-
-La arquitectura basada en microservicios permite construir un sistema flexible, escalable y mantenible. La separación de responsabilidades, junto con el uso de tecnologías modernas, facilita la evolución del sistema y su adaptación a nuevas necesidades.
+4. Finalmente, el Controller retorna una respuesta en formato JSON al cliente, indicando el resultado de la operación (éxito, datos o errores).
