@@ -45,7 +45,7 @@ public class GameService {
             if (highScore > s.getHighScore()) {
                 s.setHighScore(highScore);
                 s.setScreenshotUrl(screenshotUrl);
-                s.setReports(0); // Si rompe un récord, se asume que la evidencia es nueva y limpia
+                s.getReporters().clear(); // <-- IMPORTANTE: Limpiamos la lista de reportes si hay un nuevo récord
                 return scoreRepository.save(s);
             }
             // Devolvemos un mensaje para que el frontend sepa que no hubo récord
@@ -59,20 +59,28 @@ public class GameService {
         return scoreRepository.save(newScore);
     }
 
-    // Lógica de reportes (Borrado automático a los 3 reportes)
-    public Map<String, Object> reportScore(Long id) {
+    // Lógica de reportes BLINDADA (recibe el ID de quien reporta)
+    public Map<String, Object> reportScore(Long id, Long reporterId) {
         Map<String, Object> response = new HashMap<>();
         
         return scoreRepository.findById(id).map(score -> {
-            score.setReports(score.getReports() + 1);
+            // 1. Intentamos agregar el reporte (devuelve false si el ID ya existía)
+            boolean isNewReport = score.addReport(reporterId);
             
-            if (score.getReports() >= 3) {
+            // 2. Si no es nuevo, bloqueamos el proceso
+            if (!isNewReport) {
+                response.put("error", "ALREADY_REPORTED");
+                return response;
+            }
+            
+            // 3. Verificamos la cantidad total de reportes únicos
+            if (score.getReportCount() >= 3) {
                 scoreRepository.delete(score);
                 response.put("status", "DELETED");
             } else {
                 scoreRepository.save(score);
                 response.put("status", "REPORTED");
-                response.put("count", score.getReports());
+                response.put("count", score.getReportCount());
             }
             return response;
         }).orElseGet(() -> {
