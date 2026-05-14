@@ -34,9 +34,19 @@ public class GameController {
         ));
     }
 
+    // EL ENDPOINT DE REPORTE ACTUALIZADO
     @PostMapping("/report/{id}")
-    public ResponseEntity<Map<String, Object>> report(@PathVariable Long id) {
-        return ResponseEntity.ok(gameService.reportScore(id));
+    public ResponseEntity<?> report(@PathVariable Long id, @RequestBody Map<String, Long> body) {
+        Long reporterId = body.get("reporterId");
+        
+        Map<String, Object> result = gameService.reportScore(id, reporterId);
+        
+        // Si el servicio devuelve el error de duplicado, disparamos el HTTP 400 Bad Request
+        if (result.containsKey("error") && "ALREADY_REPORTED".equals(result.get("error"))) {
+            return ResponseEntity.badRequest().body(result);
+        }
+        
+        return ResponseEntity.ok(result);
     }
 
     // DTO interno para recibir el JSON de guardado
