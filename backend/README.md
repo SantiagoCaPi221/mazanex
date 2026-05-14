@@ -180,3 +180,7 @@ spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
 3. Posteriormente, el Repository (`UsuarioRepository`) se encarga del acceso a datos, interactuando con la base de datos mediante `JpaRepository`, lo que permite operaciones CRUD sin implementación manual de SQL.
 
 4. Finalmente, el Controller retorna una respuesta en formato JSON al cliente, indicando el resultado de la operación (éxito, datos o errores).
+
+---
+## Documentación Detallada por Áreas
+### [Módulo de Frontend](./frontend/README.md)
