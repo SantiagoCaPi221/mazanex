@@ -3,7 +3,10 @@ package com.mazanex.profile.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "scores")
@@ -26,7 +29,12 @@ public class Score {
     @Column(columnDefinition = "LONGTEXT")
     private String screenshotUrl;
     
-    private Integer reports = 0;
+    @JsonIgnore // Oculta quién reportó cuando se envía el JSON al frontend
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "score_reports", joinColumns = @JoinColumn(name = "score_id"))
+    @Column(name = "reporter_id")
+    private Set<Long> reporters = new HashSet<>();
+    
     private Boolean verified = false;
     private LocalDateTime uploadDate;
 
@@ -39,5 +47,16 @@ public class Score {
         this.mode = mode;
         this.highScore = highScore;
         this.screenshotUrl = screenshotUrl;
+    }
+
+    // Método seguro para intentar agregar un reporte
+    public boolean addReport(Long userId) {
+        // Retorna false si el userId ya existía en el Set
+        return this.reporters.add(userId); 
+    }
+
+    // Método para obtener el total de reportes únicos
+    public int getReportCount() {
+        return this.reporters.size();
     }
 }
