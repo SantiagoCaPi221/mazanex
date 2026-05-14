@@ -182,5 +182,3 @@ spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
 4. Finalmente, el Controller retorna una respuesta en formato JSON al cliente, indicando el resultado de la operación (éxito, datos o errores).
 
 ---
-## Documentación Detallada por Áreas
-### [Módulo de Frontend](./frontend/README.md)
