@@ -4,7 +4,6 @@ export default function LoginHeader() {
       <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
         Bienvenido
       </h1>
-
       <p className="text-slate-500 text-sm">
         Ingresa tus credenciales para continuar
       </p>

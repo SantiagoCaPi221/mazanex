@@ -1,68 +1,51 @@
+"use client";
+
 import RegisterHeader from "./RegisterHeader";
 import RegisterInput from "./RegisterInput";
-import RegisterFooter from "./RegisterFooter";
+import RegisterError from "./RegisterError";
+import RegisterButton from "./RegisterButton";
+import { useRegister } from "@/app/hooks/register/useRegister";
 
-import { RegisterData } from "@/app/types/auth";
+export default function RegisterCard() {
+  const { formData, error, isLoading, handleChange, handleSubmit } =
+    useRegister();
 
-interface Props {
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
-  handleChange: (field: keyof RegisterData, value: string) => void;
-  formData: RegisterData;
-  error: string | null;
-  isLoading: boolean;
-}
-
-export default function RegisterCard({
-  handleSubmit,
-  handleChange,
-  formData,
-  error,
-  isLoading,
-}: Props) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white p-10 rounded-2xl shadow-xl border border-slate-100 w-full max-w-md space-y-6"
+      className="bg-white p-10 rounded-2xl shadow-xl border w-full max-w-md space-y-6"
     >
       <RegisterHeader />
 
-      {/* NAME */}
-      <RegisterInput
-        type="text"
-        placeholder="Nombre"
-        value={formData.name}
-        onChange={(e) => handleChange("name", e.target.value)}
-      />
+      {error && <RegisterError message={error} />}
 
-      {/* EMAIL */}
-      <RegisterInput
-        type="email"
-        placeholder="Correo electrónico"
-        value={formData.email}
-        onChange={(e) => handleChange("email", e.target.value)}
-      />
+      <div className="space-y-4">
+        <RegisterInput
+          label="Nombre"
+          type="text"
+          value={formData.name}
+          placeholder="Tu nombre"
+          onChange={(v) => handleChange("name", v)}
+        />
 
-      {/* PASSWORD */}
-      <RegisterInput
-        type="password"
-        placeholder="Contraseña"
-        value={formData.password}
-        onChange={(e) => handleChange("password", e.target.value)}
-      />
+        <RegisterInput
+          label="Correo"
+          type="email"
+          value={formData.email}
+          placeholder="correo@mail.com"
+          onChange={(v) => handleChange("email", v)}
+        />
 
-      {/* ERROR */}
-      {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+        <RegisterInput
+          label="Contraseña"
+          type="password"
+          value={formData.password}
+          placeholder="••••••••"
+          onChange={(v) => handleChange("password", v)}
+        />
+      </div>
 
-      {/* BUTTON */}
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition disabled:opacity-50"
-      >
-        {isLoading ? "Creando cuenta..." : "Registrarse"}
-      </button>
-
-      <RegisterFooter />
+      <RegisterButton isLoading={isLoading} />
     </form>
   );
 }

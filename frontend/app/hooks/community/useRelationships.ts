@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import { socialService } from "@/service/socialService";
 import { useUserStore } from "@/store/useUserStore";
 
-import { User, Relationship } from "../../types/community";
+import type { Relationship, User } from "@/app/types/community";
 
 export function useRelationships(users: User[]) {
   const { user } = useUserStore();
@@ -14,36 +13,31 @@ export function useRelationships(users: User[]) {
     Record<number, Relationship>
   >({});
 
-  const [loadingRelationships, setLoadingRelationships] = useState(true);
+  const [loadingRelationships, setLoading] = useState(true);
 
-  const buildRelationshipsMap = async () => {
-    if (!user?.id || users.length === 0) return;
+  const fetchRelationships = async () => {
+    if (!user?.id) return;
 
-    setLoadingRelationships(true);
+    setLoading(true);
 
     try {
-      const relationshipEntries = await Promise.all(
-        users.map(async (otherUser) => {
-          const response = await socialService.getRelationshipStatus(
-            user.id,
-            otherUser.id
-          );
+      const map: Record<number, Relationship> = {};
 
-          return [otherUser.id, response];
+      await Promise.all(
+        users.map(async (u) => {
+          map[u.id] = await socialService.getRelationshipStatus(user.id, u.id);
         })
       );
 
-      setRelationships(Object.fromEntries(relationshipEntries));
-    } catch (error) {
-      console.error("Error loading relationships:", error);
+      setRelationships(map);
     } finally {
-      setLoadingRelationships(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    buildRelationshipsMap();
-  }, [users]);
+    if (users.length) fetchRelationships();
+  }, [users, user?.id]);
 
   return {
     relationships,

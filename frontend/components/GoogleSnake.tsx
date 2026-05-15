@@ -8,13 +8,19 @@ import {
   Maximize,
   Minimize,
   Square,
-  Zap,
 } from "lucide-react";
 
-export default function MazanexSnakePro() {
+interface SnakeProps {
+  onGameOver?: (score: number, modo: string) => void;
+}
+
+export default function GoogleSnake({ onGameOver }: SnakeProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState(0);
-  const [best, setBest] = useState(0);
+
+  // Diccionario para guardar el récord local de cada modo por separado
+  const [bestScores, setBestScores] = useState<Record<string, number>>({});
+
   const [gameOver, setGameOver] = useState(false);
   const [showMenu, setShowMenu] = useState(true);
 
@@ -22,7 +28,7 @@ export default function MazanexSnakePro() {
     speed: 100,
     fruitType: "apple",
     portalMode: false,
-    boardSize: { label: "Mediano", cols: 17, rows: 15 },
+    boardSize: { label: "Pro", cols: 17, rows: 15 },
   });
 
   const gameState = useRef({
@@ -33,6 +39,20 @@ export default function MazanexSnakePro() {
     nextDir: { dx: 1, dy: 0 },
     processedDir: { dx: 1, dy: 0 },
   });
+
+  // Calculamos la categoría actual en formato String
+  const currentModeStr = `${settings.boardSize.label.toUpperCase()} - ${
+    settings.speed === 130 ? "SLOW" : settings.speed === 85 ? "NORMAL" : "ELITE"
+  } - ${settings.portalMode ? "PORTAL ON" : "PORTAL OFF"}`;
+
+  // Obtenemos el récord local para la categoría actual
+  const currentBest = bestScores[currentModeStr] || 0;
+
+  useEffect(() => {
+    if (gameOver && score > 0 && onGameOver) {
+      onGameOver(score, currentModeStr);
+    }
+  }, [gameOver]);
 
   const resetGame = () => {
     const midX = Math.floor(settings.boardSize.cols / 2);
@@ -124,7 +144,13 @@ export default function MazanexSnakePro() {
       if (head.x === state.food.x && head.y === state.food.y) {
         setScore((s) => {
           const ns = s + 1;
-          if (ns > best) setBest(ns);
+          setBestScores((prev) => {
+            const modeBest = prev[currentModeStr] || 0;
+            if (ns > modeBest) {
+              return { ...prev, [currentModeStr]: ns };
+            }
+            return prev;
+          });
           return ns;
         });
         state.food = {
@@ -135,6 +161,7 @@ export default function MazanexSnakePro() {
         state.snake.pop();
       }
 
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
           ctx.fillStyle = (r + c) % 2 === 0 ? "#AAD751" : "#A2D149";
@@ -146,6 +173,7 @@ export default function MazanexSnakePro() {
       ctx.fillStyle = "#4572E6";
       state.snake.forEach((p, i) => {
         ctx.beginPath();
+        // @ts-ignore
         ctx.roundRect(
           p.x * gridSize + 1,
           p.y * gridSize + 1,
@@ -176,18 +204,15 @@ export default function MazanexSnakePro() {
       const isDown = key === "s" || e.key === "ArrowDown";
       const isLeft = key === "a" || e.key === "ArrowLeft";
       const isRight = key === "d" || e.key === "ArrowRight";
-      if (isUp && state.processedDir.dy !== 1) {
+
+      if (isUp && state.processedDir.dy !== 1)
         state.nextDir = { dx: 0, dy: -1 };
-      }
-      if (isDown && state.processedDir.dy !== -1) {
+      if (isDown && state.processedDir.dy !== -1)
         state.nextDir = { dx: 0, dy: 1 };
-      }
-      if (isLeft && state.processedDir.dx !== 1) {
+      if (isLeft && state.processedDir.dx !== 1)
         state.nextDir = { dx: -1, dy: 0 };
-      }
-      if (isRight && state.processedDir.dx !== -1) {
+      if (isRight && state.processedDir.dx !== -1)
         state.nextDir = { dx: 1, dy: 0 };
-      }
     };
 
     window.addEventListener("keydown", handleKey);
@@ -196,7 +221,7 @@ export default function MazanexSnakePro() {
       window.removeEventListener("keydown", handleKey);
       clearInterval(loop);
     };
-  }, [gameOver, showMenu, settings, best]);
+  }, [gameOver, showMenu, settings]);
 
   const FruitIcon = () => {
     if (settings.fruitType === "apple") return "🍎";
@@ -205,16 +230,16 @@ export default function MazanexSnakePro() {
   };
 
   return (
-    <div className="w-full bg-[#4A752C] rounded-3xl overflow-hidden shadow-xl border-8 border-[#4A752C] select-none flex flex-col items-center">
-      <div className="w-full p-3 flex justify-between items-center text-white font-bold px-6 border-b border-white/10">
+    <div className="w-full max-w-2xl bg-[#4A752C] rounded-3xl overflow-hidden shadow-2xl border-8 border-[#4A752C] select-none flex flex-col items-center">
+      <div className="w-full p-3 flex justify-between items-center text-white font-black px-6 border-b border-white/10">
         <div className="flex items-center gap-2">
           <span className="text-2xl">{FruitIcon()}</span>
-          <span className="text-2xl">{score}</span>
+          <span className="text-3xl italic">{score}</span>
         </div>
 
         <div className="flex items-center gap-2">
           <Trophy className="w-6 h-6 text-[#F1C40F] fill-[#F1C40F]" />
-          <span className="text-2xl">{best}</span>
+          <span className="text-3xl italic">{currentBest}</span>
         </div>
 
         <button
@@ -234,32 +259,32 @@ export default function MazanexSnakePro() {
         />
 
         {showMenu && (
-          <div className="absolute inset-0 bg-[#4A752C]/95 backdrop-blur-md flex flex-col p-6 text-white z-20 overflow-y-auto">
-            <h2 className="text-lg font-black mb-4 text-center tracking-widest uppercase">
-              Mazanex Snake
+          <div className="absolute inset-0 bg-[#4A752C]/95 backdrop-blur-md flex flex-col p-6 text-white z-20">
+            <h2 className="text-2xl font-black mb-4 text-center tracking-widest uppercase italic">
+              MAZANEX SNAKE
             </h2>
 
-            <div className="space-y-6 flex-1">
+            <div className="flex flex-col gap-3 flex-1 w-full justify-center">
               <section>
-                <label className="text-[10px] font-black uppercase opacity-60 mb-2 block text-center">
+                <label className="text-[10px] font-black uppercase opacity-90 mb-1.5 block text-center text-white">
                   Terreno
                 </label>
                 <div className="flex justify-center gap-2">
                   {[
                     {
-                      label: "Pequeño",
+                      label: "Mini",
                       cols: 10,
                       rows: 10,
                       icon: <Minimize size={14} />,
                     },
                     {
-                      label: "Mediano",
+                      label: "Pro",
                       cols: 17,
                       rows: 15,
                       icon: <Square size={14} />,
                     },
                     {
-                      label: "Grande",
+                      label: "Max",
                       cols: 23,
                       rows: 19,
                       icon: <Maximize size={14} />,
@@ -270,42 +295,44 @@ export default function MazanexSnakePro() {
                       onClick={() =>
                         setSettings({ ...settings, boardSize: sz })
                       }
-                      className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all border ${
+                      className={`flex flex-col items-center justify-center gap-1 w-20 h-14 rounded-xl transition-all border ${
                         settings.boardSize.label === sz.label
-                          ? "bg-white text-[#4A752C] border-white"
-                          : "bg-white/5 border-transparent opacity-50"
+                          ? "bg-white text-[#4A752C] border-white shadow-lg"
+                          : "bg-white/5 border-transparent opacity-60 hover:opacity-100"
                       }`}
                     >
                       {sz.icon}
-                      <span className="text-[10px] font-black">{sz.label}</span>
+                      <span className="text-[9px] font-black uppercase">
+                        {sz.label}
+                      </span>
                     </button>
                   ))}
                 </div>
               </section>
 
               <section>
-                <label className="text-[10px] font-black uppercase opacity-60 mb-2 block text-center">
-                  Dificultad
+                <label className="text-[10px] font-black uppercase opacity-90 mb-1.5 block text-center text-white">
+                  Velocidad
                 </label>
                 <div className="flex justify-center gap-2">
                   {[
-                    { label: "Lento", speed: 130, icon: "🐢" },
+                    { label: "Slow", speed: 130, icon: "🐢" },
                     { label: "Normal", speed: 85, icon: "🐍" },
-                    { label: "Rápido", speed: 55, icon: "⚡" },
+                    { label: "Elite", speed: 55, icon: "⚡" },
                   ].map((lv) => (
                     <button
                       key={lv.label}
                       onClick={() =>
                         setSettings({ ...settings, speed: lv.speed })
                       }
-                      className={`flex-1 flex flex-col items-center py-2 rounded-xl border transition-all ${
+                      className={`flex flex-col items-center justify-center w-24 h-14 rounded-xl border transition-all ${
                         settings.speed === lv.speed
-                          ? "bg-white text-[#4A752C] border-white"
-                          : "bg-white/5 border-transparent opacity-50"
+                          ? "bg-white text-[#4A752C] border-white shadow-lg"
+                          : "bg-white/5 border-transparent opacity-60 hover:opacity-100"
                       }`}
                     >
                       <span className="text-lg">{lv.icon}</span>
-                      <span className="text-[9px] font-black uppercase">
+                      <span className="text-[8px] font-black uppercase mt-0.5">
                         {lv.label}
                       </span>
                     </button>
@@ -313,12 +340,12 @@ export default function MazanexSnakePro() {
                 </div>
               </section>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2 mt-1">
                 <section>
-                  <label className="text-[10px] font-black uppercase opacity-60 mb-2 block text-center">
+                  <label className="text-[10px] font-black uppercase opacity-90 mb-1.5 block text-center text-white">
                     Fruta
                   </label>
-                  <div className="flex justify-center gap-2">
+                  <div className="flex justify-center gap-1">
                     {["apple", "banana", "grapes"].map((f) => (
                       <button
                         key={f}
@@ -327,8 +354,8 @@ export default function MazanexSnakePro() {
                         }
                         className={`text-xl p-2 rounded-xl transition-all ${
                           settings.fruitType === f
-                            ? "bg-white/20 scale-110"
-                            : "opacity-30"
+                            ? "bg-white/20 scale-110 shadow-inner"
+                            : "opacity-40 hover:opacity-100"
                         }`}
                       >
                         {f === "apple" ? "🍎" : f === "banana" ? "🍌" : "🍇"}
@@ -337,8 +364,8 @@ export default function MazanexSnakePro() {
                   </div>
                 </section>
                 <section>
-                  <label className="text-[10px] font-black uppercase opacity-60 mb-2 block text-center">
-                    Paredes
+                  <label className="text-[10px] font-black uppercase opacity-90 mb-1.5 block text-center text-white">
+                    Portal
                   </label>
                   <button
                     onClick={() =>
@@ -348,10 +375,12 @@ export default function MazanexSnakePro() {
                       })
                     }
                     className={`w-full h-10 rounded-xl text-[9px] font-black transition-all ${
-                      settings.portalMode ? "bg-indigo-500" : "bg-white/10"
+                      settings.portalMode
+                        ? "bg-indigo-500 text-white shadow-lg"
+                        : "bg-white/10 text-white/50 hover:bg-white/20"
                     }`}
                   >
-                    {settings.portalMode ? "PORTAL ON" : "PORTAL OFF"}
+                    {settings.portalMode ? "ENABLED" : "DISABLED"}
                   </button>
                 </section>
               </div>
@@ -359,28 +388,36 @@ export default function MazanexSnakePro() {
 
             <button
               onClick={resetGame}
-              className="mt-6 w-full py-3 bg-[#4572E6] rounded-2xl font-black text-lg flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all"
+              className="mt-4 w-full py-3.5 bg-[#4572E6] hover:bg-[#345ec4] rounded-xl font-black text-lg flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all uppercase italic tracking-tighter"
             >
-              <Play size={20} fill="currentColor" /> ¡JUGAR!
+              <Play size={20} fill="currentColor" /> Iniciar
             </button>
           </div>
         )}
 
         {gameOver && !showMenu && (
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-white z-10 p-4">
-            <h2 className="text-2xl font-black mb-4">GAME OVER</h2>
-            <div className="flex flex-col gap-2 w-full max-w-[200px]">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md flex flex-col items-center justify-center text-white z-10 p-4 animate-in fade-in duration-300">
+            <h2 className="text-4xl font-black mb-6 italic tracking-tighter uppercase">
+              Game Over
+            </h2>
+            <div className="bg-white/10 p-6 rounded-3xl border border-white/10 mb-8 text-center">
+              <p className="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-1">
+                Puntaje Final
+              </p>
+              <p className="text-5xl font-black italic">{score}</p>
+            </div>
+            <div className="flex flex-col gap-3 w-full max-w-[240px]">
               <button
                 onClick={resetGame}
-                className="w-full py-3 bg-[#4572E6] rounded-xl font-black flex items-center justify-center gap-2 text-sm"
+                className="w-full py-4 bg-[#4572E6] rounded-2xl font-black flex items-center justify-center gap-2 text-xs uppercase tracking-widest shadow-xl active:scale-95 transition-all"
               >
-                <RotateCcw size={16} /> REINTENTAR
+                <RotateCcw size={18} /> Reintentar
               </button>
               <button
                 onClick={() => setShowMenu(true)}
-                className="w-full py-3 bg-white/10 rounded-xl font-black text-sm"
+                className="w-full py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-black text-xs uppercase tracking-widest transition-all"
               >
-                <Settings size={16} className="inline mr-2" /> AJUSTES
+                <Settings size={18} className="inline mr-2" /> Menú de Ajustes
               </button>
             </div>
           </div>

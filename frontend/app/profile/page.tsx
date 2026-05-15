@@ -1,28 +1,22 @@
 "use client";
 
 import ProfileCard from "@/components/comp_profile/comp_profile_p/ProfileCard";
-import { useProfile } from "../hooks/profile/useProfile";
+import { useProfile } from "@/app/hooks/profile/useProfile";
 
 export default function ProfilePage() {
   const {
     user,
     name,
-    setName,
     bio,
-    setBio,
     isEditing,
+    loading,
+    setName,
+    setBio,
     setIsEditing,
     handleSave,
-    loading,
   } = useProfile();
 
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh] text-slate-500">
-        Cargando perfil...
-      </div>
-    );
-  }
+  if (!user) return null;
 
   return (
     <ProfileCard

@@ -3,18 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { authService } from "@/service/authService";
 import { useUserStore } from "@/store/useUserStore";
+import { authService } from "@/service/authService";
 
-import { LoginCredentials } from "../../types/auth";
-import { buildLoginPayload } from "../../utils/login/auth";
-import { validateLoginFields } from "../../utils/login/validation";
+import { LoginCredentials } from "@/app/types/auth";
+import { buildLoginPayload, validateLoginForm } from "@/app/utils/login/auth";
 
-import { AUTH_MESSAGES } from "@/app/utils/message/loginMessages";
-
-export function useLogin() {
+export const useLogin = () => {
   const router = useRouter();
-
   const { login, showNotification } = useUserStore();
 
   const [credentials, setCredentials] = useState<LoginCredentials>({
@@ -34,13 +30,11 @@ export function useLogin() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setError(null);
 
-    const isValid = validateLoginFields(credentials);
-
-    if (!isValid) {
-      setError(AUTH_MESSAGES.errors.requiredFields);
+    const validationError = validateLoginForm(credentials);
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
@@ -48,22 +42,18 @@ export function useLogin() {
 
     try {
       const payload = buildLoginPayload(credentials);
-
       const user = await authService.login(payload);
 
-      if (user) {
-        login(user);
-
-        showNotification(AUTH_MESSAGES.loginSuccess, "success");
-
-        router.push("/profile");
-      } else {
-        setError(AUTH_MESSAGES.errors.invalidCredentials);
+      if (!user) {
+        setError("Usuario o contraseña incorrectos. Verifica tus datos.");
+        return;
       }
-    } catch (error) {
-      console.error("Login error:", error);
 
-      setError(AUTH_MESSAGES.errors.unexpected);
+      login(user);
+      showNotification("¡Sesión iniciada con éxito!", "success");
+      router.push("/profile");
+    } catch (error) {
+      setError("Error inesperado al iniciar sesión.");
     } finally {
       setIsLoading(false);
     }
@@ -76,4 +66,4 @@ export function useLogin() {
     handleChange,
     handleLogin,
   };
-}
+};

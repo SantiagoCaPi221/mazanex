@@ -2,13 +2,13 @@
 
 import { useUserStore } from "@/store/useUserStore";
 
-import { useNotificationsPage } from "@/app/hooks/profile/notification/useNotificationsPage";
+import { useNotificationsPage } from "@/app/hooks/profile/notification/useNotification";
 
-import NotificationHeader from "@/components/comp_profile/comp_profile_notification/NotificationHeader";
+import NotificationHeader from "@/components/comp_notification/notificationHeader";
 
-import NotificationLoader from "@/components/comp_profile/comp_profile_notification/NotificationLoader";
+import NotificationLoader from "@/components/comp_notification/notificationLoader";
 
-import NotificationList from "@/components/comp_profile/comp_profile_notification/NotificationList";
+import NotificationList from "@/components/comp_notification/notificationList";
 
 export default function NotificationsPage() {
   const { user, showNotification } = useUserStore();

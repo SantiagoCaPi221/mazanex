@@ -1,80 +1,54 @@
 "use client";
 
-import { useMemo } from "react";
+import { useUserStore } from "@/store/useUserStore";
 
 import { useUsers } from "./useUsers";
 import { useRelationships } from "./useRelationships";
 import { useRanking } from "./useRanking";
 import { useSocialActions } from "./useSocialActions";
 
-import { useUserStore } from "@/store/useUserStore";
-
-import { filterUsers } from "../../utils/community/filters";
+import { filterUsers } from "@/app/utils/community/filters";
 
 export function useCommunity() {
   const { user } = useUserStore();
 
-  const {
-    users,
-    loadingUsers,
+  const usersHook = useUsers();
+  const relationshipsHook = useRelationships(usersHook.users);
+  const rankingHook = useRanking();
 
-    search,
-    setSearch,
-
-    filter,
-    setFilter,
-  } = useUsers();
-
-  const { relationships, setRelationships, loadingRelationships } =
-    useRelationships(users);
-
-  const {
-    ranking,
-    loadingRanking,
-
-    selectedGame,
-    setSelectedGame,
-
-    availableGames,
-  } = useRanking();
-
-  const { handleSocialAction } = useSocialActions({
-    relationships,
-    setRelationships,
+  const social = useSocialActions({
+    relationships: relationshipsHook.relationships,
+    setRelationships: relationshipsHook.setRelationships,
   });
 
-  const filteredUsers = useMemo(() => {
-    return filterUsers({
-      users,
-      search,
-      filter,
-      relationships,
-    });
-  }, [users, search, filter, relationships]);
+  const users = filterUsers({
+    users: usersHook.users,
+    search: usersHook.search,
+    filter: usersHook.filter,
+    relationships: relationshipsHook.relationships,
+  });
 
   return {
     user,
 
-    loading: loadingUsers || loadingRelationships,
+    loading: usersHook.loadingUsers || relationshipsHook.loadingRelationships,
 
-    users: filteredUsers,
+    users,
 
-    relationships,
+    relationships: relationshipsHook.relationships,
 
-    search,
-    setSearch,
+    search: usersHook.search,
+    setSearch: usersHook.setSearch,
 
-    filter,
-    setFilter,
+    filter: usersHook.filter,
+    setFilter: usersHook.setFilter,
 
-    ranking,
-    loadingRanking,
+    ranking: rankingHook.ranking,
+    loadingRanking: rankingHook.loadingRanking,
+    selectedGame: rankingHook.selectedGame,
+    setSelectedGame: rankingHook.setSelectedGame,
+    availableGames: rankingHook.availableGames,
 
-    selectedGame,
-    setSelectedGame,
-
-    availableGames,
-
-    handleSocialAction,
+    handleSocialAction: social.handleSocialAction,
   };
 }

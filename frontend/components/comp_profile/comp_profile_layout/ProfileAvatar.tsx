@@ -1,8 +1,8 @@
 import { Camera } from "lucide-react";
 
-import { getInitials } from "@/app/utils/profile/layout/profileHelpers";
+import { getInitials } from "@/app/utils/profile_layout/profileHelpers";
 
-import { UploadType } from "@/app/types/profile";
+import { UploadType } from "@/app/types/user";
 
 interface Props {
   avatarUrl?: string | null;

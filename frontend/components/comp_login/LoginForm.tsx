@@ -1,52 +1,60 @@
-interface Props {
-  identifier: string;
+"use client";
 
-  password: string;
+import Link from "next/link";
+import LoginHeader from "./LoginHeader";
+import LoginInput from "./LoginInput";
+import LoginError from "./LoginError";
+import LoginButton from "./LoginButton";
+import { useLogin } from "@/app/hooks/login/useLogin";
 
-  error: string | null;
+export default function LoginForm() {
+  const { credentials, error, isLoading, handleChange, handleLogin } =
+    useLogin();
 
-  onChange: (field: "identifier" | "password", value: string) => void;
-}
-
-export default function LoginForm({
-  identifier,
-  password,
-  error,
-  onChange,
-}: Props) {
   return (
-    <div className="space-y-4">
-      <div className="space-y-1">
-        <label className="text-xs font-bold text-slate-500 uppercase ml-1">
-          Usuario o Correo
-        </label>
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4">
+      <form
+        onSubmit={handleLogin}
+        className="bg-white p-10 rounded-2xl shadow-xl border border-slate-100 w-full max-w-md space-y-6"
+      >
+        <LoginHeader />
 
-        <input
-          type="text"
-          value={identifier}
-          placeholder="Ej: Damian Cotto o correo@mail.com"
-          className={`w-full p-4 bg-slate-50 border ${
-            error ? "border-red-200" : "border-slate-200"
-          } rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all`}
-          onChange={(e) => onChange("identifier", e.target.value)}
-        />
-      </div>
+        {error && <LoginError message={error} />}
 
-      <div className="space-y-1">
-        <label className="text-xs font-bold text-slate-500 uppercase ml-1">
-          Contraseña
-        </label>
+        <div className="space-y-4">
+          <LoginInput
+            label="Usuario o Correo"
+            type="text"
+            placeholder="Ej: Damian Cotto o correo@mail.com"
+            value={credentials.identifier}
+            onChange={(value) => handleChange("identifier", value)}
+            error={!!error}
+          />
 
-        <input
-          type="password"
-          value={password}
-          placeholder="•••••••••••"
-          className={`w-full p-4 bg-slate-50 border ${
-            error ? "border-red-200" : "border-slate-200"
-          } rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all`}
-          onChange={(e) => onChange("password", e.target.value)}
-        />
-      </div>
+          <LoginInput
+            label="Contraseña"
+            type="password"
+            placeholder="•••••••••••"
+            value={credentials.password}
+            onChange={(value) => handleChange("password", value)}
+            error={!!error}
+          />
+        </div>
+
+        <LoginButton isLoading={isLoading} />
+
+        <div className="text-center pt-2">
+          <p className="text-sm text-slate-600">
+            ¿No tienes cuenta?{" "}
+            <Link
+              href="/register"
+              className="text-indigo-600 font-bold hover:underline"
+            >
+              Regístrate gratis
+            </Link>
+          </p>
+        </div>
+      </form>
     </div>
   );
 }

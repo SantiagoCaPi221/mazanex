@@ -3,91 +3,60 @@
 import { socialService } from "@/service/socialService";
 import { useUserStore } from "@/store/useUserStore";
 
-import { Relationship, RelationshipStatus } from "../../types/community";
+import type { Relationship } from "@/app/types/community";
 
-import { getRelationship } from "../../utils/community/relationships";
-
-interface Props {
+export function useSocialActions({
+  relationships,
+  setRelationships,
+}: {
   relationships: Record<number, Relationship>;
-
   setRelationships: React.Dispatch<
     React.SetStateAction<Record<number, Relationship>>
   >;
-}
-
-export function useSocialActions({ relationships, setRelationships }: Props) {
+}) {
   const { user, showNotification } = useUserStore();
 
-  const updateRelationship = (
-    otherUserId: number,
-    newStatus: RelationshipStatus,
-    isSender: boolean
-  ) => {
-    setRelationships((prev) => ({
-      ...prev,
-      [otherUserId]: {
-        status: newStatus,
-        isSender,
-      },
-    }));
-  };
-
-  const handleSocialAction = async (otherUserId: number) => {
+  const handleSocialAction = async (targetId: number) => {
     if (!user?.id) {
-      showNotification("You must be logged in", "error");
-
+      showNotification("Debes iniciar sesión", "error");
       return;
     }
 
-    const relationship = getRelationship(relationships, otherUserId);
+    const rel = relationships[targetId] || {
+      status: "NONE",
+      isSender: false,
+    };
 
-    let success = false;
+    let status = rel.status;
 
-    let newStatus: RelationshipStatus = relationship.status;
-
-    let newIsSender = relationship.isSender;
-
-    if (relationship.status === "NONE") {
-      success = await socialService.sendRequest(user.id, otherUserId);
-
-      newStatus = "PENDING";
-      newIsSender = true;
-    } else if (relationship.status === "PENDING" && relationship.isSender) {
-      success = await socialService.cancelRequest(user.id, otherUserId);
-
-      newStatus = "NONE";
-      newIsSender = false;
-    } else if (relationship.status === "PENDING" && !relationship.isSender) {
-      success = await socialService.acceptRequest(otherUserId, user.id);
-
-      newStatus = "ACCEPTED";
-      newIsSender = false;
-    } else if (relationship.status === "ACCEPTED") {
-      if (confirm("Remove this user from your friends list?")) {
-        success = await socialService.removeFriend(user.id, otherUserId);
-
-        newStatus = "NONE";
-        newIsSender = false;
-      } else {
-        return;
-      }
+    if (rel.status === "NONE") {
+      await socialService.sendRequest(user.id, targetId);
+      status = "PENDING";
     }
 
-    if (success) {
-      updateRelationship(otherUserId, newStatus, newIsSender);
-
-      showNotification(
-        newStatus === "ACCEPTED"
-          ? "You are now friends!"
-          : "Relationship updated",
-        "success"
-      );
-    } else {
-      showNotification("Server could not process the action (500)", "error");
+    if (rel.status === "PENDING" && rel.isSender) {
+      await socialService.cancelRequest(user.id, targetId);
+      status = "NONE";
     }
+
+    if (rel.status === "PENDING" && !rel.isSender) {
+      await socialService.acceptRequest(targetId, user.id);
+      status = "ACCEPTED";
+    }
+
+    if (rel.status === "ACCEPTED") {
+      if (!confirm("Eliminar amigo?")) return;
+      await socialService.removeFriend(user.id, targetId);
+      status = "NONE";
+    }
+
+    setRelationships((prev) => ({
+      ...prev,
+      [targetId]: { ...rel, status },
+    }));
+
+    showNotification("Acción realizada", "success");
   };
 
-  return {
-    handleSocialAction,
-  };
+  return { handleSocialAction };
 }

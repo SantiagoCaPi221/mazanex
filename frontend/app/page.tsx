@@ -1,138 +1,159 @@
 "use client";
 import Link from "next/link";
-import { useUserStore } from "../store/useUserStore";
+import { useUserStore } from "@/store/useUserStore";
+import { Trophy, Users, Zap, Target, Bot, Star } from "lucide-react";
+import { useState } from "react";
 
 export default function Home() {
   const user = useUserStore((state: any) => state.user);
+  const [avatarError, setAvatarError] = useState(false);
+
+  // Fallback para el avatar si falla (Cambiado user.nombre a user.name)
+  const iniciales = user?.name?.substring(0, 2).toUpperCase() || "??";
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4">
-      <div className="text-center space-y-6 max-w-3xl">
-        <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight">
-          ¡Te damos la bienvenida a{" "}
-          <span className="text-indigo-600">Mazanex</span>!
-        </h1>
+    <div className="relative min-h-[calc(100vh-80px)] w-full overflow-hidden bg-[#030712] text-white flex flex-col justify-center">
+      {/* CAPA 1: TÉCNICA (GRID DE FONDO) */}
+      <div
+        className="absolute inset-0 z-0 opacity-[0.10]"
+        style={{
+          backgroundImage: `linear-gradient(#1f2937 1px, transparent 1px), linear-gradient(90deg, #1f2937 1px, transparent 1px)`,
+          backgroundSize: "40px 40px",
+        }}
+      />
 
-        <p className="text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto">
-          Simplificamos la gestión de tus microservicios con tecnología de
-          vanguardia.
-          {user
-            ? ` Es genial verte de nuevo, ${user.name}.` // Ahora sí, usando name
-            : " Únete a nuestra plataforma para empezar a explorar."}
-        </p>
+      {/* CAPA 2: EFECTO DE ESCANEO DE LÍNEA (SCANLINE) */}
+      <div
+        className="absolute inset-0 z-0 opacity-5 pointer-events-none bg-repeat"
+        style={{
+          backgroundImage: `url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAAXNSR0IArs4c6QAAABZJREFUGFdjTGRgYOBmYGBgOMSAAtidAGU1BAs3gWwHAAAAAElFTkSuQmCC')`,
+        }}
+      />
 
-        <div className="flex gap-4 justify-center pt-4">
+      {/* CAPA 3: RESPLANDORES NEÓN DINÁMICOS (GLOW) */}
+      <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-indigo-600/10 blur-[120px] rounded-full animate-pulse-slow" />
+      <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full animate-pulse-slow delay-1000" />
+
+      <div className="relative z-10 flex flex-col items-center justify-center py-12 px-6 max-w-7xl mx-auto w-full">
+        {/* BADGE DE BIENVENIDA - Escala reducida */}
+        <div className="mb-8 flex items-center gap-3 px-4 py-1.5 bg-white/5 border border-white/10 rounded-full backdrop-blur-xl shadow-xl transition-all hover:border-indigo-500/30">
           {user ? (
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link
-                href="/profile"
-                className="px-8 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-md hover:bg-indigo-700 transition-all active:scale-95 text-lg"
-              >
-                Ir a mi Perfil
-              </Link>
-              <Link
-                href="/community"
-                className="px-8 py-3 bg-white text-indigo-600 border-2 border-indigo-600 font-bold rounded-lg shadow-sm hover:bg-indigo-50 transition-all active:scale-95 text-lg"
-              >
-                Explorar Comunidad
-              </Link>
-            </div>
+            <>
+              <div className="relative w-6 h-6 rounded-full overflow-hidden border border-indigo-400 shrink-0">
+                {user.avatarUrl && !avatarError ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt="Avatar"
+                    className="w-full h-full object-cover"
+                    onError={() => setAvatarError(true)}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-indigo-600 flex items-center justify-center font-black text-[10px] text-white uppercase">
+                    {iniciales}
+                  </div>
+                )}
+              </div>
+              <div>
+                <h4 className="text-xs font-black text-white">
+                  Bienvenido de vuelta,{" "}
+                  <span className="italic">{user.name}</span>
+                </h4>
+              </div>
+              <Star className="w-3 h-3 text-indigo-400 ml-1 shrink-0" />
+            </>
           ) : (
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link
-                href="/login"
-                className="px-8 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-md hover:bg-indigo-700 transition-all active:scale-95 text-lg"
-              >
-                Iniciar sesión
-              </Link>
-              <Link
-                href="/register"
-                className="px-8 py-3 bg-white text-indigo-600 border-2 border-indigo-600 font-bold rounded-lg shadow-sm hover:bg-indigo-50 transition-all active:scale-95 text-lg"
-              >
-                Registrarse
-              </Link>
-            </div>
+            <>
+              <div className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                <Bot className="w-4 h-4" />
+              </div>
+              <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+            </>
           )}
         </div>
-      </div>
 
-      <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl pb-10">
-        <div className="p-8 bg-white rounded-2xl shadow-lg border border-slate-100 hover:border-indigo-100 transition-all hover:shadow-indigo-50">
-          <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-5">
-            <svg
-              className="w-6 h-6 text-indigo-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
+        {/* HERO: TÍTULO CON ESCALA CORREGIDA (NO SE CORTA) */}
+        <div className="text-center space-y-8">
+          <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.9] uppercase italic transition-all">
+            <span className="block text-transparent bg-clip-text bg-gradient-to-b from-indigo-200 via-purple-400 to-indigo-900 drop-shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+              Alcanza el mazanex
+            </span>
+          </h1>
+
+          {/* BOTONES DE ACCIÓN - Escala Normalizada */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+            {user ? (
+              <>
+                {/* Cambiado el href de /perfil a /profile */}
+                <Link
+                  href="/profile"
+                  className="group relative px-8 py-3.5 bg-white text-black font-black rounded-lg overflow-hidden transition-all active:scale-95 shadow-lg"
+                >
+                  <div className="relative z-10 flex items-center justify-center gap-2 text-sm uppercase italic">
+                    Entrar al Perfil{" "}
+                    <Target className="w-4 h-4 group-hover:rotate-[360deg] transition-transform duration-700" />
+                  </div>
+                </Link>
+                <Link
+                  href="/community"
+                  className="px-8 py-3.5 bg-transparent text-white border border-white/20 font-black rounded-lg hover:bg-white/5 transition-all active:scale-95 text-sm uppercase italic flex items-center justify-center gap-2"
+                >
+                  Ver Comunidad <Users className="w-4 h-4" />
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="px-10 py-4 bg-indigo-600 text-white font-black rounded-xl shadow-[0_0_30px_rgba(79,70,229,0.3)] hover:bg-indigo-500 transition-all active:scale-95 text-sm uppercase italic"
+                >
+                  Unirse a Mazanex
+                </Link>
+                <Link
+                  href="/register"
+                  className="px-10 py-4 bg-white/5 text-white border border-white/10 font-black rounded-xl hover:bg-white/10 transition-all active:scale-95 text-sm uppercase italic"
+                >
+                  Crear Registro
+                </Link>
+              </>
+            )}
           </div>
-          <h3 className="text-xl font-bold mb-3 text-slate-950">
-            Potencia sin límites
-          </h3>
-          <p className="text-base text-slate-600 leading-relaxed">
-            Crecemos contigo. Nuestra arquitectura modular se adapta a tus
-            necesidades sin esfuerzo, garantizando agilidad y rendimiento.
-          </p>
         </div>
 
-        <div className="p-8 bg-white rounded-2xl shadow-lg border border-slate-100 hover:border-emerald-100 transition-all hover:shadow-emerald-50">
-          <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mb-5">
-            <svg
-              className="w-6 h-6 text-emerald-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-              />
-            </svg>
-          </div>
-          <h3 className="text-xl font-bold mb-3 text-slate-950">
-            Seguridad Total
-          </h3>
-          <p className="text-base text-slate-600 leading-relaxed">
-            Protegemos lo que más importa. Cumplimos con los más altos
-            estándares éticos para asegurar la privacidad y protección de tus
-            datos.
-          </p>
-        </div>
-
-        <div className="p-8 bg-white rounded-2xl shadow-lg border border-slate-100 hover:border-sky-100 transition-all hover:shadow-sky-50">
-          <div className="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center mb-5">
-            <svg
-              className="w-6 h-6 text-sky-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9.75 17L9 21h6l-.75-4M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-              />
-            </svg>
-          </div>
-          <h3 className="text-xl font-bold mb-3 text-slate-950">
-            Experiencia Ágil
-          </h3>
-          <p className="text-base text-slate-600 leading-relaxed">
-            Diseñado para personas. Disfruta de una interfaz fluida, rápida y
-            moderna que hace tu trabajo diario más sencillo y eficiente.
-          </p>
+        {/* STATS / FEATURES CARDS - Escala Corregida */}
+        <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-4 w-full border border-white/5 rounded-3xl overflow-hidden bg-white/[0.02] backdrop-blur-xl shadow-2xl">
+          <GamerCard
+            icon={<Trophy className="w-7 h-7 text-indigo-400" />}
+            title="SALA DE TROFEOS (comming soon)"
+            desc="Snake, KOF, Smash. Tus récords certificados por la comunidad. Aquí no hay lugar para mentiras."
+          />
+          <GamerCard
+            icon={<Users className="w-7 h-7 text-purple-400" />}
+            title="EL SINDICATO"
+            desc="Conecta con pro-players, forma alianzas o declara la guerra en las tablas de clasificación global."
+          />
+          <GamerCard
+            icon={<Zap className="w-7 h-7 text-amber-400" />}
+            title="SKILL-CHECK"
+            desc="Analítica de juego avanzada y notificaciones instantáneas. Si alguien te supera, lo sabrás al segundo."
+          />
         </div>
       </div>
+    </div>
+  );
+}
+
+function GamerCard({ icon, title, desc }: any) {
+  return (
+    <div className="p-8 border-white/5 md:border-r last:border-0 hover:bg-white/[0.03] transition-all duration-700 group flex flex-col items-center text-center lg:items-start lg:text-left">
+      <div className="mb-6 transform group-hover:scale-110 transition-transform duration-500 p-3 rounded-2xl bg-white/[0.03] border border-white/10">
+        {icon}
+      </div>
+      <h3 className="text-lg font-black mb-3 tracking-widest text-white italic uppercase">
+        {title}
+      </h3>
+      <p className="text-xs text-slate-500 font-bold leading-relaxed uppercase tracking-tight">
+        {desc}
+      </p>
     </div>
   );
 }

@@ -1,31 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import { useUserStore } from "@/store/useUserStore";
-
 import { profileService } from "@/service/profileService";
+import { User } from "@/app/types/user";
 
-import { getInitialProfileForm } from "../../utils/profile/profileUtils";
-
-import { PROFILE_MESSAGES } from "@/app/utils/message/profileMessages";
-
-export function useProfile() {
+export const useProfile = () => {
   const { user, setUser, showNotification } = useUserStore();
 
   const [isEditing, setIsEditing] = useState(false);
 
-  const [loading, setLoading] = useState(false);
-
   const [name, setName] = useState("");
-
   const [bio, setBio] = useState("");
 
-  useEffect(() => {
-    const initial = getInitialProfileForm(user);
+  const [loading, setLoading] = useState(false);
 
-    setName(initial.name);
-    setBio(initial.bio);
+  // Sincroniza store → inputs locales
+  useEffect(() => {
+    if (user) {
+      setName(user.name || "");
+      setBio((user as any).bio || ""); // si bio no está en User aún
+    }
   }, [user]);
 
   const handleSave = async () => {
@@ -33,35 +28,39 @@ export function useProfile() {
 
     setLoading(true);
 
-    const updatedData = {
-      name,
-      bio,
-    };
+    try {
+      const updatedUser: User = {
+        ...user,
+        name,
+      };
 
-    const result = await profileService.updateProfile(user.id, updatedData);
+      const result = await profileService.updateProfile(user.id, updatedUser);
 
-    if (result) {
+      if (!result) {
+        showNotification("Error al actualizar el perfil", "error");
+        return;
+      }
+
       setUser(result);
-
       setIsEditing(false);
 
-      showNotification(PROFILE_MESSAGES.uploadSuccess, "success");
-    } else {
-      showNotification(PROFILE_MESSAGES.uploadError, "error");
+      showNotification("Perfil actualizado correctamente", "success");
+    } catch (error) {
+      showNotification("Error inesperado al actualizar", "error");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return {
     user,
     name,
-    setName,
     bio,
-    setBio,
     isEditing,
-    setIsEditing,
     loading,
+    setName,
+    setBio,
+    setIsEditing,
     handleSave,
   };
-}
+};

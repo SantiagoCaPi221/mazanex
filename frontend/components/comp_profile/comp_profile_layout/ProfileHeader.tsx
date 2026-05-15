@@ -1,7 +1,10 @@
 "use client";
 
 import { CheckCircle2 } from "lucide-react";
-import { getInitials, getUsername } from "../../../app/utils/profile/layout/profileUtils";
+import {
+  getInitials,
+  getUsername,
+} from "@/app/utils/profile_layout/profileUtils";
 
 export default function ProfileHeader({ user }: { user: any }) {
   return (

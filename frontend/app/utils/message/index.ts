@@ -1,3 +1,3 @@
-export * from "./profileMessages";
-export * from "./authMessages";
-export * from "./notificationMessages";
+export * from "./profileMessage";
+export * from "./authMessage";
+export * from "./notificationMessage";

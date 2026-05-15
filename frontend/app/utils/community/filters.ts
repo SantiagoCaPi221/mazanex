@@ -1,22 +1,28 @@
-import { User, Relationship } from "../../types/community";
+import type {
+  Relationship,
+  User,
+  UsersFilterType,
+} from "@/app/types/community";
 
-interface Props {
+interface FilterParams {
   users: User[];
-
   search: string;
-
-  filter: "ALL" | "FRIENDS";
-
+  filter: UsersFilterType;
   relationships: Record<number, Relationship>;
 }
 
-export function filterUsers({ users, search, filter, relationships }: Props) {
+export function filterUsers({
+  users,
+  search,
+  filter,
+  relationships,
+}: FilterParams) {
   return users.filter((u) => {
-    const matchesSearch = u.name?.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = u.name?.toLowerCase().includes(search.toLowerCase());
 
-    const matchesFilter =
-      filter === "ALL" ? true : relationships[u.id]?.status === "ACCEPTED";
+    const matchFilter =
+      filter === "ALL" || relationships[u.id]?.status === "ACCEPTED";
 
-    return matchesSearch && matchesFilter;
+    return matchSearch && matchFilter;
   });
 }
