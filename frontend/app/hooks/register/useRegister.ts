@@ -1,28 +1,35 @@
 "use client";
 
 import { useState } from "react";
+
 import { useRouter } from "next/navigation";
 
 import { authService } from "@/service/authService";
+
 import { useUserStore } from "@/store/useUserStore";
 
-import { RegisterFormData } from "@/app/types/auth";
-import { validateRegisterForm } from "@/app/utils/login/auth";
+import { RegisterData } from "../../types/auth";
 
-export const useRegister = () => {
+import { validateRegisterFields } from "../../utils/login/validation";
+
+import { buildRegisterPayload } from "../../utils/login/auth";
+
+export function useRegister() {
   const router = useRouter();
+
   const { showNotification } = useUserStore();
 
-  const [formData, setFormData] = useState<RegisterFormData>({
+  const [error, setError] = useState<string | null>(null);
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [formData, setFormData] = useState<RegisterData>({
     name: "",
     email: "",
     password: "",
   });
 
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleChange = (field: keyof RegisterFormData, value: string) => {
+  const handleChange = (field: keyof RegisterData, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -31,34 +38,35 @@ export const useRegister = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     setError(null);
 
-    const validationError = validateRegisterForm(formData);
-    if (validationError) {
-      setError(validationError);
+    const isValid = validateRegisterFields(formData);
+
+    if (!isValid) {
+      setError("Please complete all fields.");
+
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const success = await authService.register(formData);
+      const payload = buildRegisterPayload(formData);
 
-      if (!success) {
-        setError(
-          "No se pudo crear la cuenta. Intenta con otro correo o revisa tus datos."
-        );
-        return;
+      const success = await authService.register(payload);
+
+      if (success) {
+        showNotification("Account created successfully!", "success");
+
+        router.push("/login");
+      } else {
+        setError("Could not create account.");
       }
+    } catch (error) {
+      console.error("Register error:", error);
 
-      showNotification(
-        "¡Cuenta creada! Ahora puedes iniciar sesión.",
-        "success"
-      );
-
-      router.push("/login");
-    } catch (err) {
-      setError("Error inesperado al registrar usuario.");
+      setError("Unexpected error occurred.");
     } finally {
       setIsLoading(false);
     }
@@ -66,9 +74,13 @@ export const useRegister = () => {
 
   return {
     formData,
+
     error,
+
     isLoading,
+
     handleChange,
+
     handleSubmit,
   };
-};
+}

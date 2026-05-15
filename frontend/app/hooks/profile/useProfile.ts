@@ -1,26 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUserStore } from "@/store/useUserStore";
-import { profileService } from "@/service/profileService";
-import { User } from "@/app/types/user";
 
-export const useProfile = () => {
+import { useUserStore } from "@/store/useUserStore";
+
+import { profileService } from "@/service/profileService";
+
+import { getInitialProfileForm } from "../../utils/profile/profileUtils";
+
+import { PROFILE_MESSAGES } from "@/app/utils/message/profileMessages";
+
+export function useProfile() {
   const { user, setUser, showNotification } = useUserStore();
 
   const [isEditing, setIsEditing] = useState(false);
 
-  const [name, setName] = useState("");
-  const [bio, setBio] = useState("");
-
   const [loading, setLoading] = useState(false);
 
-  // Sincroniza store → inputs locales
+  const [name, setName] = useState("");
+
+  const [bio, setBio] = useState("");
+
   useEffect(() => {
-    if (user) {
-      setName(user.name || "");
-      setBio((user as any).bio || ""); // si bio no está en User aún
-    }
+    const initial = getInitialProfileForm(user);
+
+    setName(initial.name);
+    setBio(initial.bio);
   }, [user]);
 
   const handleSave = async () => {
@@ -28,39 +33,35 @@ export const useProfile = () => {
 
     setLoading(true);
 
-    try {
-      const updatedUser: User = {
-        ...user,
-        name,
-      };
+    const updatedData = {
+      name,
+      bio,
+    };
 
-      const result = await profileService.updateProfile(user.id, updatedUser);
+    const result = await profileService.updateProfile(user.id, updatedData);
 
-      if (!result) {
-        showNotification("Error al actualizar el perfil", "error");
-        return;
-      }
-
+    if (result) {
       setUser(result);
+
       setIsEditing(false);
 
-      showNotification("Perfil actualizado correctamente", "success");
-    } catch (error) {
-      showNotification("Error inesperado al actualizar", "error");
-    } finally {
-      setLoading(false);
+      showNotification(PROFILE_MESSAGES.uploadSuccess, "success");
+    } else {
+      showNotification(PROFILE_MESSAGES.uploadError, "error");
     }
+
+    setLoading(false);
   };
 
   return {
     user,
     name,
-    bio,
-    isEditing,
-    loading,
     setName,
+    bio,
     setBio,
+    isEditing,
     setIsEditing,
+    loading,
     handleSave,
   };
-};
+}

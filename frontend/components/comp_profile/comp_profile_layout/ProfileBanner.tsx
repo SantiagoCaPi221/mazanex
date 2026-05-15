@@ -1,6 +1,6 @@
 import { ImageIcon } from "lucide-react";
 
-import { UploadType } from "@/app/types/user";
+import { UploadType } from "@/app/types/profile";
 
 interface Props {
   bannerUrl?: string | null;

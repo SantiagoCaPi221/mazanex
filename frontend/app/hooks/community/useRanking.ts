@@ -1,31 +1,38 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { gameService } from "@/service/gameService";
 
-import type { GameType, RankingEntry } from "@/app/types/community";
+import { profileService } from "@/service/profileService";
+
+import { RankingPlayer } from "../../types/community";
+
+import { sortRankingByScore } from "../../utils/community/ranking";
 
 export function useRanking() {
-  const [ranking, setRanking] = useState<RankingEntry[]>([]);
-  const [loadingRanking, setLoading] = useState(false);
+  const [selectedGame, setSelectedGame] = useState("SNAKE");
 
-  const [selectedGame, setSelectedGame] = useState<GameType>("SNAKE");
+  const [ranking, setRanking] = useState<RankingPlayer[]>([]);
 
-  const availableGames: GameType[] = ["SNAKE", "KOF"];
+  const [loadingRanking, setLoadingRanking] = useState(false);
 
-  const fetchRanking = async () => {
-    setLoading(true);
+  const availableGames = ["SNAKE", "KOF", "BLOODY", "SMASH"];
+
+  const loadRanking = async () => {
+    setLoadingRanking(true);
 
     try {
-      const res = await gameService.getRanking(selectedGame);
-      setRanking(res || []);
+      const topScores = await profileService.getRanking(selectedGame);
+
+      setRanking(sortRankingByScore(topScores || []));
+    } catch (error) {
+      console.error("Error loading ranking:", error);
     } finally {
-      setLoading(false);
+      setLoadingRanking(false);
     }
   };
 
   useEffect(() => {
-    fetchRanking();
+    loadRanking();
   }, [selectedGame]);
 
   return {

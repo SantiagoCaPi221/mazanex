@@ -3,14 +3,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { useUserStore } from "@/store/useUserStore";
 import { authService } from "@/service/authService";
+import { useUserStore } from "@/store/useUserStore";
 
-import { LoginCredentials } from "@/app/types/auth";
-import { buildLoginPayload, validateLoginForm } from "@/app/utils/login/auth";
+import { LoginCredentials } from "../../types/auth";
+import { buildLoginPayload } from "../../utils/login/auth";
+import { validateLoginFields } from "../../utils/login/validation";
 
-export const useLogin = () => {
+import { AUTH_MESSAGES } from "@/app/utils/message/loginMessages";
+
+export function useLogin() {
   const router = useRouter();
+
   const { login, showNotification } = useUserStore();
 
   const [credentials, setCredentials] = useState<LoginCredentials>({
@@ -30,11 +34,13 @@ export const useLogin = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
     setError(null);
 
-    const validationError = validateLoginForm(credentials);
-    if (validationError) {
-      setError(validationError);
+    const isValid = validateLoginFields(credentials);
+
+    if (!isValid) {
+      setError(AUTH_MESSAGES.errors.requiredFields);
       return;
     }
 
@@ -42,18 +48,22 @@ export const useLogin = () => {
 
     try {
       const payload = buildLoginPayload(credentials);
+
       const user = await authService.login(payload);
 
-      if (!user) {
-        setError("Usuario o contraseña incorrectos. Verifica tus datos.");
-        return;
-      }
+      if (user) {
+        login(user);
 
-      login(user);
-      showNotification("¡Sesión iniciada con éxito!", "success");
-      router.push("/profile");
+        showNotification(AUTH_MESSAGES.loginSuccess, "success");
+
+        router.push("/profile");
+      } else {
+        setError(AUTH_MESSAGES.errors.invalidCredentials);
+      }
     } catch (error) {
-      setError("Error inesperado al iniciar sesión.");
+      console.error("Login error:", error);
+
+      setError(AUTH_MESSAGES.errors.unexpected);
     } finally {
       setIsLoading(false);
     }
@@ -66,4 +76,4 @@ export const useLogin = () => {
     handleChange,
     handleLogin,
   };
-};
+}

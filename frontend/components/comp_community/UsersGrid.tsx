@@ -1,32 +1,40 @@
-import { UserCard } from "./UserCard";
+"use client";
 
-import type { User, Relationship } from "@/app/types/community";
+import EmptyState from "./EmptyState";
+import UserCard from "./UserCard";
 
-type Props = {
-  users: User[];
-  relationships: Record<number, Relationship>;
+interface Props {
+  users: any[];
+  relationships: Record<number, any>;
   onAction: (id: number) => void;
-};
+}
 
-export function UsersGrid({ users, relationships, onAction }: Props) {
-  if (!users.length) {
-    return (
-      <div className="text-center py-10 opacity-50">
-        No se detectan jugadores
-      </div>
-    );
-  }
-
+export default function UsersGrid({
+  users,
+  relationships,
+  onAction,
+}: Props) {
   return (
-    <div className="grid gap-4">
-      {users.map((u) => (
-        <UserCard
-          key={u.id}
-          user={u}
-          relationship={relationships[u.id]}
-          onAction={onAction}
-        />
-      ))}
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {users.length === 0 ? (
+        <EmptyState />
+      ) : (
+        users.map((user) => {
+          const relationship = relationships[user.id] || {
+            status: "NONE",
+            isSender: false,
+          };
+
+          return (
+            <UserCard
+              key={user.id}
+              user={user}
+              relationship={relationship}
+              onAction={onAction}
+            />
+          );
+        })
+      )}
     </div>
   );
 }

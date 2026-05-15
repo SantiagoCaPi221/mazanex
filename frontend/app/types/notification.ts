@@ -1,4 +1,15 @@
 export interface Notification {
+  id: number;
+
+  type: string;
+
   message: string;
-  type: "success" | "error";
+
+  senderId?: number;
+
+  read?: boolean;
+
+  isRead?: boolean;
+
+  aceptada?: boolean;
 }

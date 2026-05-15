@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { profileService } from "@/service/profileService";
 import { socialService } from "@/service/socialService";
-import { gameService } from "@/service/gameService";
 import { useUserStore } from "@/store/useUserStore";
 import {
   Trophy,
@@ -20,23 +20,24 @@ import {
   X,
 } from "lucide-react";
 
-function ProfileAvatar({ src, name }: { src: string; name: string }) {
-  const [hasError, setHasError] = useState(false);
-  const initials = name?.substring(0, 2).toUpperCase() || "??";
+// --- COMPONENTE DE APOYO: AVATAR CON FALLBACK ---
+function AvatarPerfil({ src, nombre }: { src: string; nombre: string }) {
+  const [error, setError] = useState(false);
+  const iniciales = nombre?.substring(0, 2).toUpperCase() || "??";
 
-  if (!src || hasError) {
+  if (!src || error) {
     return (
       <div className="w-full h-full bg-slate-200 flex items-center justify-center font-black text-slate-400 text-3xl uppercase">
-        {initials}
+        {iniciales}
       </div>
     );
   }
   return (
     <img
       src={src}
-      alt={name}
+      alt={nombre}
       className="w-full h-full object-cover"
-      onError={() => setHasError(true)}
+      onError={() => setError(true)}
     />
   );
 }
@@ -44,110 +45,93 @@ function ProfileAvatar({ src, name }: { src: string; name: string }) {
 export default function UserPublicProfilePage() {
   const { id } = useParams();
   const router = useRouter();
-  const { user: currentUser, showNotification } = useUserStore();
+  const { user: bruno, showNotification } = useUserStore();
 
-  const [profile, setProfile] = useState<any>(null);
-  const [scores, setScores] = useState<any[]>([]);
-  const [relationship, setRelationship] = useState<any>({ status: "NONE" });
-  const [isLoading, setIsLoading] = useState(true);
+  const [perfil, setPerfil] = useState<any>(null);
+  const [puntajes, setPuntajes] = useState<any[]>([]);
+  const [relacion, setRelacion] = useState<any>({ status: "NONE" });
+  const [loading, setLoading] = useState(true);
   const [showCard, setShowCard] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const fetchData = async () => {
-    if (!id || !currentUser) return;
+  const cargarDatos = async () => {
+    if (!id || !bruno) return;
     try {
+      // Usamos los nuevos métodos en inglés
       const data = await socialService.getPublicProfile(Number(id));
-      setProfile(data);
+      setPerfil(data);
 
       const res = await socialService.getRelationshipStatus(
-        currentUser.id,
+        bruno.id,
         Number(id)
       );
-      setRelationship(res);
+      setRelacion(res);
 
-      if (res.status === "ACCEPTED" || currentUser.id === Number(id)) {
-        const userScores = await gameService.getScoresByUserId(Number(id));
-        setScores(userScores);
+      // Si son amigos (ACCEPTED) o es tu propio perfil
+      if (res.status === "ACCEPTED" || bruno.id === Number(id)) {
+        const scores = await profileService.getScoresByUserId(Number(id));
+        setPuntajes(scores);
       }
     } catch (error) {
       console.error("Error sincronizando perfil público:", error);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, [id, currentUser]);
+    cargarDatos();
+  }, [id, bruno]);
 
-  // LA LÓGICA DEL REPORTE BLINDADA CONTRA SPAM
-  const handleReport = async (scoreId: number) => {
-    if (!currentUser?.id) return;
-
+  const handleReportar = async (puntajeId: number) => {
     if (
-      !confirm(
-        "¿Reportar evidencia? 3 reportes de usuarios distintos la eliminarán."
-      )
-    ) {
+      !confirm("¿Reportar evidencia? 3 reportes la eliminarán automáticamente.")
+    )
       return;
-    }
-
-    // Pasamos el ID del usuario actual al backend
-    const result = await gameService.reportScore(scoreId, currentUser.id);
-
-    // Atrapamos si ya lo había reportado
-    if (result?.error === "ALREADY_REPORTED") {
-      showNotification(
-        "Ya has reportado esta evidencia anteriormente.",
-        "error"
-      );
-      return;
-    }
-
+    const result = await profileService.reportScore(puntajeId);
     if (result?.status === "DELETED") {
       showNotification(
         "Evidencia eliminada por consenso comunitario.",
         "error"
       );
-      setScores((prev) => prev.filter((p) => p.id !== scoreId));
-    } else if (result) {
-      showNotification(
-        `Reporte registrado (${result.count || 1}/3).`,
-        "success"
-      );
+      setPuntajes((prev) => prev.filter((p) => p.id !== puntajeId));
+    } else {
+      showNotification(`Reporte registrado (${result?.count || 0}/3).`, "info");
     }
   };
 
-  const handleSocialAction = async () => {
-    if (!currentUser || !profile) return;
+  const handleAccionSocial = async () => {
+    if (!bruno || !perfil) return;
     let res = null;
 
-    if (relationship.status === "NONE") {
-      res = await socialService.sendRequest(currentUser.id, profile.id);
-    } else if (relationship.status === "PENDING" && relationship.isSender) {
-      res = await socialService.cancelRequest(currentUser.id, profile.id);
-    } else if (relationship.status === "PENDING" && !relationship.isSender) {
-      res = await socialService.acceptRequest(profile.id, currentUser.id);
-    } else if (relationship.status === "ACCEPTED") {
-      if (confirm(`¿Terminar vínculo con ${profile.name}?`)) {
-        res = await socialService.removeFriend(currentUser.id, profile.id);
+    // Adaptado a los nuevos estados (NONE, PENDING, ACCEPTED) y boolean isSender
+    if (relacion.status === "NONE") {
+      res = await socialService.sendRequest(bruno.id, perfil.id);
+    } else if (relacion.status === "PENDING" && relacion.isSender) {
+      res = await socialService.cancelRequest(bruno.id, perfil.id);
+    } else if (relacion.status === "PENDING" && !relacion.isSender) {
+      res = await socialService.acceptRequest(perfil.id, bruno.id);
+    } else if (relacion.status === "ACCEPTED") {
+      if (confirm(`¿Terminar vínculo con ${perfil.name}?`)) {
+        res = await socialService.removeFriend(bruno.id, perfil.id);
       }
     }
 
-    if (res) fetchData();
+    if (res) cargarDatos();
   };
 
-  if (isLoading)
+  if (loading)
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-[#030712] gap-4">
         <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
 
-  if (!profile) return null;
+  if (!perfil) return null;
 
   return (
     <div className="relative min-h-screen w-full font-sans overflow-x-hidden">
+      {/* VISOR DE IMAGEN (LIGHTBOX) */}
       {selectedImage && (
         <div
           className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-xl animate-in fade-in duration-300"
@@ -169,13 +153,14 @@ export default function UserPublicProfilePage() {
         </div>
       )}
 
+      {/* FONDO DINÁMICO (Cambiado fondoUrl -> backgroundUrl) */}
       <div
         className="fixed inset-0 -z-20 bg-cover bg-center transition-all duration-1000"
         style={{
-          backgroundImage: profile.backgroundUrl
-            ? `url(${profile.backgroundUrl})`
+          backgroundImage: perfil.backgroundUrl
+            ? `url(${perfil.backgroundUrl})`
             : "linear-gradient(to bottom, #1e293b, #030712)",
-          imageRendering: profile.backgroundUrl ? "pixelated" : "auto",
+          imageRendering: perfil.backgroundUrl ? "pixelated" : "auto",
         }}
       />
       <div
@@ -185,6 +170,7 @@ export default function UserPublicProfilePage() {
       />
 
       <div className="max-w-5xl mx-auto pt-10 pb-20 px-4 relative z-10">
+        {/* BARRA DE NAVEGACIÓN SUPERIOR */}
         <div className="flex justify-between mb-8">
           <button
             onClick={() => router.back()}
@@ -204,6 +190,7 @@ export default function UserPublicProfilePage() {
           </button>
         </div>
 
+        {/* TARJETA DE PERFIL PRINCIPAL */}
         <div
           className={`bg-white/95 backdrop-blur-2xl rounded-[3.5rem] shadow-2xl overflow-hidden border border-white transition-all duration-700 transform ${
             showCard
@@ -211,10 +198,11 @@ export default function UserPublicProfilePage() {
               : "opacity-0 translate-y-10 scale-95 pointer-events-none"
           }`}
         >
+          {/* BANNER CON FALLBACK */}
           <div className="h-64 w-full relative bg-slate-200 overflow-hidden">
-            {profile.bannerUrl ? (
+            {perfil.bannerUrl ? (
               <img
-                src={profile.bannerUrl}
+                src={perfil.bannerUrl}
                 alt="Banner"
                 className="w-full h-full object-cover"
               />
@@ -224,82 +212,61 @@ export default function UserPublicProfilePage() {
           </div>
 
           <div className="px-8 md:px-12 pb-16 relative">
+            {/* AVATAR CON FALLBACK (Cambiado perfil.nombre -> perfil.name) */}
             <div className="absolute -top-24 left-8 md:left-12 w-40 h-40 md:w-48 md:h-48 bg-white rounded-[3rem] shadow-2xl flex items-center justify-center border-[10px] border-white overflow-hidden">
-              <ProfileAvatar src={profile.avatarUrl} name={profile.name} />
+              <AvatarPerfil src={perfil.avatarUrl} nombre={perfil.name} />
             </div>
 
             <div className="pt-24 md:pt-28 flex flex-col md:flex-row justify-between items-start gap-8">
               <div className="flex-1 w-full text-slate-900">
                 <div className="flex items-center gap-3 mb-1">
                   <h1 className="text-4xl md:text-5xl font-black tracking-tighter italic uppercase text-slate-900">
-                    {profile.name}
+                    {perfil.name}
                   </h1>
                   <CheckCircle2 className="w-6 h-6 md:w-8 md:h-8 text-blue-500" />
                 </div>
                 <p className="text-indigo-600 font-black text-sm mb-6 uppercase italic tracking-[0.3em]">
                   @
-                  {profile.name?.replace(/\s+/g, "").toLowerCase() ||
-                    "operator"}
+                  {perfil.name?.replace(/\s+/g, "").toLowerCase() || "operator"}
                 </p>
                 <div className="bg-slate-50 border border-slate-100 p-6 rounded-3xl">
                   <p className="text-slate-600 font-bold italic leading-relaxed text-lg">
                     "
-                    {profile.bio ||
+                    {perfil.bio ||
                       "Este usuario aún no define su protocolo de biografía."}
                     "
                   </p>
                 </div>
               </div>
 
-              {currentUser.id !== profile.id && (
-                <div className="w-full md:w-auto">
-                  {relationship.status === "NONE" && (
-                    <button
-                      onClick={handleSocialAction}
-                      className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-5 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3"
-                    >
-                      <UserPlus className="w-5 h-5" /> Enviar Solicitud
-                    </button>
+              {bruno.id !== perfil.id && (
+                <button
+                  onClick={handleAccionSocial}
+                  className={`w-full md:w-auto px-10 py-5 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-xl active:scale-95 ${
+                    relacion.status === "ACCEPTED"
+                      ? "bg-rose-50 text-rose-500 border border-rose-100"
+                      : "bg-indigo-600 text-white hover:bg-indigo-700"
+                  }`}
+                >
+                  {relacion.status === "ACCEPTED" ? (
+                    <>
+                      <UserMinus className="w-4 h-4" /> Eliminar Amigo
+                    </>
+                  ) : relacion.status === "PENDING" ? (
+                    <>
+                      <Clock className="w-4 h-4" /> Solicitud Enviada
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="w-4 h-4" /> Enviar Solicitud
+                    </>
                   )}
-
-                  {relationship.status === "PENDING" &&
-                    (relationship.isSender ? (
-                      <button
-                        onClick={handleSocialAction}
-                        className="w-full md:w-auto group bg-slate-100 text-slate-500 hover:bg-rose-50 hover:text-rose-500 hover:border-rose-200 border border-transparent px-10 py-5 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center gap-3"
-                      >
-                        <Clock className="w-5 h-5 group-hover:hidden" />
-                        <X className="w-5 h-5 hidden group-hover:block" />
-                        <span className="group-hover:hidden">
-                          Solicitud Enviada
-                        </span>
-                        <span className="hidden group-hover:block">
-                          Cancelar
-                        </span>
-                      </button>
-                    ) : (
-                      <button
-                        onClick={handleSocialAction}
-                        className="w-full md:w-auto bg-emerald-500 hover:bg-emerald-400 text-white px-10 py-5 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest transition-all shadow-xl shadow-emerald-500/20 active:scale-95 flex items-center justify-center gap-3"
-                      >
-                        <CheckCircle2 className="w-5 h-5" /> Aceptar Solicitud
-                      </button>
-                    ))}
-
-                  {relationship.status === "ACCEPTED" && (
-                    <button
-                      onClick={handleSocialAction}
-                      className="w-full md:w-auto bg-rose-50 text-rose-500 border border-rose-100 hover:bg-rose-500 hover:text-white px-10 py-5 rounded-[1.5rem] font-black text-[10px] uppercase tracking-widest transition-all shadow-sm active:scale-95 flex items-center justify-center gap-3 group"
-                    >
-                      <UserMinus className="w-5 h-5" /> Eliminar Amigo
-                    </button>
-                  )}
-                </div>
+                </button>
               )}
             </div>
 
-            {relationship.status !== "ACCEPTED" &&
-            currentUser.id !== profile.id ? (
+            {/* CONDICIONAL DE PRIVACIDAD */}
+            {relacion.status !== "ACCEPTED" && bruno.id !== perfil.id ? (
               <div className="mt-12 py-20 text-center bg-slate-50/50 rounded-[3rem] border-2 border-dashed border-slate-200">
                 <Lock className="w-12 h-12 text-slate-200 mx-auto mb-6" />
                 <h2 className="text-xl font-black text-slate-400 mb-2 uppercase italic tracking-tighter">
@@ -320,26 +287,26 @@ export default function UserPublicProfilePage() {
                 </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {scores.length === 0 ? (
+                  {puntajes.length === 0 ? (
                     <div className="col-span-full py-20 text-center text-slate-300 font-black uppercase text-[10px] tracking-widest">
                       No hay registros verificados.
                     </div>
                   ) : (
-                    scores.map((score: any) => {
-                      const isSnake = score.game === "SNAKE";
+                    puntajes.map((score: any) => {
+                      const esSnake = score.game === "SNAKE"; // Cambiado score.juego -> score.game
                       return (
                         <div
                           key={score.id}
                           onClick={() =>
-                            !isSnake && setSelectedImage(score.screenshotUrl)
+                            !esSnake && setSelectedImage(score.screenshotUrl)
                           }
                           className={`relative p-8 rounded-[2.5rem] border border-slate-100 shadow-sm transition-all group overflow-hidden ${
-                            isSnake
+                            esSnake
                               ? "bg-slate-50/50 cursor-default"
                               : "bg-white cursor-pointer hover:shadow-2xl hover:border-indigo-200"
                           }`}
                         >
-                          {!isSnake && (
+                          {!esSnake && (
                             <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-700 pointer-events-none">
                               <img
                                 src={score.screenshotUrl}
@@ -359,11 +326,11 @@ export default function UserPublicProfilePage() {
                                 </span>
                               </div>
 
-                              {!isSnake ? (
+                              {!esSnake ? (
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleReport(score.id);
+                                    handleReportar(score.id);
                                   }}
                                   className="p-3 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all"
                                   title="Reportar Evidencia Sospechosa"
@@ -377,6 +344,7 @@ export default function UserPublicProfilePage() {
 
                             <div className="flex items-baseline gap-2">
                               <span className="text-5xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
+                                {/* Cambiado score.puntajeMaximo -> score.highScore */}
                                 {score.highScore?.toLocaleString() || "0"}
                               </span>
                               <span className="text-slate-400 font-black text-[10px] uppercase italic">

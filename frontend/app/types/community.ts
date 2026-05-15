@@ -1,38 +1,31 @@
-export type RelationshipStatus =
-  | "NONE"
-  | "PENDING"
-  | "ACCEPTED";
+export type RelationshipStatus = "NONE" | "PENDING" | "ACCEPTED";
 
-export type Relationship = {
-  status: RelationshipStatus;
-  isSender: boolean;
-};
-
-export type User = {
+export interface User {
   id: number;
+
   name: string;
+
   avatarUrl?: string;
-};
 
-export type UsersFilterType = "ALL" | "FRIENDS";
+  email?: string;
 
-export type GameType = "SNAKE" | "KOF";
+  bio?: string;
+}
 
-export type RankingEntry = {
+export interface Relationship {
+  status: RelationshipStatus;
+
+  isSender: boolean;
+}
+
+export interface RankingPlayer {
   id: number;
-  user?: {
-    name?: string;
-  };
-  username?: string;
-  playerName?: string;
-  highScore?: number;
-  puntajeMaximo?: number;
-  mode?: string;
-  modo?: string;
-  screenshotUrl?: string;
-};
 
-export type Evidence = {
-  id: number;
-  url: string;
-};
+  name: string;
+
+  avatarUrl?: string;
+
+  score: number;
+
+  game: string;
+}

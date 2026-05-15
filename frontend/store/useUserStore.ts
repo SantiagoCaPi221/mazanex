@@ -1,30 +1,83 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { UserState } from "@/app/types/userStore";
+
+import { ProfileUser } from "@/app/types/profile";
+
+interface Notification {
+  message: string;
+  type: "success" | "error";
+}
+
+interface UserState {
+  user: ProfileUser | null;
+
+  notification: Notification | null;
+
+  setUser: (userData: ProfileUser | null) => void;
+
+  login: (userData: ProfileUser) => void;
+
+  updateUsername: (newName: string) => void;
+
+  logout: () => void;
+
+  showNotification: (message: string, type?: "success" | "error") => void;
+
+  hideNotification: () => void;
+}
 
 export const useUserStore = create<UserState>()(
   persist(
     (set) => ({
       user: null,
+
       notification: null,
 
-      setUser: (user) => set({ user }),
-      login: (user) => set({ user }),
-      logout: () => set({ user: null }),
+      setUser: (userData) =>
+        set({
+          user: userData,
+        }),
 
-      updateUser: (data) =>
+      login: (userData) =>
+        set({
+          user: userData,
+        }),
+
+      updateUsername: (newName) =>
         set((state) => ({
-          user: state.user ? { ...state.user, ...data } : null,
+          user: state.user
+            ? {
+                ...state.user,
+                name: newName,
+              }
+            : null,
         })),
 
-      showNotification: (message, type = "success") =>
-        set({ notification: { message, type } }),
+      logout: () => {
+        set({ user: null });
 
-      hideNotification: () => set({ notification: null }),
+        localStorage.removeItem("user-storage");
+      },
+
+      showNotification: (message, type = "success") =>
+        set({
+          notification: {
+            message,
+            type,
+          },
+        }),
+
+      hideNotification: () =>
+        set({
+          notification: null,
+        }),
     }),
     {
       name: "user-storage",
-      partialize: (state) => ({ user: state.user }),
+
+      partialize: (state) => ({
+        user: state.user,
+      }),
     }
   )
 );
