@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { authService } from "@/service/authService";
 
-import { AUTH_MESSAGES } from "@/app/utils/message/authMessages";
+import { AUTH_MESSAGES } from "@/app/utils/message/authMessage";
 
 export function useSecurity(userId: number) {
   const [pass, setPass] = useState({
