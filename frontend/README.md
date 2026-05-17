@@ -1,30 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend — Mazanex
 
-## Getting Started
+---
 
-First, run the development server:
+## 1. ¿Qué es?
+
+Frontend web de Mazanex creado con Next.js y TypeScript. Ofrece:
+- login y registro
+- perfil de usuario
+- comunidad social
+- integración con los microservicios backend
+
+---
+
+## 2. Organización del frontend
+
+- `app/`: rutas y página principal
+- `components/`: UI reutilizable
+- `service/`: llamadas API al backend
+- `context/`: estado global (auth, perfil)
+- `store/`: persistencia local con Zustand
+- `app/api/gateway/[...path]/route.ts`: gateway BFF
+
+---
+
+## 3. Cómo funciona
+
+1. El usuario navega en el frontend.
+2. Las llamadas al backend pasan por `/api/gateway`.
+3. El gateway reenvía a Auth o Profile.
+4. El frontend recibe JSON y actualiza la UI.
+
+---
+
+## 4. Puntos importantes
+
+- El gateway está en `app/api/gateway/[...path]/route.ts`.
+- Los endpoints actuales se configuran en `frontend/config/endpoints.ts`.
+- El usuario se mantiene en `localStorage`.
+- Hoy no hay un manejo JWT centralizado en el frontend.
+- Recomendado: mover los endpoints a variables de entorno y añadir `Authorization` cuando el backend lo soporte.
+
+---
+
+## 5. Tecnologías
+
+- Next.js 15 · React 19 · TypeScript
+- Tailwind CSS · Zustand
+
+---
+
+## 6. Cómo ejecutar
 
 ```bash
+cd frontend
+pnpm install
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abrir `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 7. Sugerencia para presentación
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Mostrar login y perfil en la UI.
+- Abrir la consola de red y señalar las llamadas al gateway.
+- Explicar que el frontend ya está listo para agregar JWT y mover configuraciones a env vars.
