@@ -5,9 +5,6 @@
 Microservicio que gestiona perfiles, comunidad, relaciones sociales y puntajes de juego.
 
 ## 2. Responsabilidades
-## Descripción
-
-Microservicio que gestiona perfiles, comunidad, relaciones sociales y puntajes de juego.
 
 ## Responsabilidades
 
@@ -116,8 +113,7 @@ docker-compose up --build
 - El frontend consume este servicio a través del gateway en `frontend/app/api/gateway/[...path]/route.ts`.
 - `ProfileService` puede sincronizar con un endpoint de Auth vía RestTemplate.
 
-## Navegación
-## Variables de Entorno
+## 11. Variables de Entorno
 
 - `MYSQLHOST`
 - `MYSQLPORT`
@@ -126,7 +122,7 @@ docker-compose up --build
 - `MYSQLPASSWORD`
 - `PORT`
 
-## Flujo de petición
+## 12. Flujo de petición
 
 1. El gateway BFF recibe la petición del frontend.
 2. El controlador correspondiente procesa la ruta.
@@ -134,7 +130,7 @@ docker-compose up --build
 4. El repositorio accede a la base de datos.
 5. Se devuelve JSON al frontend.
 
-## Integración
+## 13. Integración
 
 - El frontend consume este servicio a través del gateway en `frontend/app/api/gateway/[...path]/route.ts`.
 - `ProfileService` puede sincronizar con un endpoint de Auth vía RestTemplate.
