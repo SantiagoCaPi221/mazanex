@@ -1,12 +1,12 @@
-# Backend - Innovatech
+# Backend General - Innovatech
 
-## Descripción 
+## 1. Descripción 
 
 Backend de Innovatech compuesto por microservicios independientes desarrollados en **Java 17** con **Spring Boot 3.4.5** y **Maven**. Implementa autenticación y gestión de perfiles de usuario con arquitectura limpia y patrones de diseño consolidados.
 
 ---
 
-## Arquitectura
+## 2. Arquitectura
 ```
 ├── Auth (Puerto 8081)
 │   ├── Autenticación y registro de usuarios
@@ -21,7 +21,7 @@ Backend de Innovatech compuesto por microservicios independientes desarrollados 
 
 ---
 
-## Microservicios
+## 3. Microservicios
 
 ### Auth (Puerto 8081)
 
@@ -43,7 +43,7 @@ Backend de Innovatech compuesto por microservicios independientes desarrollados 
 
 ---
 
-## Estructura del Proyecto
+## 4. Estructura del Proyecto
 
 ```
 backend/
@@ -70,14 +70,19 @@ backend/
 
 ---
 
-## Seguridad
-
-- **Autenticación**: JWT (JJWT 0.9.1) para tokens seguros
-- **RBAC**: Control de acceso basado en roles (USER, CLIENTE, ADMIN)
+## 5. Seguridad
 - **CORS**: Habilitado para integración con frontend
+- No hay generación ni validación de JWT
+Las contraseñas se comparan en texto plano, y se valida con una función dentro del código que valida 8 caracteres,  al menos 1 mayuscula, al menos 1 minuscula, almenos 1 número y un simbolo.
+
+ **Recomendaciones para mejorar:**
+
+- Implementar BCryptPasswordEncoder para hashear contraseñas
+- Añadir filtro JWT para proteger endpoints sensibles
+- Propagar tokens JWT desde el BFF hacia aquí
 
 ---
-## Patrones y Arquitectura Utilizada
+## 6. Patrones y Arquitectura Utilizada
 ### Repository Pattern
 Se implementa mediante `JpaRepository` , lo que permite abstraer el acceso a datos y separar la lógica de negocio de la persistencia.
 
@@ -93,7 +98,7 @@ Se aplica únicamente donde existe variabilidad en la lógica, evitando sobreing
 
 ---
 
-## Tecnologías
+## 7. Tecnologías
 
 | Tecnología | Versión |
 |------------|---------|
@@ -109,7 +114,7 @@ Se aplica únicamente donde existe variabilidad en la lógica, evitando sobreing
 
 ---
 
-## Ejecutar Localmente
+## 8. Ejecutar Localmente
 
 ### Requisitos
 
@@ -149,30 +154,49 @@ curl http://localhost:8081/api/auth/usuarios
 # Perfil funcionando
 curl http://localhost:8082/api/perfil
 
-# Swagger
+# Swagger Local
 # Auth: http://localhost:8081/swagger-ui.html
-# Perfil: http://localhost:8082/swagger-ui.html
 ```
 
 ---
 
-## Configuración
+## 9. Configuración
 
 ### Desarrollo (H2 en memoria)
 Configuración automática en memoria.
 Los archivos `application.properties` ya están configurados para H2. No requiere cambios.
 
-### Producción (MySQL)
+### 10. Producción (MySQL) Lo unico que cambia entre microservicios en el aplication.properties es el puerto (Auth 8081- Perfil 8082)
 
 ```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/innovatech_auth
-spring.datasource.username=root
-spring.datasource.password=${DB_PASSWORD}
+# El puerto es dinámico para Railway, local usa 8082
+server.port=${PORT:8082}
+
+# 1. Conexión a MySQL (Variables de Railway con fallback a Local)
+spring.datasource.url=jdbc:mysql://${MYSQLHOST:localhost}:${MYSQLPORT:3306}/${MYSQLDATABASE:mazanex_db}?createDatabaseIfNotExist=true&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+spring.datasource.username=${MYSQLUSER:root}
+spring.datasource.password=${MYSQLPASSWORD:root}
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# 2. JPA / Hibernate
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
+
+# 3. Límites de carga (Optimizado para Base64)
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
+server.tomcat.max-swallow-size=10MB
+spring.codec.max-in-memory-size=10MB
+
+# 4. Logs de depuración
+logging.level.org.hibernate.SQL=DEBUG
+logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
+
 ```
 ---
-### Funcionamiento del sistema 
+### 11. Funcionamiento del sistema 
 1. El cliente realiza una solicitud HTTP desde el frontend o un cliente REST (por ejemplo, `POST /auth/register` o `GET /perfil/usuarios`). Esta petición es recibida por el Controller correspondiente (`AuthController o PerfilController`), el cual valida los datos básicos de entrada y delega el procesamiento al servicio de negocio.
    
 2. El Service (`AuthService o PerfilService`) contiene la lógica principal del sistema, aplicando reglas de negocio, validaciones y, en el caso del módulo de perfil, utilizando el Strategy Pattern para definir distintos comportamientos de procesamiento.
@@ -182,3 +206,11 @@ spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
 4. Finalmente, el Controller retorna una respuesta en formato JSON al cliente, indicando el resultado de la operación (éxito, datos o errores).
 
 ---
+
+### 12. Despliegue de los microservicios en Railway 
+<img width="684" height="528" alt="image" src="https://github.com/user-attachments/assets/34e03659-28b3-4ba7-900c-9bb3892ce538" />
+<img width="1138" height="478" alt="image" src="https://github.com/user-attachments/assets/1bbbbcf2-eb96-4d91-9947-1fccb0c9a036" />
+
+
+
+
