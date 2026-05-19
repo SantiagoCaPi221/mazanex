@@ -1,4 +1,4 @@
-# Mazanex
+# Readme Contexto/Negocio 
 
 ## Contexto
 
