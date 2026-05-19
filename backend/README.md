@@ -211,6 +211,12 @@ logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
 <img width="684" height="528" alt="image" src="https://github.com/user-attachments/assets/34e03659-28b3-4ba7-900c-9bb3892ce538" />
 <img width="1138" height="478" alt="image" src="https://github.com/user-attachments/assets/1bbbbcf2-eb96-4d91-9947-1fccb0c9a036" />
 
+## Navegación
 
+* **Volver al Inicio:** [Contexto de Negocio](../README.md)
+* **Ir al Frontend:** [Configuración de Cliente](../frontend/README.md)
+* **Microservicios de este módulo:**
+    * **Autenticación:** [Microservicio Auth](./microservicio_auth/auth/README.md)
+    * **Perfiles:** [Microservicio Perfil](./microservicio_profile/profile/README.md)
 
 
