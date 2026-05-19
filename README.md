@@ -120,3 +120,11 @@ El siguiente modelo representa la infraestructura completa y la convivencia de l
 ## 14. Conclusión
 
 Mazanex es un sistema modular para comunidad gamer que separa frontend y backend mediante un gateway BFF. Este README está enfocado en el contexto del negocio, la solución y la arquitectura real del proyecto.
+
+
+## Navegación del Proyecto
+* **Documentación Global:** [Contexto de Negocio](./README.md) (Este archivo)
+* **Frontend:** [Configuración y Vistas del Cliente](./frontend/README.md)
+* **Backend (General):** [Arquitectura de Microservicios](./backend/README.md)
+    * **Servicio de Autenticación:** [Módulo Auth](./backend/microservicio_auth/auth/README.md)
+    * **Servicio de Perfiles:** [Módulo Perfil](./backend/microservicio_profile/profile/README.md)
