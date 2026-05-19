@@ -8,7 +8,7 @@ Mazanex es una plataforma que reúne identidad de usuario, perfiles sociales y p
 
 El sistema responde a la necesidad de ofrecer registro, perfil y comunidad para jugadores sin mezclar la lógica de frontend y backend.
 
-## Solución
+## 3. Solución
 
 Mazanex implementa:
 - registro y login de usuarios,
@@ -16,7 +16,7 @@ Mazanex implementa:
 - gestión de comunidad y solicitudes sociales,
 - seguimiento de puntajes y rankings.
 
-## 3. Requerimientos funcionales
+## 4. Requerimientos funcionales
 
 - Crear y autenticar usuarios.
 - Actualizar datos de perfil.
@@ -25,7 +25,7 @@ Mazanex implementa:
 - Guardar y consultar puntajes de juego.
 - Mostrar notificaciones de actividad.
 
-## 4. Requerimientos no funcionales
+## 5. Requerimientos no funcionales
 
 - Interfaz desarrollada en Next.js y TypeScript.
 - Backend modular con servicios independientes.
@@ -33,7 +33,7 @@ Mazanex implementa:
 - Comunicación REST en JSON.
 - Contenerización con Docker.
 
-## 5. Casos de uso
+## 6. Casos de uso
 
 - Registro de un nuevo jugador.
 - Inicio de sesión y acceso a perfil.
@@ -41,7 +41,7 @@ Mazanex implementa:
 - Interacción social entre usuarios.
 - Consulta de rankings por juego.
 
-## 6. Arquitectura del sistema
+## 7. Arquitectura del sistema
 
 - Frontend en `frontend/`.
 - Gateway BFF en `frontend/app/api/gateway/[...path]/route.ts`.
@@ -51,7 +51,7 @@ Mazanex implementa:
 
 El gateway BFF recibe las peticiones del frontend y las dirige a Auth o Profile según la ruta.
 
-## 7. Componentes principales
+## 8. Componentes principales
 
 - Frontend: UI y gateway.
 - Auth Service: `/api/auth`.
@@ -59,7 +59,7 @@ El gateway BFF recibe las peticiones del frontend y las dirige a Auth o Profile 
 - MySQL: persistencia de datos.
 - Docker Compose: orquestación local.
 
-## 8. Flujo general del sistema
+## 9. Flujo general del sistema
 
 1. El usuario usa la aplicación web.
 2. La UI envía la petición al gateway interno.
@@ -68,7 +68,7 @@ El gateway BFF recibe las peticiones del frontend y las dirige a Auth o Profile 
 5. La respuesta regresa en JSON.
 6. La UI muestra el resultado.
 
-## 9. Estructura del proyecto
+## 10. Estructura del proyecto
 
 ```text
 /
@@ -85,7 +85,7 @@ El gateway BFF recibe las peticiones del frontend y las dirige a Auth o Profile 
     └── microservicio_profile/profile/
 ```
 
-## 10. Ejecución
+## 11. Ejecución
 
 ```bash
 cd frontend
@@ -98,7 +98,7 @@ cd backend
 docker-compose up --build
 ```
 
-## 11. Variables de entorno
+## 12. Variables de entorno
 
 - `MYSQLHOST`
 - `MYSQLPORT`
@@ -109,7 +109,7 @@ docker-compose up --build
 
 ---
 
-## 12. Diagrama de Contenedores (Diseño General)
+## 13. Diagrama de Contenedores (Diseño General)
 
 El siguiente modelo representa la infraestructura completa y la convivencia de los componentes distribuidos de la plataforma:
 
@@ -117,6 +117,6 @@ El siguiente modelo representa la infraestructura completa y la convivencia de l
 
 ---
 
-## 13. Conclusión
+## 14. Conclusión
 
 Mazanex es un sistema modular para comunidad gamer que separa frontend y backend mediante un gateway BFF. Este README está enfocado en el contexto del negocio, la solución y la arquitectura real del proyecto.
