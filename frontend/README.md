@@ -1,10 +1,10 @@
 # Frontend — Mazanex
 
-## Descripción
+## 1. Descripción
 
 Interfaz web desarrollada con Next.js y TypeScript para acceso de usuarios, gestión de perfiles y comunidad de juego.
 
-## Funcionalidades
+## 2. Funcionalidades
 
 - Login y registro de usuarios.
 - Edición de perfil.
@@ -12,7 +12,7 @@ Interfaz web desarrollada con Next.js y TypeScript para acceso de usuarios, gest
 - Visualización de rankings y puntajes.
 - Rutas dinámicas de usuario.
 
-## Arquitectura
+## 3. Arquitectura
 
 - `app/`: páginas y rutas del proyecto.
 - `components/`: componentes reutilizables de UI.
@@ -22,7 +22,7 @@ Interfaz web desarrollada con Next.js y TypeScript para acceso de usuarios, gest
 - `config/endpoints.ts`: URLs de backend.
 - `app/api/gateway/[...path]/route.ts`: gateway BFF.
 
-## Páginas principales
+## 4. Páginas principales
 
 - `/login`
 - `/register`
@@ -30,7 +30,7 @@ Interfaz web desarrollada con Next.js y TypeScript para acceso de usuarios, gest
 - `/community`
 - `/user/[id]`
 
-## Librerías principales
+## 5. Librerías principales
 
 - `next` / `react` / `react-dom`
 - `typescript`
@@ -38,7 +38,7 @@ Interfaz web desarrollada con Next.js y TypeScript para acceso de usuarios, gest
 - `zustand`
 - `lucide-react`
 
-## Gateway y backend
+## 6. Gateway y backend
 
 El frontend usa un BFF en `app/api/gateway/[...path]/route.ts` que reenvía llamadas a:
 
@@ -47,7 +47,7 @@ El frontend usa un BFF en `app/api/gateway/[...path]/route.ts` que reenvía llam
 
 Los servicios destino se configuran en `frontend/config/endpoints.ts`.
 
-## Estructura simplificada
+## 7. Estructura simplificada
 
 ```text
 frontend/
@@ -65,13 +65,7 @@ frontend/
 └── store/useUserStore.ts
 ```
 
-## Notas clave
-
-- El estado de usuario se almacena en `store/useUserStore.ts`.
-- Las rutas de backend se controlan desde `config/endpoints.ts`.
-- El gateway BFF está implementado en el propio frontend.
-
-## Navegación
+## 8. Navegación
 
 * **Volver al Inicio:** [Contexto de Negocio](../README.md)
 * **Ir al Backend:** [Arquitectura de Microservicios](../backend/README.md)
