@@ -1,85 +1,98 @@
-# Microservicio — Profile
+# Readme Profile Service
 
----
+## Descripción
 
-## 1. ¿Qué hace?
+Microservicio que gestiona perfiles, comunidad, relaciones sociales y puntajes de juego.
 
-Servicio de perfiles y comunidad para Mazanex. Controla:
-- perfiles de usuario
-- sincronización y creación desde Auth
-- solicitudes de amistad y seguidores
-- notificaciones sociales
-- puntajes, rankings y reportes de juego
+## Responsabilidades
 
----
+- Mantener perfiles de usuario.
+- Guardar y consultar puntajes.
+- Gestionar solicitudes sociales.
+- Entregar notificaciones.
+- Sincronizar perfil con Auth cuando aplica.
 
-## 2. Organización
+## Arquitectura de software
 
-- `ProfileController`, `SocialController`, `GameController`
-- `ProfileService`, `SocialService`, `GameService`
-- Repositorios JPA para usuarios, puntajes, notificaciones, seguidores y solicitudes
-- MySQL para persistencia
+```text
+ProfileController    SocialController    GameController
+      │                  │                 │
+      └──────────────┬───┴─────────────┬───┘
+                     │                 │
+                 ProfileService    SocialService    GameService
+                     │                 │                 │
+                     └─────────┬───────┴───────┬─────────┘
+                               │               │
+                           Repositories       MySQL
+```
 
----
+- `ProfileController`: CRUD y sincronización de perfiles.
+- `SocialController`: relaciones, seguimientos y notificaciones.
+- `GameController`: puntajes y rankings.
+- Repositorios JPA: acceso a datos de usuario, scores, notificaciones, solicitudes y seguidores.
 
-## 3. Endpoints principales
+## Endpoints Principales
 
-| Método | Ruta | Qué hace |
+| Método | Endpoint | Función |
 |---|---|---|
-| PUT | `/api/profile/{id}` | Actualiza un perfil |
-| POST | `/api/profile/sync` | Sincroniza o crea un perfil |
-| GET | `/api/profile/list` | Lista perfiles |
-| DELETE | `/api/profile/{id}` | Elimina un perfil |
-| POST | `/api/profile/games/save-record` | Guarda un récord |
-| GET | `/api/profile/games/user/{id}` | Obtiene puntajes de un usuario |
-| GET | `/api/profile/games/ranking/{game}` | Ranking por juego |
-| POST | `/api/profile/games/report/{id}` | Reporta un puntaje |
-| POST | `/api/profile/social/send-request/{senderId}/{receiverId}` | Envía solicitud de amistad |
-| POST | `/api/profile/social/accept-request/{senderId}/{receiverId}` | Acepta solicitud |
-| GET | `/api/profile/social/status/{idA}/{idB}` | Estado de relación |
-| GET | `/api/profile/social/following/{id}` | Usuarios seguidos |
-| GET | `/api/profile/social/notifications/{userId}` | Notificaciones |
+| PUT | `/api/profile/{id}` | Actualizar perfil |
+| POST | `/api/profile/sync` | Crear o sincronizar perfil |
+| GET | `/api/profile/list` | Listar perfiles |
+| DELETE | `/api/profile/{id}` | Eliminar perfil |
+| POST | `/api/profile/social/send-request/{senderId}/{receiverId}` | Enviar solicitud |
+| POST | `/api/profile/social/accept-request/{senderId}/{receiverId}` | Aceptar solicitud |
+| GET | `/api/profile/social/notifications/{userId}` | Listar notificaciones |
+| PUT | `/api/profile/social/notifications/{userId}/read` | Marcar notificaciones leídas |
+| GET | `/api/profile/games/ranking/{game}` | Obtener ranking |
+| POST | `/api/profile/games/save-record` | Guardar puntaje |
 
----
+## Docker y deployment
 
-## 4. Tecnologías
+- Dockerfile en `backend/microservicio_profile/profile/Dockerfile`.
+- Multi-stage build con Maven 3.8.5 y Java 17.
+- El servicio usa `PORT` dinámico con valor por defecto `8082`.
+- `backend/docker-compose.yml` incluye el servicio `perfil-service` y la base de datos MySQL.
 
-- Spring Boot 3.2.x · Spring Web · Spring Data JPA
-- MySQL Connector/J · Lombok
+## Setup
 
----
+### Local con Maven
 
-## 5. Seguridad actual
-
-- No hay validación JWT ni autorización por roles.
-- Recomendado: proteger endpoints sensibles y propagar tokens desde el frontend/BFF.
-
----
-
-## 6. Cómo ejecutar
-
-Local:
 ```bash
 cd backend/microservicio_profile/profile
 ./mvnw spring-boot:run
 ```
 
-Con Docker Compose:
+### Con Docker Compose
+
 ```bash
 cd backend
 docker-compose up --build
 ```
 
----
+## Configuración
 
-## 7. Nota importante
+- `src/main/resources/application.properties` usa variables de entorno MySQL.
+- `server.port=${PORT:8082}` controla el puerto de la aplicación.
 
-Verificar que `backend/docker-compose.yml` apunte a la carpeta correcta del servicio, ya que la ruta real en este repositorio es `microservicio_profile/profile`.
+## Variables de Entorno
 
----
+- `MYSQLHOST`
+- `MYSQLPORT`
+- `MYSQLDATABASE`
+- `MYSQLUSER`
+- `MYSQLPASSWORD`
+- `PORT`
 
-## 8. Para presentación
+## Flujo de petición
 
-- Mostrar cómo se crean perfiles y se consultan rankings.
-- Explicar que hoy el servicio ya funciona, pero falta añadir JWT y proteger mejor las APIs.
+1. El gateway BFF recibe la petición del frontend.
+2. El controlador correspondiente procesa la ruta.
+3. El servicio ejecuta la lógica de negocio.
+4. El repositorio accede a la base de datos.
+5. Se devuelve JSON al frontend.
+
+## Integración
+
+- El frontend consume este servicio a través del gateway en `frontend/app/api/gateway/[...path]/route.ts`.
+- `ProfileService` puede sincronizar con un endpoint de Auth vía RestTemplate.
 
