@@ -104,3 +104,9 @@ Link swagger: https://fullstack4-auth-production-7c66.up.railway.app/swagger-ui/
 - El frontend se comunica con este servicio a través del gateway en `frontend/app/api/gateway/[...path]/route.ts`.
 - No hay llamadas directas a otros microservicios dentro del repositorio.
 
+## Navegación
+
+* **Volver al Inicio:** [Contexto de Negocio](../../../README.md)
+* **Raíz del Backend:** [Arquitectura General](../../README.md)
+* **Ir al Frontend:** [Configuración de Cliente](../../../frontend/README.md)
+* **Perfil:** [Microservicio Perfil](../../microservicio_profile/profile/README.md)
