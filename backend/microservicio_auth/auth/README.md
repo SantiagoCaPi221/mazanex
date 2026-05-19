@@ -4,7 +4,7 @@
 
 Microservicio de autenticación y gestión de usuarios para Mazanex.
 
-## Responsabilidades
+## 1. Responsabilidades
 
 - Registrar usuarios.
 - Iniciar sesión.
@@ -13,7 +13,7 @@ Microservicio de autenticación y gestión de usuarios para Mazanex.
 - Cambiar contraseña.
 - Eliminar cuentas.
 
-## Arquitectura de software
+## 2. Arquitectura de software
 
 ```text
 AuthController
@@ -27,7 +27,7 @@ AuthController
 - `UserRepository`: maneja persistencia con JPA.
 - `User`: entidad de usuario.
 
-## Endpoints Principales
+## 3. Endpoints Principales
 
 | Método | Endpoint | Función |
 |---|---|---|
@@ -38,7 +38,7 @@ AuthController
 | PUT | `/api/auth/{id}/password` | Cambiar contraseña |
 | DELETE | `/api/auth/{id}` | Eliminar usuario |
 
-## Tecnologías Utilizadas
+## 4. Tecnologías Utilizadas
 
 | Capa | Tecnología |
 |---|---|
@@ -49,20 +49,20 @@ AuthController
 | Docker | Docker multi-stage |
 
 
-## Base de Datos
+## 5. Base de Datos
 
 - Tabla principal: `users`.
 - Entidad `User` incluye: `id`, `name`, `email`, `password`, `role`, `avatarUrl`, `bannerUrl`, `bio`, `backgroundUrl`.
 - Configuración en `src/main/resources/application.properties` usa variables de entorno MySQL.
 
-## Contenedorización
+## 6. Contenedorización
 
 - Dockerfile con build multi-stage.
 - Base de imagen: Maven 3.8.5 + OpenJDK 17.
 - Runtime: Eclipse Temurin 17 Alpine.
 - El servicio usa `PORT` dinámico, por defecto `8081`.
 
-## Variables de Entorno
+## 7. Variables de Entorno
 
 - `MYSQLHOST`
 - `MYSQLPORT`
@@ -71,7 +71,7 @@ AuthController
 - `MYSQLPASSWORD`
 - `PORT`
 
-## Flujo de petición
+## 8. Flujo de petición
 
 1. El gateway BFF del frontend envía `/api/auth/...`.
 2. `AuthController` recibe la petición.
@@ -79,7 +79,11 @@ AuthController
 4. `UserRepository` accede a la base de datos.
 5. Se devuelve respuesta JSON al frontend.
 
-## Integración
+## 9. Swagger Auth 
+Link swagger: https://fullstack4-auth-production-7c66.up.railway.app/swagger-ui/index.html#/
+<img width="1900" height="1036" alt="image" src="https://github.com/user-attachments/assets/f9e27112-c19e-4c7b-9ce5-f686d36de750" />
+
+## 10. Integración
 
 - El frontend se comunica con este servicio a través del gateway en `frontend/app/api/gateway/[...path]/route.ts`.
 - No hay llamadas directas a otros microservicios dentro del repositorio.
