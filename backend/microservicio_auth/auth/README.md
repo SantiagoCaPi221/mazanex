@@ -38,15 +38,20 @@ AuthController
 | PUT | `/api/auth/{id}/password` | Cambiar contraseña |
 | DELETE | `/api/auth/{id}` | Eliminar usuario |
 
-## 5. Tecnologías Utilizadas
+## 5. Tecnologías
 
-| Capa | Tecnología |
-|---|---|
-| Lenguaje | Java 17 |
-| Framework | Spring Boot 3.2.5 |
-| Persistencia | Spring Data JPA, MySQL Connector/J |
-| Compilación | Maven |
-| Docker | Docker multi-stage |
+| Tecnología | Versión |
+|------------|---------|
+| Java | 17 LTS |
+| Spring Boot | 3.4.5 |
+| Spring Data JPA | Incluida |
+| JWT (JJWT) | 0.9.1 |
+| H2 Database | Latest (dev) |
+| MySQL Connector | Latest (prod) |
+| SpringDoc OpenAPI | 2.1.0 |
+| Lombok | Latest |
+| Maven | 3.8.1+ |
+
 
 ## 6. Seguridad
 - **CORS**: Habilitado para integración con frontend
