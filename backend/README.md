@@ -71,8 +71,15 @@ backend/
 ---
 
 ## 5. Seguridad
-
 - **CORS**: Habilitado para integración con frontend
+- No hay generación ni validación de JWT
+Las contraseñas se comparan en texto plano, y se valida con una función dentro del código que valida 8 caracteres,  al menos 1 mayuscula, al menos 1 minuscula, almenos 1 número y un simbolo.
+
+ **Recomendaciones para mejorar:**
+
+- Implementar BCryptPasswordEncoder para hashear contraseñas
+- Añadir filtro JWT para proteger endpoints sensibles
+- Propagar tokens JWT desde el BFF hacia aquí
 
 ---
 ## 6. Patrones y Arquitectura Utilizada
