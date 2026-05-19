@@ -1,68 +1,79 @@
 # Frontend — Mazanex
 
----
+## Descripción
 
-## 1. ¿Qué es?
+Interfaz web desarrollada con Next.js y TypeScript para acceso de usuarios, gestión de perfiles y comunidad de juego.
 
-Frontend web de Mazanex creado con Next.js y TypeScript. Ofrece:
-- login y registro
-- perfil de usuario
-- comunidad social
-- integración con los microservicios backend
+## Funcionalidades
 
----
+- Login y registro de usuarios.
+- Edición de perfil.
+- Comunidad de jugadores con estado de relación.
+- Visualización de rankings y puntajes.
+- Rutas dinámicas de usuario.
 
-## 2. Organización del frontend
+## Arquitectura
 
-- `app/`: rutas y página principal
-- `components/`: UI reutilizable
-- `service/`: llamadas API al backend
-- `context/`: estado global (auth, perfil)
-- `store/`: persistencia local con Zustand
-- `app/api/gateway/[...path]/route.ts`: gateway BFF
+- `app/`: páginas y rutas del proyecto.
+- `components/`: componentes reutilizables de UI.
+- `service/`: integración con backend mediante el gateway.
+- `context/`: manejo de estado para auth y perfil.
+- `store/`: persistencia de usuario con Zustand.
+- `config/endpoints.ts`: URLs de backend.
+- `app/api/gateway/[...path]/route.ts`: gateway BFF.
 
----
+## Páginas principales
 
-## 3. Cómo funciona
+- `/login`
+- `/register`
+- `/profile`
+- `/community`
+- `/user/[id]`
 
-1. El usuario navega en el frontend.
-2. Las llamadas al backend pasan por `/api/gateway`.
-3. El gateway reenvía a Auth o Profile.
-4. El frontend recibe JSON y actualiza la UI.
+## Librerías principales
 
----
+- `next` / `react` / `react-dom`
+- `typescript`
+- `tailwindcss`
+- `zustand`
+- `lucide-react`
 
-## 4. Puntos importantes
+## Gateway y backend
 
-- El gateway está en `app/api/gateway/[...path]/route.ts`.
-- Los endpoints actuales se configuran en `frontend/config/endpoints.ts`.
-- El usuario se mantiene en `localStorage`.
-- Hoy no hay un manejo JWT centralizado en el frontend.
-- Recomendado: mover los endpoints a variables de entorno y añadir `Authorization` cuando el backend lo soporte.
+El frontend usa un BFF en `app/api/gateway/[...path]/route.ts` que reenvía llamadas a:
 
----
+- `backend/auth` para autenticación.
+- `backend/profile` para perfil, comunidad y puntajes.
 
-## 5. Tecnologías
+Los servicios destino se configuran en `frontend/config/endpoints.ts`.
 
-- Next.js 15 · React 19 · TypeScript
-- Tailwind CSS · Zustand
+## Estructura simplificada
 
----
-
-## 6. Cómo ejecutar
-
-```bash
-cd frontend
-pnpm install
-pnpm dev
+```text
+frontend/
+├── app/
+│   ├── api/gateway/[...path]/route.ts
+│   ├── login/page.tsx
+│   ├── register/page.tsx
+│   ├── profile/page.tsx
+│   ├── community/page.tsx
+│   └── user/[id]/page.tsx
+├── components/
+├── config/endpoints.ts
+├── context/
+├── service/
+└── store/useUserStore.ts
 ```
 
-Abrir `http://localhost:3000`.
+## Notas clave
 
----
+- El estado de usuario se almacena en `store/useUserStore.ts`.
+- Las rutas de backend se controlan desde `config/endpoints.ts`.
+- El gateway BFF está implementado en el propio frontend.
 
-## 7. Sugerencia para presentación
+## Navegación
 
-- Mostrar login y perfil en la UI.
-- Abrir la consola de red y señalar las llamadas al gateway.
-- Explicar que el frontend ya está listo para agregar JWT y mover configuraciones a env vars.
+* **Volver al Inicio:** [Contexto de Negocio](../README.md)
+* **Ir al Backend:** [Arquitectura de Microservicios](../backend/README.md)
+    * **Componente:** [Microservicio Auth](../backend/microservicio_auth/auth/README.md)
+    * **Componente:** [Microservicio Perfil](../backend/microservicio_profile/profile/README.md)

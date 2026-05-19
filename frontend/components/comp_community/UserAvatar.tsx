@@ -9,14 +9,13 @@ type Props = {
 };
 
 export function UserAvatar({ src, name, className = "" }: Props) {
-  const [error, setError] = useState(false);
-
+  const [hasError, setHasError] = useState(false);
   const initials = name?.substring(0, 2).toUpperCase() || "??";
 
-  if (!src || error) {
+  if (!src || hasError) {
     return (
       <div
-        className={`${className} bg-indigo-500/10 flex items-center justify-center font-black text-indigo-400`}
+        className={`${className} bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-black uppercase border border-indigo-500/20`}
       >
         {initials}
       </div>
@@ -26,9 +25,9 @@ export function UserAvatar({ src, name, className = "" }: Props) {
   return (
     <img
       src={src}
-      className={className}
-      onError={() => setError(true)}
       alt={name}
+      className={`${className} object-cover`}
+      onError={() => setHasError(true)}
     />
   );
 }

@@ -1,5 +1,10 @@
 # Readme Auth Service
 
+## 1. Descripción
+
+Microservicio de autenticación y gestión de usuarios para Mazanex.
+
+## 2. Responsabilidades
 ## Descripción
 
 Microservicio de autenticación y gestión de usuarios para Mazanex.
@@ -13,6 +18,7 @@ Microservicio de autenticación y gestión de usuarios para Mazanex.
 - Cambiar contraseña.
 - Eliminar cuentas.
 
+## 3. Arquitectura de software
 ## 2. Arquitectura de software
 
 ```text
@@ -27,6 +33,7 @@ AuthController
 - `UserRepository`: maneja persistencia con JPA.
 - `User`: entidad de usuario.
 
+## 4. Endpoints Principales
 ## 3. Endpoints Principales
 
 | Método | Endpoint | Función |
@@ -38,6 +45,22 @@ AuthController
 | PUT | `/api/auth/{id}/password` | Cambiar contraseña |
 | DELETE | `/api/auth/{id}` | Eliminar usuario |
 
+## 5. Tecnologías
+
+| Tecnología | Versión |
+|------------|---------|
+| Java | 17 LTS |
+| Spring Boot | 3.4.5 |
+| Spring Data JPA | Incluida |
+| JWT (JJWT) | 0.9.1 |
+| H2 Database | Latest (dev) |
+| MySQL Connector | Latest (prod) |
+| SpringDoc OpenAPI | 2.1.0 |
+| Lombok | Latest |
+| Maven | 3.8.1+ |
+
+
+## 6. Seguridad
 ## 4. Tecnologías Utilizadas
 
 | Capa | Tecnología |
@@ -60,12 +83,14 @@ Las contraseñas se comparan en texto plano, y se valida con una función dentro
 - Propagar tokens JWT desde el BFF hacia aquí
 
 
+## 7. Base de Datos
 ## 5. Base de Datos
 
 - Tabla principal: `users`.
 - Entidad `User` incluye: `id`, `name`, `email`, `password`, `role`, `avatarUrl`, `bannerUrl`, `bio`, `backgroundUrl`.
 - Configuración en `src/main/resources/application.properties` usa variables de entorno MySQL.
 
+## 8. Contenedorización
 ## 6. Contenedorización
 
 - Dockerfile con build multi-stage.
@@ -73,6 +98,7 @@ Las contraseñas se comparan en texto plano, y se valida con una función dentro
 - Runtime: Eclipse Temurin 17 Alpine.
 - El servicio usa `PORT` dinámico, por defecto `8081`.
 
+## 9. Variables de Entorno
 ## 7. Variables de Entorno
 
 - `MYSQLHOST`
@@ -82,6 +108,7 @@ Las contraseñas se comparan en texto plano, y se valida con una función dentro
 - `MYSQLPASSWORD`
 - `PORT`
 
+## 10. Flujo de petición
 ## 8. Flujo de petición
 
 1. El gateway BFF del frontend envía `/api/auth/...`.
@@ -89,6 +116,17 @@ Las contraseñas se comparan en texto plano, y se valida con una función dentro
 3. `AuthService` ejecuta la lógica.
 4. `UserRepository` accede a la base de datos.
 5. Se devuelve respuesta JSON al frontend.
+
+## 11. Swagger Auth 
+Link swagger: https://fullstack4-auth-production-7c66.up.railway.app/swagger-ui/index.html#/
+<img width="1900" height="1036" alt="image" src="https://github.com/user-attachments/assets/f9e27112-c19e-4c7b-9ce5-f686d36de750" />
+
+## 12. Integración
+
+- El frontend se comunica con este servicio a través del gateway en `frontend/app/api/gateway/[...path]/route.ts`.
+- No hay llamadas directas a otros microservicios dentro del repositorio.
+
+## Navegación
 
 ## 9. Swagger Auth 
 Link swagger: https://fullstack4-auth-production-7c66.up.railway.app/swagger-ui/index.html#/
@@ -99,3 +137,7 @@ Link swagger: https://fullstack4-auth-production-7c66.up.railway.app/swagger-ui/
 - El frontend se comunica con este servicio a través del gateway en `frontend/app/api/gateway/[...path]/route.ts`.
 - No hay llamadas directas a otros microservicios dentro del repositorio.
 
+* **Volver al Inicio:** [Contexto de Negocio](../../../README.md)
+* **Raíz del Backend:** [Arquitectura General](../../README.md)
+* **Ir al Frontend:** [Configuración de Cliente](../../../frontend/README.md)
+* **Perfil:** [Microservicio Perfil](../../microservicio_profile/profile/README.md)

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useUserStore } from "@/store/useUserStore";
 import { Trophy, Users, Zap, Target, Bot, Star } from "lucide-react";
 import { useState } from "react";
+import Footer from "@/components/footer"; // <-- Importamos tu Footer aquí
 
 export default function Home() {
   const user = useUserStore((state: any) => state.user);
@@ -12,7 +13,7 @@ export default function Home() {
   const iniciales = user?.name?.substring(0, 2).toUpperCase() || "??";
 
   return (
-    <div className="relative min-h-[calc(100vh-80px)] w-full overflow-hidden bg-[#030712] text-white flex flex-col justify-center">
+    <div className="relative min-h-screen w-full overflow-hidden bg-[#030712] text-white flex flex-col justify-between">
       {/* CAPA 1: TÉCNICA (GRID DE FONDO) */}
       <div
         className="absolute inset-0 z-0 opacity-[0.10]"
@@ -34,7 +35,8 @@ export default function Home() {
       <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-indigo-600/10 blur-[120px] rounded-full animate-pulse-slow" />
       <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full animate-pulse-slow delay-1000" />
 
-      <div className="relative z-10 flex flex-col items-center justify-center py-12 px-6 max-w-7xl mx-auto w-full">
+      {/* CONTENIDO PRINCIPAL */}
+      <div className="relative z-10 flex flex-col items-center justify-center pt-20 pb-12 px-6 max-w-7xl mx-auto w-full flex-1">
         {/* BADGE DE BIENVENIDA - Escala reducida */}
         <div className="mb-8 flex items-center gap-3 px-4 py-1.5 bg-white/5 border border-white/10 rounded-full backdrop-blur-xl shadow-xl transition-all hover:border-indigo-500/30">
           {user ? (
@@ -83,7 +85,6 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             {user ? (
               <>
-                {/* Cambiado el href de /perfil a /profile */}
                 <Link
                   href="/profile"
                   className="group relative px-8 py-3.5 bg-white text-black font-black rounded-lg overflow-hidden transition-all active:scale-95 shadow-lg"
@@ -138,6 +139,9 @@ export default function Home() {
           />
         </div>
       </div>
+
+      {/* FOOTER INYECTADO DESDE SU PROPIO ARCHIVO */}
+      <Footer />
     </div>
   );
 }

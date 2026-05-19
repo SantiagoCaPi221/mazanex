@@ -3,7 +3,7 @@ import { Terminal } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-[#030712] border-t border-white/5 py-12">
+    <footer className="w-full bg-[#030712] border-t border-white/5 py-12 relative z-10">
       <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-8">
         {/* LOGO & COPYRIGHT */}
         <div className="flex flex-col items-center md:items-start gap-2">
