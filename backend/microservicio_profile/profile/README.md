@@ -1,10 +1,10 @@
 # Readme Profile Service
 
-## Descripción
+## 1. Descripción
 
 Microservicio que gestiona perfiles, comunidad, relaciones sociales y puntajes de juego.
 
-## Responsabilidades
+## 2. Responsabilidades
 
 - Mantener perfiles de usuario.
 - Guardar y consultar puntajes.
@@ -12,7 +12,7 @@ Microservicio que gestiona perfiles, comunidad, relaciones sociales y puntajes d
 - Entregar notificaciones.
 - Sincronizar perfil con Auth cuando aplica.
 
-## Arquitectura de software
+## 3. Arquitectura de software
 
 ```text
 ProfileController    SocialController    GameController
@@ -31,7 +31,7 @@ ProfileController    SocialController    GameController
 - `GameController`: puntajes y rankings.
 - Repositorios JPA: acceso a datos de usuario, scores, notificaciones, solicitudes y seguidores.
 
-## Endpoints Principales
+## 4. Endpoints Principales
 
 | Método | Endpoint | Función |
 |---|---|---|
@@ -46,14 +46,14 @@ ProfileController    SocialController    GameController
 | GET | `/api/profile/games/ranking/{game}` | Obtener ranking |
 | POST | `/api/profile/games/save-record` | Guardar puntaje |
 
-## Docker y deployment
+## 5. Docker y deployment
 
 - Dockerfile en `backend/microservicio_profile/profile/Dockerfile`.
 - Multi-stage build con Maven 3.8.5 y Java 17.
 - El servicio usa `PORT` dinámico con valor por defecto `8082`.
 - `backend/docker-compose.yml` incluye el servicio `perfil-service` y la base de datos MySQL.
 
-## Setup
+## 6. Setup
 
 ### Local con Maven
 
@@ -69,12 +69,12 @@ cd backend
 docker-compose up --build
 ```
 
-## Configuración
+## 7. Configuración
 
 - `src/main/resources/application.properties` usa variables de entorno MySQL.
 - `server.port=${PORT:8082}` controla el puerto de la aplicación.
 
-## Variables de Entorno
+## 8. Variables de Entorno
 
 - `MYSQLHOST`
 - `MYSQLPORT`
@@ -83,7 +83,7 @@ docker-compose up --build
 - `MYSQLPASSWORD`
 - `PORT`
 
-## Flujo de petición
+## 9. Flujo de petición
 
 1. El gateway BFF recibe la petición del frontend.
 2. El controlador correspondiente procesa la ruta.
@@ -91,7 +91,7 @@ docker-compose up --build
 4. El repositorio accede a la base de datos.
 5. Se devuelve JSON al frontend.
 
-## Integración
+## 10. Integración
 
 - El frontend consume este servicio a través del gateway en `frontend/app/api/gateway/[...path]/route.ts`.
 - `ProfileService` puede sincronizar con un endpoint de Auth vía RestTemplate.
