@@ -1,81 +1,86 @@
-# Microservicio — Auth
+# Auth Service
 
----
+## Descripción
 
-## 1. ¿Qué hace?
+Microservicio de autenticación y gestión de usuarios para Mazanex.
 
-Servicio de autenticación y gestión de usuarios con Spring Boot. Responsable de:
-- Registro de nuevos usuarios
-- Validación de credenciales (login)
-- Edición de perfil de usuario
-- Cambio de contraseña
-- Eliminación de usuario
+## Responsabilidades
 
----
+- Registrar usuarios.
+- Iniciar sesión.
+- Listar usuarios.
+- Actualizar perfil.
+- Cambiar contraseña.
+- Eliminar cuentas.
 
-## 2. Arquitectura
+## Arquitectura de software
 
-- `AuthController`: maneja solicitudes HTTP
-- `AuthService`: contiene la lógica de negocio
-- `UserRepository`: acceso a datos con Spring Data JPA
-- MySQL: base de datos de usuarios
+```text
+AuthController
+    └── AuthService
+            └── UserRepository
+                    └── MySQL
+```
 
----
+- `AuthController`: recibe solicitudes HTTP.
+- `AuthService`: aplica reglas de negocio y validación.
+- `UserRepository`: maneja persistencia con JPA.
+- `User`: entidad de usuario.
 
-## 3. Endpoints principales
+## Endpoints Principales
 
-| Método | Ruta | Qué hace |
+| Método | Endpoint | Función |
 |---|---|---|
-| POST | `/api/auth/register` | Registrar nuevo usuario |
+| POST | `/api/auth/register` | Registrar usuario |
 | POST | `/api/auth/login` | Iniciar sesión |
-| GET | `/api/auth/users` | Listar todos los usuarios |
-| PUT | `/api/auth/profile/{id}` | Actualizar perfil del usuario |
+| GET | `/api/auth/users` | Listar usuarios |
+| PUT | `/api/auth/profile/{id}` | Actualizar perfil |
 | PUT | `/api/auth/{id}/password` | Cambiar contraseña |
 | DELETE | `/api/auth/{id}` | Eliminar usuario |
 
----
+## Tecnologías Utilizadas
 
-## 4. Tecnologías
+| Capa | Tecnología |
+|---|---|
+| Lenguaje | Java 17 |
+| Framework | Spring Boot 3.2.5 |
+| Persistencia | Spring Data JPA, MySQL Connector/J |
+| Compilación | Maven |
+| Docker | Docker multi-stage |
 
-- Spring Boot 3.2.x · Spring Web · Spring Data JPA
-- MySQL Connector/J · Lombok
-- `springdoc-openapi` para documentación
-- `io.jsonwebtoken:jjwt` disponible en dependencias (no usado aún)
 
----
+## Base de Datos
 
-## 5. Seguridad hoy
+- Tabla principal: `users`.
+- Entidad `User` incluye: `id`, `name`, `email`, `password`, `role`, `avatarUrl`, `bannerUrl`, `bio`, `backgroundUrl`.
+- Configuración en `src/main/resources/application.properties` usa variables de entorno MySQL.
 
-**Estado actual:**
-- No hay generación ni validación de JWT
-- Las contraseñas se comparan en texto plano
+## Contenedorización
 
-**Recomendaciones para mejorar:**
-- Implementar `BCryptPasswordEncoder` para hashear contraseñas
-- Añadir filtro JWT para proteger endpoints sensibles
-- Propagar tokens JWT desde el BFF hacia aquí
+- Dockerfile con build multi-stage.
+- Base de imagen: Maven 3.8.5 + OpenJDK 17.
+- Runtime: Eclipse Temurin 17 Alpine.
+- El servicio usa `PORT` dinámico, por defecto `8081`.
 
----
+## Variables de Entorno
 
-## 6. Cómo ejecutar
+- `MYSQLHOST`
+- `MYSQLPORT`
+- `MYSQLDATABASE`
+- `MYSQLUSER`
+- `MYSQLPASSWORD`
+- `PORT`
 
-**Local (desarrollo):**
-```bash
-cd backend/microservicio_auth/auth
-./mvnw spring-boot:run
-```
+## Flujo de petición
 
-**Con Docker Compose:**
-```bash
-cd backend
-docker-compose up --build
-```
+1. El gateway BFF del frontend envía `/api/auth/...`.
+2. `AuthController` recibe la petición.
+3. `AuthService` ejecuta la lógica.
+4. `UserRepository` accede a la base de datos.
+5. Se devuelve respuesta JSON al frontend.
 
----
+## Integración
 
-## 7. Para presentación
-
-- Demostrar el flujo de registro → login
-- Ejecutar `GET /api/auth/users` para mostrar la respuesta JSON
-- Destacar que está listo para agregar seguridad JWT en los próximos pasos
+- El frontend se comunica con este servicio a través del gateway en `frontend/app/api/gateway/[...path]/route.ts`.
+- No hay llamadas directas a otros microservicios dentro del repositorio.
 

@@ -1,134 +1,112 @@
-# Innovatech – Sistema Empresarial de Autenticación y Gestión de Perfiles
+# Mazanex
 
----
+## Contexto
 
-## 1. Descripción General
+Mazanex es una plataforma que reúne identidad de usuario, perfiles sociales y puntajes de juego en un solo entorno web.
 
-**Innovatech** es una plataforma empresarial desarrollada bajo una arquitectura basada en **microservicios desacoplados**, diseñada para gestionar de forma segura el registro, autenticación y administración de perfiles de usuario.
+## Introducción
 
-El sistema integra:
-- Un **Frontend moderno**
-- Un **API Gateway**
-- Microservicios independientes
-- Bases de datos separadas por servicio
-- Contenedores para despliegue
+El sistema responde a la necesidad de ofrecer registro, perfil y comunidad para jugadores sin mezclar la lógica de frontend y backend.
 
-La arquitectura fue diseñada siguiendo principios de ingeniería de software como bajo acoplamiento, alta cohesión, escalabilidad y seguridad por ocultación de infraestructura.
+## Solución
 
----
+Mazanex implementa:
+- registro y login de usuarios,
+- edición de perfiles,
+- gestión de comunidad y solicitudes sociales,
+- seguimiento de puntajes y rankings.
 
-## 2. Arquitectura del Sistema
+## Requerimientos funcionales
 
-La solución está compuesta por múltiples capas que se comunican mediante **APIs REST** utilizando formato **JSON**.
+- Crear y autenticar usuarios.
+- Actualizar datos de perfil.
+- Consultar perfiles públicos.
+- Enviar y aceptar solicitudes sociales.
+- Guardar y consultar puntajes de juego.
+- Mostrar notificaciones de actividad.
 
-### Frontend (Next.js + BFF)
-- Interfaz de usuario desarrollada con **Next.js**
-- Gestión de estado en el cliente
-- Implementación del patrón **Backend For Frontend (BFF)**
-- Comunicación segura con el API Gateway
-- Encargado de la experiencia de usuario
+## Requerimientos no funcionales
 
----
+- Interfaz desarrollada en Next.js y TypeScript.
+- Backend modular con servicios independientes.
+- Persistencia en MySQL.
+- Comunicación REST en JSON.
+- Contenerización con Docker.
 
-### API Gateway (KrakenD)
-- Punto único de entrada al sistema
-- Funciona como **proxy inverso**
-- Centraliza y enruta solicitudes hacia los microservicios
-- Refuerza la seguridad perimetral
-- Oculta la infraestructura interna
+## Casos de uso
 
----
+- Registro de un nuevo jugador.
+- Inicio de sesión y acceso a perfil.
+- Edición de avatar, bio y banner.
+- Interacción social entre usuarios.
+- Consulta de rankings por juego.
 
-### Microservicios Backend (Spring Boot)
-Desarrollados en **Java con Spring Boot**. El sistema está compuesto por:
+## Arquitectura del sistema
 
-#### Servicio de Autenticación
-- Registro de usuarios
-- Inicio de sesión
-- Generación y validación de **JWT**
-- Control de acceso basado en roles (**RBAC**)
+- Frontend en `frontend/`.
+- Gateway BFF en `frontend/app/api/gateway/[...path]/route.ts`.
+- Auth Service en `backend/microservicio_auth/auth`.
+- Profile Service en `backend/microservicio_profile/profile`.
+- MySQL como base de datos compartida.
 
-#### Servicio de Perfil
-- Consulta de datos del usuario
-- Actualización de información mediante operaciones HTTP
-- Gestión independiente de datos personales
+El gateway BFF recibe las peticiones del frontend y las dirige a Auth o Profile según la ruta.
 
-Cada microservicio funciona de manera autónoma.
+## Componentes principales
 
----
+- Frontend: UI y gateway.
+- Auth Service: `/api/auth`.
+- Profile Service: `/api/profile`, `/api/profile/social`, `/api/profile/games`.
+- MySQL: persistencia de datos.
+- Docker Compose: orquestación local.
 
-### Base de Datos
-- Motor relacional **MySQL**
-- Esquemas separados por microservicio
-- Cumplimiento de propiedades **ACID**
-- Despliegue en entorno cloud
+## Flujo general del sistema
 
----
+1. El usuario usa la aplicación web.
+2. La UI envía la petición al gateway interno.
+3. El gateway reenvía la petición al servicio correcto.
+4. El servicio procesa la solicitud.
+5. La respuesta regresa en JSON.
+6. La UI muestra el resultado.
 
-### Infraestructura y Despliegue
-- Uso de **Docker**
-- Contenedores independientes por servicio
-- Preparado para despliegue en entornos escalables
-- Arquitectura orientada a la nube
-
----
-
-## 3. Seguridad
-
-El sistema implementa múltiples mecanismos de protección:
-- Autenticación mediante **JWT**
-- Autorización basada en roles (**RBAC**)
-- Validación de tokens en el API Gateway
-- Comunicación segura mediante **HTTPS**
-- Separación de responsabilidades entre servicios
-
----
-
-## 4. Tecnologías Utilizadas
-
-| Componente | Tecnología |
-|------------|------------|
-| Frontend | Next.js |
-| Backend | Spring Boot |
-| Lenguaje Backend | Java |
-| Base de Datos | MySQL |
-| API Gateway | KrakenD |
-| Contenedores | Docker |
-
----
-
-## 5. Flujo General del Sistema
-
-1. El usuario interactúa con el **Frontend**.
-2. Las solicitudes se envían al **API Gateway**.
-3. El Gateway valida el token **JWT**.
-4. La solicitud se redirige al microservicio correspondiente.
-5. El microservicio procesa la información.
-6. La respuesta se devuelve en formato **JSON**.
-
----
-
-## 6. Diagrama de Contenedores (Diseño General)
-
-El siguiente modelo representa la infraestructura completa y la convivencia de los componentes distribuidos de la plataforma:
-
-> <img width="1919" height="2925" alt="Diagrama de contenedores  (1)" src="https://github.com/user-attachments/assets/82afb61c-b1fd-4fb1-9d3b-dd2d795040c3" />
-
----
-
-## 7. Estructura del Repositorio (Monorepo)
-
-El proyecto está organizado de forma centralizada en módulos independientes dentro de la raíz principal:
+## Estructura del proyecto
 
 ```text
-FULLSTACK-4 (Raiz del Monorepo)
-├── frontend/      --> Codigo y logica de la interfaz de usuario del cliente.
-└── backend/       --> Entorno que aloja los microservicios independientes.
-├── auth/      --> Microservicio dedicado a la seguridad y login.
-└── perfil/    --> Microservicio dedicado a los datos de usuario.
+/
+├── frontend/
+│   ├── app/
+│   ├── components/
+│   ├── config/
+│   ├── context/
+│   ├── service/
+│   └── store/
+└── backend/
+    ├── docker-compose.yml
+    ├── microservicio_auth/auth/
+    └── microservicio_profile/profile/
 ```
-## 🧭 8. Documentación Detallada por Áreas
 
-### 💻 [Módulo de Frontend](./frontend/README.md)
+## Ejecución
 
-### ⚙️ [Módulo de Backend](./backend/README.md)
+```bash
+cd frontend
+pnpm install
+pnpm dev
+```
+
+```bash
+cd backend
+docker-compose up --build
+```
+
+## Variables de entorno
+
+- `MYSQLHOST`
+- `MYSQLPORT`
+- `MYSQLDATABASE`
+- `MYSQLUSER`
+- `MYSQLPASSWORD`
+- `PORT`
+
+## Conclusión
+
+Mazanex es un sistema modular para comunidad gamer que separa frontend y backend mediante un gateway BFF. Este README está enfocado en el contexto del negocio, la solución y la arquitectura real del proyecto.
