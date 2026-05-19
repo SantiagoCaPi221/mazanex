@@ -70,3 +70,10 @@ frontend/
 - El estado de usuario se almacena en `store/useUserStore.ts`.
 - Las rutas de backend se controlan desde `config/endpoints.ts`.
 - El gateway BFF está implementado en el propio frontend.
+
+## Navegación
+
+* **Volver al Inicio:** [Contexto de Negocio](../README.md)
+* **Ir al Backend:** [Arquitectura de Microservicios](../backend/README.md)
+    * **Componente:** [Microservicio Auth](../backend/microservicio_auth/auth/README.md)
+    * **Componente:** [Microservicio Perfil](../backend/microservicio_profile/profile/README.md)
