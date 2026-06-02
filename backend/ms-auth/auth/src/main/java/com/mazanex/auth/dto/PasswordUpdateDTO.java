@@ -1,4 +1,6 @@
-package com.mazanex.auth.model; 
+package com.mazanex.auth.dto; 
+
+
 public class PasswordUpdateDTO {
     private String currentPassword;
     private String newPassword;

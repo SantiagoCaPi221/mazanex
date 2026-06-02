@@ -1,11 +1,12 @@
 package com.mazanex.auth.controller;
 
 import com.mazanex.auth.model.User;
-import com.mazanex.auth.model.PasswordUpdateDTO; // Asegúrate de importar tu DTO
 import com.mazanex.auth.service.AuthService;
 import com.mazanex.auth.security.JwtProvider;
 import com.mazanex.auth.dto.AuthRequest;
 import com.mazanex.auth.dto.AuthResponse;
+import com.mazanex.auth.dto.PasswordUpdateDTO;
+
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
