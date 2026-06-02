@@ -3,6 +3,9 @@ package com.mazanex.auth.controller;
 import com.mazanex.auth.model.User;
 import com.mazanex.auth.model.PasswordUpdateDTO; // Asegúrate de importar tu DTO
 import com.mazanex.auth.service.AuthService;
+import com.mazanex.auth.security.JwtProvider;
+import com.mazanex.auth.dto.AuthRequest;
+import com.mazanex.auth.dto.AuthResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +23,9 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private JwtProvider jwtProvider;
+
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody User user) {
         User newUser = authService.registerUser(user);
@@ -27,10 +33,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody User loginData) {
-        User user = authService.login(loginData.getEmail(), loginData.getPassword());
+    public ResponseEntity<?> login(@RequestBody AuthRequest loginData) {
+        String identifier = loginData.getUsernameOrEmail();
+        User user = authService.login(identifier, loginData.getPassword());
         if (user != null) {
-            return ResponseEntity.ok(user);
+            String token = jwtProvider.generateToken(user.getEmail() != null ? user.getEmail() : user.getName());
+            return ResponseEntity.ok(new AuthResponse(token, user));
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }

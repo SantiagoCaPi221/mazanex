@@ -4,6 +4,7 @@ import com.mazanex.auth.model.User;
 import com.mazanex.auth.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +15,9 @@ public class AuthService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -22,15 +26,22 @@ public class AuthService {
         if (user.getRole() == null || user.getRole().isEmpty()) {
             user.setRole("USER");
         }
-        // Nota para el futuro: Aquí es donde implementarías la encriptación (ej. BCrypt)
+        // Hashear la contraseña antes de guardar
+        if (user.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
         return userRepository.save(user);
     }
 
     public User login(String identifier, String password) {
-        return userRepository.findByEmail(identifier)
-                .or(() -> userRepository.findByName(identifier))
-                .filter(u -> u.getPassword().equals(password))
-                .orElse(null);
+        Optional<User> u = userRepository.findByEmail(identifier).or(() -> userRepository.findByName(identifier));
+        if (u.isPresent()) {
+            User user = u.get();
+            if (passwordEncoder.matches(password, user.getPassword())) {
+                return user;
+            }
+        }
+        return null;
     }
 
     public User updateProfile(Long id, User data) {
@@ -53,12 +64,12 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         // Comparamos la contraseña enviada con la guardada en la base de datos
-        if (!user.getPassword().equals(currentPassword)) {
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             throw new IllegalArgumentException("La contraseña actual es incorrecta");
         }
 
-        // Si coincide, guardamos la nueva
-        user.setPassword(newPassword);
+        // Si coincide, guardamos la nueva (hasheada)
+        user.setPassword(passwordEncoder.encode(newPassword));
         return userRepository.save(user);
     }
 
