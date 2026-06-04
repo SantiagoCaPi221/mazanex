@@ -11,7 +11,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/profile/social")
-@CrossOrigin(origins = "*")
 public class SocialController {
 
     @Autowired

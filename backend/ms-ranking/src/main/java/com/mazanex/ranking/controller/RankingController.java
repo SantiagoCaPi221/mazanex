@@ -2,7 +2,7 @@ package com.mazanex.ranking.controller;
 
 import com.mazanex.ranking.model.Score;
 import com.mazanex.ranking.service.RankingService;
-import com.mazanex.ranking.dto.ScoreRequestDto; // <-- Importamos tu nuevo DTO
+import com.mazanex.ranking.dto.ScoreRequestDto; 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +12,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ranking")
-@CrossOrigin(origins = "*")
 public class RankingController {
 
     @Autowired

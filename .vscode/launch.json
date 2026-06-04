@@ -52,6 +52,16 @@
             "projectName": "perfil",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-PublicationsApplication<publications>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.mazanex.publications.PublicationsApplication",
+            "projectName": "publications",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }
