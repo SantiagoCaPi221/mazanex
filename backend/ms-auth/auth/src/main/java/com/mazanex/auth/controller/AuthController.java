@@ -6,6 +6,7 @@ import com.mazanex.auth.security.JwtProvider;
 import com.mazanex.auth.dto.AuthRequest;
 import com.mazanex.auth.dto.AuthResponse;
 import com.mazanex.auth.dto.PasswordUpdateDTO;
+ import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +29,13 @@ public class AuthController {
     private JwtProvider jwtProvider;
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User user) {
+    public ResponseEntity<User> register(@Valid @RequestBody User user) {
         User newUser = authService.registerUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest loginData) {
+    public ResponseEntity<?> login(@Valid @RequestBody AuthRequest loginData) {
         String identifier = loginData.getUsernameOrEmail();
         User user = authService.login(identifier, loginData.getPassword());
         if (user != null) {
@@ -60,7 +61,7 @@ public class AuthController {
 
     // --- NUEVO ENDPOINT DE SEGURIDAD ---
     @PutMapping("/{id}/password")
-    public ResponseEntity<?> updatePassword(@PathVariable Long id, @RequestBody PasswordUpdateDTO request) {
+    public ResponseEntity<?> updatePassword(@PathVariable Long id, @Valid @RequestBody PasswordUpdateDTO request) {
         try {
             User updatedUser = authService.updatePassword(id, request.getCurrentPassword(), request.getNewPassword());
             return ResponseEntity.ok(updatedUser);
