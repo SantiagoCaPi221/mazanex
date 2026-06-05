@@ -4,7 +4,9 @@ import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.spec.SecretKeySpec;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyFactory;
@@ -30,14 +32,18 @@ public class JwtProvider {
     @Value("${jwt.publicKeyPath:}")
     private String publicKeyPath;
 
+    @Value("${jwt.secret:}")
+    private String jwtSecret;
+
     @Value("${jwt.expirationMs:3600000}")
     private long expirationMs;
 
     private PrivateKey privateKey;
     private PublicKey publicKey;
+    private byte[] secretKey;
 
     private synchronized void ensureKeysLoaded() {
-        if (privateKey != null && publicKey != null) return;
+        if ((privateKey != null && publicKey != null) || secretKey != null) return;
         try {
             String privPem = privateKeyPem;
             String pubPem = publicKeyPem;
@@ -66,8 +72,12 @@ public class JwtProvider {
             if (pubPem != null && !pubPem.isEmpty()) {
                 publicKey = readPublicKeyFromPem(pubPem);
             }
+
+            if ((privateKey == null || publicKey == null) && jwtSecret != null && !jwtSecret.isEmpty()) {
+                secretKey = jwtSecret.getBytes(StandardCharsets.UTF_8);
+            }
         } catch (Exception e) {
-            throw new RuntimeException("Failed to load RSA keys for JWT", e);
+            throw new RuntimeException("Failed to load JWT keys", e);
         }
     }
 
@@ -93,31 +103,49 @@ public class JwtProvider {
 
     public String generateToken(String subject) {
         ensureKeysLoaded();
-        if (privateKey == null) throw new IllegalStateException("Private key for JWT not configured");
         Date now = new Date();
         Date exp = new Date(now.getTime() + expirationMs);
-        return Jwts.builder()
+
+        JwtBuilder builder = Jwts.builder()
                 .setSubject(subject)
                 .setIssuedAt(now)
-                .setExpiration(exp)
-                .signWith(SignatureAlgorithm.RS256, privateKey)
-                .compact();
+                .setExpiration(exp);
+
+        if (privateKey != null) {
+            return builder.signWith(SignatureAlgorithm.RS256, privateKey).compact();
+        }
+        if (secretKey != null) {
+            SecretKeySpec signingKey = new SecretKeySpec(secretKey, SignatureAlgorithm.HS256.getJcaName());
+            return builder.signWith(SignatureAlgorithm.HS256, signingKey).compact();
+        }
+        throw new IllegalStateException("JWT signing configuration is missing");
     }
 
     public String getSubjectFromToken(String token) {
-        ensureKeysLoaded();
-        Claims claims = Jwts.parser().setSigningKey(publicKey).parseClaimsJws(token).getBody();
+        Claims claims = parseClaims(token);
         return claims.getSubject();
     }
 
     public boolean validateToken(String token) {
-        ensureKeysLoaded();
         try {
-            Jwts.parser().setSigningKey(publicKey).parseClaimsJws(token);
+            parseClaims(token);
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
+        } catch (ExpiredJwtException | SignatureException | MalformedJwtException | IllegalArgumentException e) {
             return false;
         }
+    }
+
+    private Claims parseClaims(String token) {
+        ensureKeysLoaded();
+        JwtParser parser = Jwts.parser();
+        if (publicKey != null) {
+            parser.setSigningKey(publicKey);
+        } else if (secretKey != null) {
+            parser.setSigningKey(secretKey);
+        } else {
+            throw new IllegalStateException("JWT validation configuration is missing");
+        }
+        return parser.parseClaimsJws(token).getBody();
     }
 
     public String getPublicKeyPem() {
