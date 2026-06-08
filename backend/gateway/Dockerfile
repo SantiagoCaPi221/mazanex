@@ -18,4 +18,4 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
 # Inyectamos el puerto 8080 por defecto para el Gateway
-ENTRYPOINT java -Dserver.port=${PORT:-8080} -jar app.jarv
+ENTRYPOINT java -Dserver.port=${PORT:-8080} -jar app.jar
