@@ -1,0 +1,7 @@
+# Ignorar dependencias pesadas del Frontend
+**/node_modules/
+**/.next/
+
+# Ignorar compilaciones y archivos pesados del Backend
+**/target/
+*.jar
