@@ -1,4 +1,4 @@
-package main.java.com.mazanex.gateway.config;
+package com.mazanex.gateway.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
