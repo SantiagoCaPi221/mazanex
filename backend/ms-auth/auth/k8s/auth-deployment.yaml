@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mazanex-auth
+  labels:
+    app: mazanex-auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mazanex-auth
+  template:
+    metadata:
+      labels:
+        app: mazanex-auth
+    spec:
+      containers:
+        - name: auth
+          image: mazanex-auth:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+          envFrom:
+            - configMapRef:
+                name: mazanex-auth-config
+            - secretRef:
+                name: mazanex-auth-secret

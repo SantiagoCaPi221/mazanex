@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mazanex-profile
+  labels:
+    app: mazanex-profile
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mazanex-profile
+  template:
+    metadata:
+      labels:
+        app: mazanex-profile
+    spec:
+      containers:
+        - name: profile
+          image: mazanex-profile:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8082
+          envFrom:
+            - configMapRef:
+                name: mazanex-profile-config
+            - secretRef:
+                name: mazanex-profile-secret
