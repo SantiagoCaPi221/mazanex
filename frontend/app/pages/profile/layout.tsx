@@ -3,7 +3,7 @@
 import { useRef, useMemo } from "react";
 import { usePathname } from "next/navigation";
 
-import { useUserStore } from "@/store/useUserStore";
+import { useUserStore } from "@/app/store/useUserStore";
 
 import { useNotifications } from "@/app/components/hooks/profile/profile_layout/useNotifications";
 import { useProfileUI } from "@/app/components/hooks/profile/profile_layout/useProfileUI";
