@@ -1,0 +1,128 @@
+{
+  "version": 3,
+  "port": 8080,
+  "extra_config": {
+    "security/cors": {
+      "allow_origins": [
+        "http://localhost:3000"
+      ],
+      "allow_methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "OPTIONS"
+      ],
+      "allow_headers": [
+        "Origin",
+        "Authorization",
+        "Content-Type",
+        "Accept"
+      ],
+      "expose_headers": [
+        "Content-Length"
+      ],
+      "max_age": "12h"
+    }
+  },
+  "endpoints": [
+    {
+      "endpoint": "/api/auth/{path}",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/api/auth/{path}",
+          "encoding": "no-op",
+          "host": [
+            "http://auth-service:8081"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/profile/{path}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/api/profile/{path}",
+          "encoding": "no-op",
+          "host": [
+            "http://perfil-service:8082"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/profile/{path}",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/api/profile/{path}",
+          "encoding": "no-op",
+          "host": [
+            "http://perfil-service:8082"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/publications/{path}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/api/publications/{path}",
+          "encoding": "no-op",
+          "host": [
+            "http://publications-service:8083"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/publications/{path}",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/api/publications/{path}",
+          "encoding": "no-op",
+          "host": [
+            "http://publications-service:8083"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/ranking/{path}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/api/ranking/{path}",
+          "encoding": "no-op",
+          "host": [
+            "http://ranking-service:8084"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/ranking/{path}",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/api/ranking/{path}",
+          "encoding": "no-op",
+          "host": [
+            "http://ranking-service:8084"
+          ]
+        }
+      ]
+    }
+  ]
+}

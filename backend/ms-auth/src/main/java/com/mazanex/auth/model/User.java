@@ -1,9 +1,6 @@
 package com.mazanex.auth.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "users")
@@ -13,17 +10,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @NotBlank(message = "El nombre es obligatorio")
     private String name;
-
-    @NotBlank(message = "El correo es obligatorio")
-    @Email(message = "El correo no es válido")
     private String email;
-
-    @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     private String password;
-
     private String role;
 
     @Lob
