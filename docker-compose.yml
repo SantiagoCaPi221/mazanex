@@ -1,0 +1,144 @@
+services:
+  # ==========================================
+  # 1. BASE DE DATOS (MySQL)
+  # ==========================================
+  db:
+    image: mysql:8.0
+    container_name: mazanex-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      # Las bases de datos las crearán los microservicios gracias a JPA
+    ports:
+      - "3306:3306"
+    networks:
+      - mazanex-network
+    volumes:
+      - db_data:/var/lib/mysql
+
+  # ==========================================
+  # 2. BFF (KrakenD)
+  # ==========================================
+  bff:
+    build:
+      context: ./backend/bff
+      dockerfile: Dockerfile
+    container_name: mazanex-bff
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth-service
+      - perfil-service
+      - publications-service
+      - ranking-service
+    networks:
+      - mazanex-network
+
+  # ==========================================
+  # 3. MICROSERVICIOS BACKEND
+  # ==========================================
+  auth-service:
+    build:
+      context: ./backend/ms-auth
+      dockerfile: Dockerfile
+    container_name: mazanex-auth
+    ports:
+      - "8081:8081"
+    environment:
+      - MYSQLHOST=db
+      - MYSQLPORT=3306
+      - MYSQLDATABASE=auth_db
+      - MYSQLUSER=root
+      - MYSQLPASSWORD=root
+      - PORT=8081
+    depends_on:
+      - db
+    networks:
+      - mazanex-network
+
+  perfil-service:
+    build:
+      context: ./backend/ms-profile
+      dockerfile: Dockerfile
+    container_name: mazanex-profile
+    ports:
+      - "8082:8082"
+    environment:
+      - MYSQLHOST=db
+      - MYSQLPORT=3306
+      - MYSQLDATABASE=profile_db
+      - MYSQLUSER=root
+      - MYSQLPASSWORD=root
+      - PORT=8082
+    depends_on:
+      - db
+    networks:
+      - mazanex-network
+
+  publications-service:
+    build:
+      context: ./backend/ms-publications
+      dockerfile: Dockerfile
+    container_name: mazanex-publications
+    ports:
+      - "8083:8083"
+    environment:
+      - MYSQLHOST=db
+      - MYSQLPORT=3306
+      - MYSQLDATABASE=publications_db
+      - MYSQLUSER=root
+      - MYSQLPASSWORD=root
+      - PORT=8083
+    depends_on:
+      - db
+    networks:
+      - mazanex-network
+
+  ranking-service:
+    build:
+      context: ./backend/ms-ranking
+      dockerfile: Dockerfile
+    container_name: mazanex-ranking
+    ports:
+      - "8084:8084"
+    environment:
+      - MYSQLHOST=db
+      - MYSQLPORT=3306
+      - MYSQLDATABASE=ranking_db
+      - MYSQLUSER=root
+      - MYSQLPASSWORD=root
+      - PORT=8084
+    depends_on:
+      - db
+    networks:
+      - mazanex-network
+
+  # ==========================================
+  # 4. FRONTEND (Next.js)
+  # ==========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: mazanex-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_GATEWAY_URL=http://localhost:8080
+    depends_on:
+      - bff
+    networks:
+      - mazanex-network
+    # Permite ver los cambios en vivo si editas el código mientras Docker corre
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+# ==========================================
+# REDES Y VOLÚMENES
+# ==========================================
+networks:
+  mazanex-network:
+    driver: bridge
+
+volumes:
+  db_data:

@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
-import { useUserStore } from "@/store/useUserStore";
+import { useUserStore } from "@/app/store/useUserStore";
 import { Trophy, Users, Zap, Target, Bot, Star } from "lucide-react";
 import { useState } from "react";
-import Footer from "@/components/footer"; // <-- Importamos tu Footer aquí
+import Footer from "@/app/components/Footer";
 
 export default function Home() {
   const user = useUserStore((state: any) => state.user);
@@ -86,7 +86,7 @@ export default function Home() {
             {user ? (
               <>
                 <Link
-                  href="/profile"
+                  href="/pages/profile"
                   className="group relative px-8 py-3.5 bg-white text-black font-black rounded-lg overflow-hidden transition-all active:scale-95 shadow-lg"
                 >
                   <div className="relative z-10 flex items-center justify-center gap-2 text-sm uppercase italic">
@@ -95,7 +95,7 @@ export default function Home() {
                   </div>
                 </Link>
                 <Link
-                  href="/community"
+                  href="/pages/community"
                   className="px-8 py-3.5 bg-transparent text-white border border-white/20 font-black rounded-lg hover:bg-white/5 transition-all active:scale-95 text-sm uppercase italic flex items-center justify-center gap-2"
                 >
                   Ver Comunidad <Users className="w-4 h-4" />
@@ -104,13 +104,13 @@ export default function Home() {
             ) : (
               <>
                 <Link
-                  href="/login"
+                  href="/pages/login"
                   className="px-10 py-4 bg-indigo-600 text-white font-black rounded-xl shadow-[0_0_30px_rgba(79,70,229,0.3)] hover:bg-indigo-500 transition-all active:scale-95 text-sm uppercase italic"
                 >
                   Unirse a Mazanex
                 </Link>
                 <Link
-                  href="/register"
+                  href="/pages/register"
                   className="px-10 py-4 bg-white/5 text-white border border-white/10 font-black rounded-xl hover:bg-white/10 transition-all active:scale-95 text-sm uppercase italic"
                 >
                   Crear Registro
