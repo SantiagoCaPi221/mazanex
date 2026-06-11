@@ -9,15 +9,11 @@ import type { Relationship, User } from "@/app/components/types/community";
 export function useRelationships(users: User[]) {
   const { user } = useUserStore();
 
-  const [relationships, setRelationships] = useState<
-    Record<number, Relationship>
-  >({});
-
+  const [relationships, setRelationships] = useState<Record<number, Relationship>>({});
+  // Iniciamos en true, pero nos aseguramos de apagarlo
   const [loadingRelationships, setLoading] = useState(true);
 
   const fetchRelationships = async () => {
-    if (!user?.id) return;
-
     setLoading(true);
 
     try {
@@ -25,18 +21,28 @@ export function useRelationships(users: User[]) {
 
       await Promise.all(
         users.map(async (u) => {
-          map[u.id] = await socialService.getRelationshipStatus(user.id, u.id);
+          // El '!' le dice a TypeScript que estamos seguros de que user.id existe aquí
+          map[u.id] = await socialService.getRelationshipStatus(user!.id, u.id);
         })
       );
 
       setRelationships(map);
+    } catch (error) {
+      console.error("Error al obtener relaciones:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (users.length) fetchRelationships();
+    // LA SOLUCIÓN: Si no hay usuarios en BD, o aún no carga tu sesión...
+    if (!users || users.length === 0 || !user?.id) {
+      setLoading(false); // ... apagamos el loading inmediatamente.
+      return;            // y nos salimos.
+    }
+
+    // Si pasamos los filtros de arriba, entonces sí vamos al backend a consultar
+    fetchRelationships();
   }, [users, user?.id]);
 
   return {
