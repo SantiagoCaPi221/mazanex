@@ -2,7 +2,6 @@ package com.mazanex.auth.controller;
 
 import com.mazanex.auth.dto.PasswordUpdateDTO;
 import com.mazanex.auth.model.User;
-import com.mazanex.auth.security.JwtService;
 import com.mazanex.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +19,6 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @Autowired
-    private JwtService jwtService;
-
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody User user) {
         User newUser = authService.registerUser(user);
@@ -30,33 +26,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(
-            @RequestBody User loginData) {
-
-        User user = authService.login(
-                loginData.getEmail(),
-                loginData.getPassword());
-
-        if (user == null) {
-
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Credenciales inválidas");
+    public ResponseEntity<User> login(@RequestBody User loginData) {
+        User user = authService.login(loginData.getEmail(), loginData.getPassword());
+        if (user != null) {
+            return ResponseEntity.ok(user);
         }
-
-        String token = jwtService.generateToken(
-                user.getId(),
-                user.getEmail(),
-                user.getRole());
-
-        return ResponseEntity.ok(
-                new loginresponse(
-                        token,
-                        user.getId(),
-                        user.getName(),
-                        user.getRole()
-                )
-        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @GetMapping("/users")
