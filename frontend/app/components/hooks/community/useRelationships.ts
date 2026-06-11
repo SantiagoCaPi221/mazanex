@@ -35,7 +35,6 @@ export function useRelationships(users: User[]) {
   };
 
   useEffect(() => {
-    // LA SOLUCIÓN: Si no hay usuarios en BD, o aún no carga tu sesión...
     if (!users || users.length === 0 || !user?.id) {
       setLoading(false); // ... apagamos el loading inmediatamente.
       return;            // y nos salimos.
