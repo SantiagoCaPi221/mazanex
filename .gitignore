@@ -1,0 +1,9 @@
+#Este gitignore evita el error de node_module y los miles de archivos al querer hacer commit
+
+# Ignorar dependencias pesadas del Frontend
+**/node_modules/
+**/.next/
+
+# Ignorar compilaciones y archivos pesados del Backend
+**/target/
+*.jar

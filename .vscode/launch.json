@@ -1,0 +1,79 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-ProfileApplication<perfil>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.mazanex.perfil.ProfileApplication",
+            "projectName": "perfil",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=40375 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=perfil"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-AuthApplication<auth>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.mazanex.auth.AuthApplication",
+            "projectName": "auth",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-RankingApplication<ranking>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.mazanex.ranking.RankingApplication",
+            "projectName": "ranking",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=40494 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=ranking"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-PublicationsApplication<publications>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.mazanex.auth.PublicationsApplication",
+            "projectName": "publications",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=11516 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=publications"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-ProfileApplication<perfil>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.mazanex.profile.ProfileApplication",
+            "projectName": "perfil",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=55518 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=perfil"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-PublicationsApplication<publications>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.mazanex.publications.PublicationsApplication",
+            "projectName": "publications",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=55516 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=publications"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-GatewayApplication<gateway>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.mazanex.gateway.GatewayApplication",
+            "projectName": "gateway",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
