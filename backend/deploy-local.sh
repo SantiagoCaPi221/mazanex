@@ -11,12 +11,12 @@ docker build -t mazanex-ms-auth:dev -f backend/ms-auth/Dockerfile backend/ms-aut
 docker build -t mazanex-ms-profile:dev -f backend/ms-profile/Dockerfile backend/ms-profile
 docker build -t mazanex-ms-publications:dev -f backend/ms-publications/Dockerfile backend/ms-publications
 docker build -t mazanex-ms-ranking:dev -f backend/ms-ranking/Dockerfile backend/ms-ranking
-docker build -t mazanex-gateway:dev -f backend/gateway/Dockerfile backend/gateway
+docker build -t mazanex-krakend:dev -f backend/bff/Dockerfile backend/bff
 
 echo "Creating namespace (if needed) and applying manifests..."
 kubectl create namespace ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f -
 
-for svc in ms-auth ms-profile ms-publications ms-ranking gateway; do
+for svc in ms-auth ms-profile ms-publications ms-ranking bff; do
   echo "Applying kustomize for $svc"
   kubectl apply -k backend/${svc}/k8s -n ${NAMESPACE}
 done

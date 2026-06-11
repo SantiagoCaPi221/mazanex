@@ -21,8 +21,8 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
         - name: ms-publications
-          image: REPLACE_WITH_REGISTRY/mazanex-ms-publications:latest
-          imagePullPolicy: IfNotPresent
+          image: mazanex-ms-publications:dev
+          imagePullPolicy: Never
           ports:
             - containerPort: 8083
           envFrom:

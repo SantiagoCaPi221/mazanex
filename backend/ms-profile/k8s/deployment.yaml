@@ -21,8 +21,8 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
         - name: ms-profile
-          image: REPLACE_WITH_REGISTRY/mazanex-ms-profile:latest
-          imagePullPolicy: IfNotPresent
+          image: mazanex-ms-profile:dev
+          imagePullPolicy: Never
           ports:
             - containerPort: 8082
           envFrom:

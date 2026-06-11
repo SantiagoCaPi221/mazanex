@@ -21,8 +21,8 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
         - name: ms-auth
-          image: REPLACE_WITH_REGISTRY/mazanex-ms-auth:latest
-          imagePullPolicy: IfNotPresent
+          image: mazanex-ms-auth:dev
+          imagePullPolicy: Never
           ports:
             - containerPort: 8081
           envFrom:

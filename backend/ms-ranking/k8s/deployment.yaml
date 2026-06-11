@@ -21,8 +21,8 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
         - name: ms-ranking
-          image: REPLACE_WITH_REGISTRY/mazanex-ms-ranking:latest
-          imagePullPolicy: IfNotPresent
+          image: mazanex-ms-ranking:dev
+          imagePullPolicy: Never
           ports:
             - containerPort: 8084
           envFrom:
