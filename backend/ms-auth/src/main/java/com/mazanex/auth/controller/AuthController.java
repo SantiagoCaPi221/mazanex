@@ -1,6 +1,7 @@
 package com.mazanex.auth.controller;
 
 import com.mazanex.auth.dto.PasswordUpdateDTO;
+import com.mazanex.auth.dto.LoginResponseDTO; // Importamos el nuevo DTO
 import com.mazanex.auth.model.User;
 import com.mazanex.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,12 +26,21 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
+    // --- ENDPOINT DE LOGIN MODIFICADO ---
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody User loginData) {
+    public ResponseEntity<?> login(@RequestBody User loginData) {
+        // Buscamos el usuario por su email/nombre y password
         User user = authService.login(loginData.getEmail(), loginData.getPassword());
+        
         if (user != null) {
-            return ResponseEntity.ok(user);
+            // 1. En lugar de devolver el usuario completo, generamos su token asimétrico
+            String token = authService.generateToken(user);
+            
+            // 2. Respondemos con el DTO contenedor del JWT
+            return ResponseEntity.ok(new LoginResponseDTO(token));
         }
+        
+        // Retorna 401 si las credenciales están erradas
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
@@ -48,17 +58,14 @@ public class AuthController {
         return ResponseEntity.ok(updated);
     }
 
-    // --- NUEVO ENDPOINT DE SEGURIDAD ---
     @PutMapping("/{id}/password")
     public ResponseEntity<?> updatePassword(@PathVariable Long id, @RequestBody PasswordUpdateDTO request) {
         try {
             User updatedUser = authService.updatePassword(id, request.getCurrentPassword(), request.getNewPassword());
             return ResponseEntity.ok(updatedUser);
         } catch (IllegalArgumentException e) {
-            // Error 400 si la clave actual es incorrecta
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            // Error 500 para fallos del servidor
             return ResponseEntity.internalServerError().body("Error al actualizar la credencial.");
         }
     }

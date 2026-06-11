@@ -41,3 +41,7 @@ git commit -m "Agregado .gitignore"
 git push
 
 git checkout -b desarrollo
+
+*.pem
+*.key
+*.pub

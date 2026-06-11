@@ -23,6 +23,14 @@
         "Content-Length"
       ],
       "max_age": "12h"
+    },
+    "auth/verifier": {
+      "keys": [
+        {
+          "alg": "RS256",
+          "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsYpC7HUw1XEXXq3Gjynh\nrM75Y2uzbqjioiX2vQtaBGzr/hF2RaC0PKqJ7CmYoD0jSjEzbb2ZyU4LI9ZmUBuR\n7vt7Idv67VTxYf2oKNQXsPplEmRZUHwGBY4bVY9NSRh5vqSQklad9zDBucue909d\n/B1vKEKnCZUvurtU0d2+u5cJtGZctSyPHk16uVtYwZQ+aQ2mjlZooQfagFOhbo/3\nZdJORWElcQOE6pGN/HK42RKuVXtZ47QCbfJ67Pf/DM4p2ShEhF1fZW5T/HfqK80q\nelB5hTKXE0brqo0tafj1ZR51fjuJ3wQKEftruT//qcVBsuVeWHi2WlNzj2Gt5s0p\noQIDAQAB\n-----END PUBLIC KEY-----"
+        }
+      ]
     }
   },
   "endpoints": [
@@ -52,7 +60,20 @@
             "http://perfil-service:8082"
           ]
         }
-      ]
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "key_identify_strategy": "public_key",
+          "key_issuer": "mi-microservicio-auth",
+          "roles_key": "roles",
+          "roles": ["USER"],
+          "propagate_claims": [
+            ["sub", "X-User-Id"],
+            ["email", "X-User-Email"]
+          ]
+        }
+      }
     },
     {
       "endpoint": "/api/profile/{path}",
@@ -66,7 +87,20 @@
             "http://perfil-service:8082"
           ]
         }
-      ]
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "key_identify_strategy": "public_key",
+          "key_issuer": "mi-microservicio-auth",
+          "roles_key": "roles",
+          "roles": ["USER"],
+          "propagate_claims": [
+            ["sub", "X-User-Id"],
+            ["email", "X-User-Email"]
+          ]
+        }
+      }
     },
     {
       "endpoint": "/api/publications/{path}",
@@ -80,7 +114,20 @@
             "http://publications-service:8083"
           ]
         }
-      ]
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "key_identify_strategy": "public_key",
+          "key_issuer": "mi-microservicio-auth",
+          "roles_key": "roles",
+          "roles": ["USER"],
+          "propagate_claims": [
+            ["sub", "X-User-Id"],
+            ["email", "X-User-Email"]
+          ]
+        }
+      }
     },
     {
       "endpoint": "/api/publications/{path}",
@@ -94,7 +141,20 @@
             "http://publications-service:8083"
           ]
         }
-      ]
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "key_identify_strategy": "public_key",
+          "key_issuer": "mi-microservicio-auth",
+          "roles_key": "roles",
+          "roles": ["USER"],
+          "propagate_claims": [
+            ["sub", "X-User-Id"],
+            ["email", "X-User-Email"]
+          ]
+        }
+      }
     },
     {
       "endpoint": "/api/ranking/{path}",
@@ -108,7 +168,20 @@
             "http://ranking-service:8084"
           ]
         }
-      ]
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "key_identify_strategy": "public_key",
+          "key_issuer": "mi-microservicio-auth",
+          "roles_key": "roles",
+          "roles": ["USER"],
+          "propagate_claims": [
+            ["sub", "X-User-Id"],
+            ["email", "X-User-Email"]
+          ]
+        }
+      }
     },
     {
       "endpoint": "/api/ranking/{path}",
@@ -122,7 +195,20 @@
             "http://ranking-service:8084"
           ]
         }
-      ]
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "key_identify_strategy": "public_key",
+          "key_issuer": "mi-microservicio-auth",
+          "roles_key": "roles",
+          "roles": ["USER"],
+          "propagate_claims": [
+            ["sub", "X-User-Id"],
+            ["email", "X-User-Email"]
+          ]
+        }
+      }
     }
   ]
 }

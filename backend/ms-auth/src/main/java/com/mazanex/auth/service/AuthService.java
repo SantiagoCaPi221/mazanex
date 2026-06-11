@@ -2,11 +2,18 @@ package com.mazanex.auth.service;
 
 import com.mazanex.auth.model.User;
 import com.mazanex.auth.repository.UserRepository;
+import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Base64;
+import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -14,15 +21,60 @@ public class AuthService {
     @Autowired
     private UserRepository userRepository;
 
+    /**
+     * Carga de forma dinámica la clave privada desde el archivo src/main/resources/private.pem
+     */
+    private PrivateKey loadPrivateKey() throws Exception {
+        String key = new String(new ClassPathResource("private.pem").getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        
+        // Limpiamos las cabeceras del formato PEM para dejar solo el contenido Base64
+        String privateKeyPEM = key
+                .replace("-----BEGIN PRIVATE KEY-----", "")
+                .replaceAll(System.lineSeparator(), "")
+                .replace("-----END PRIVATE KEY-----", "")
+                .replaceAll("\\s", "");
+
+        byte[] encoded = Base64.getDecoder().decode(privateKeyPEM);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        return kf.generatePrivate(keySpec);
+    }
+
+    /**
+     * Genera un token JWT firmado asimétricamente con RS256
+     */
+    public String generateToken(User user) {
+        try {
+            PrivateKey privateKey = loadPrivateKey();
+            long nowMillis = System.currentTimeMillis();
+            Date now = new Date(nowMillis);
+            Date exp = new Date(nowMillis + 7200000); // El token expira en 2 horas
+
+            return Jwts.builder()
+                    .subject(user.getId().toString()) // El identificador único en KrakenD (sub)
+                    .claim("email", user.getEmail())
+                    // Enviamos el rol dentro de una lista, que es como el validador JOSE de KrakenD prefiere leerlo
+                    .claim("roles", List.of(user.getRole())) 
+                    .issuer("mi-microservicio-auth") // Debe coincidir con el key_issuer de KrakenD
+                    .issuedAt(now)
+                    .expiration(exp)
+                    .signWith(privateKey, Jwts.SIG.RS256) // Firma asimétrica con JJWT 0.12.x
+                    .compact();
+        } catch (Exception e) {
+            throw new RuntimeException("Error crítico al intentar firmar el token JWT", e);
+        }
+    }
+
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
     public User registerUser(User user) {
         if (user.getRole() == null || user.getRole().isEmpty()) {
-            user.setRole("USER");
+            // Nota: KrakenD es sensible a mayúsculas/minúsculas. 
+            // Si aquí guardas "USER", en KrakenD pon "USER" en la lista de roles permitidos.
+            user.setRole("USER"); 
         }
-        // Nota para el futuro: Aquí es donde implementarías la encriptación (ej. BCrypt)
         return userRepository.save(user);
     }
 
@@ -43,7 +95,6 @@ public class AuthService {
             if (data.getBio() != null) existingUser.setBio(data.getBio());
             if (data.getBackgroundUrl() != null) existingUser.setBackgroundUrl(data.getBackgroundUrl());
             
-        
             return userRepository.save(existingUser);
         }).orElse(null);
     }
@@ -52,12 +103,10 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // Comparamos la contraseña enviada con la guardada en la base de datos
         if (!user.getPassword().equals(currentPassword)) {
             throw new IllegalArgumentException("La contraseña actual es incorrecta");
         }
 
-        // Si coincide, guardamos la nueva
         user.setPassword(newPassword);
         return userRepository.save(user);
     }
