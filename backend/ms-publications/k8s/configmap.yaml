@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mazanex-config
+  namespace: mazanex
+data:
+  MYSQLHOST: mysql
+  MYSQLPORT: "3306"

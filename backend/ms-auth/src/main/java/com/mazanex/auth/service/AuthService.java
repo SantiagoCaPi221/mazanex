@@ -1,5 +1,7 @@
 package com.mazanex.auth.service;
 
+import com.mazanex.auth.dto.UserRequestDto;
+import com.mazanex.auth.dto.UserResponseDto;
 import com.mazanex.auth.model.User;
 import com.mazanex.auth.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +28,24 @@ public class AuthService {
         return userRepository.save(user);
     }
 
-    public User login(String identifier, String password) {
+    public UserResponseDto login(UserRequestDto user) {
+        String identifier = user.email();
+        String password = user.password();
+
         return userRepository.findByEmail(identifier)
                 .or(() -> userRepository.findByName(identifier))
                 .filter(u -> u.getPassword().equals(password))
+                .map(u -> new UserResponseDto(
+                    u.getId(),
+                    u.getName(),
+                    u.getEmail(),
+                    u.getPassword(),
+                    u.getRole(),
+                    u.getAvatarUrl(),
+                    u.getBannerUrl(),
+                    u.getBio(),
+                    u.getBackgroundUrl()
+                ))
                 .orElse(null);
     }
 

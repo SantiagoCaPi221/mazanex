@@ -1,8 +1,13 @@
 package com.mazanex.auth.controller;
 
 import com.mazanex.auth.dto.PasswordUpdateDTO;
+import com.mazanex.auth.dto.UserRequestDto;
+import com.mazanex.auth.dto.UserResponseDto;
 import com.mazanex.auth.model.User;
 import com.mazanex.auth.service.AuthService;
+
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,15 +26,18 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody User user) {
-        User newUser = authService.registerUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(user));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody User loginData) {
-        User user = authService.login(loginData.getEmail(), loginData.getPassword());
-        if (user != null) {
-            return ResponseEntity.ok(user);
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Login successful"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid credentials")
+    })
+    public ResponseEntity<UserResponseDto> login(@RequestBody UserRequestDto user) {
+        UserResponseDto authUser = authService.login(user);
+        if (authUser != null) {
+            return ResponseEntity.ok(authUser);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }

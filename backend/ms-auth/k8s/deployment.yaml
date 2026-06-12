@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-auth
+  namespace: mazanex
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ms-auth
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: ms-auth
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: ms-auth
+          image: mazanex-ms-auth:dev
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8081
+          envFrom:
+            - configMapRef:
+                name: mazanex-config
+            - secretRef:
+                name: mazanex-secrets
+          env:
+            - name: PORT
+              value: "8081"
+            - name: MYSQLDATABASE
+              value: "db_auth"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          startupProbe:
+            tcpSocket:
+              port: 8081
+            failureThreshold: 30
+            periodSeconds: 10
+            initialDelaySeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8081
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 8081
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-auth
+  namespace: mazanex
+spec:
+  selector:
+    app: ms-auth
+  ports:
+    - port: 8081
+      targetPort: 8081
+  type: ClusterIP
