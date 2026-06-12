@@ -1,6 +1,7 @@
 package com.mazanex.auth.controller;
 
 import com.mazanex.auth.dto.PasswordUpdateDTO;
+import jakarta.validation.Valid;
 import com.mazanex.auth.model.User;
 import com.mazanex.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,13 +21,13 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User user) {
+    public ResponseEntity<User> register(@Valid @RequestBody User user) {
         User newUser = authService.registerUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody User loginData) {
+    public ResponseEntity<User> login(@Valid @RequestBody User loginData) {
         User user = authService.login(loginData.getEmail(), loginData.getPassword());
         if (user != null) {
             return ResponseEntity.ok(user);
@@ -40,7 +41,7 @@ public class AuthController {
     }
 
     @PutMapping("/profile/{id}")
-    public ResponseEntity<User> updateProfile(@PathVariable Long id, @RequestBody User data) {
+    public ResponseEntity<User> updateProfile(@PathVariable Long id, @Valid @RequestBody User data) {
         User updated = authService.updateProfile(id, data);
         if (updated == null) {
             return ResponseEntity.notFound().build();
@@ -50,7 +51,7 @@ public class AuthController {
 
     // --- NUEVO ENDPOINT DE SEGURIDAD ---
     @PutMapping("/{id}/password")
-    public ResponseEntity<?> updatePassword(@PathVariable Long id, @RequestBody PasswordUpdateDTO request) {
+    public ResponseEntity<?> updatePassword(@PathVariable Long id, @Valid @RequestBody PasswordUpdateDTO request) {
         try {
             User updatedUser = authService.updatePassword(id, request.getCurrentPassword(), request.getNewPassword());
             return ResponseEntity.ok(updatedUser);

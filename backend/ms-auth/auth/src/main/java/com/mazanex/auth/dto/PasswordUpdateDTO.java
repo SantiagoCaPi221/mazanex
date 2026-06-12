@@ -1,12 +1,8 @@
-<<<<<<<< HEAD:backend/ms-auth/auth/src/main/java/com/mazanex/auth/dto/PasswordUpdateDTO.java
 package com.mazanex.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-========
-package com.mazanex.auth.dto; 
->>>>>>>> eaa8509f8b3f85c062d83367511221f2b791106a:backend/ms-auth/src/main/java/com/mazanex/auth/dto/PasswordUpdateDTO.java
 public class PasswordUpdateDTO {
     @NotBlank(message = "La contraseña actual es obligatoria")
     private String currentPassword;

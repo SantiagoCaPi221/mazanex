@@ -51,7 +51,7 @@ public class AuthController {
     }
 
     @PutMapping("/profile/{id}")
-    public ResponseEntity<User> updateProfile(@PathVariable Long id, @RequestBody User data) {
+    public ResponseEntity<User> updateProfile(@PathVariable Long id, @Valid @RequestBody User data) {
         User updated = authService.updateProfile(id, data);
         if (updated == null) {
             return ResponseEntity.notFound().build();
