@@ -14,7 +14,7 @@ USE auth_db;
 -- (Ajusta el nombre de la tabla si tu entidad Java se llama diferente, ej. 'user')
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
+    name VARCHAR(50) NOT NULL UNIQUE,
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL
 );
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- Inyectamos usuarios de prueba. 
 -- La contraseña para todos es: 123456
 -- El string largo es el Hash BCrypt exacto que Spring Security espera leer.
-INSERT INTO users (id, username, email, password) VALUES 
+INSERT INTO users (id, name, email, password) VALUES 
 (1, 'bruno', 'bruno@mazanex.cl', '$2a$10$xn3LI/AjqicFYZFruSwve.681477XaVNaUQbr1gioaWPn4t1KsnmG'),
 (2, 'santiago', 'santiago@mazanex.cl', '$2a$10$xn3LI/AjqicFYZFruSwve.681477XaVNaUQbr1gioaWPn4t1KsnmG'),
 (3, 'nelson', 'nelson@mazanex.cl', '$2a$10$xn3LI/AjqicFYZFruSwve.681477XaVNaUQbr1gioaWPn4t1KsnmG'),

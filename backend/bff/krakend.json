@@ -53,25 +53,25 @@
       "endpoint": "/api/profile/list",
       "method": "GET",
       "output_encoding": "no-op",
-      "backend": [{"url_pattern": "/api/profile/list", "encoding": "no-op", "host": ["http://perfil-service:8082"]}]
+      "backend": [{"url_pattern": "/api/profile/list", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
     },
     {
       "endpoint": "/api/profile/sync",
       "method": "POST",
       "output_encoding": "no-op",
-      "backend": [{"url_pattern": "/api/profile/sync", "encoding": "no-op", "host": ["http://perfil-service:8082"]}]
+      "backend": [{"url_pattern": "/api/profile/sync", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
     },
     {
       "endpoint": "/api/profile/{id}",
       "method": "PUT",
       "output_encoding": "no-op",
-      "backend": [{"url_pattern": "/api/profile/{id}", "encoding": "no-op", "host": ["http://perfil-service:8082"]}]
+      "backend": [{"url_pattern": "/api/profile/{id}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
     },
     {
       "endpoint": "/api/profile/{id}",
       "method": "DELETE",
       "output_encoding": "no-op",
-      "backend": [{"url_pattern": "/api/profile/{id}", "encoding": "no-op", "host": ["http://perfil-service:8082"]}]
+      "backend": [{"url_pattern": "/api/profile/{id}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
     },
 
 
@@ -79,55 +79,55 @@
       "endpoint": "/api/profile/social/public/{id}",
       "method": "GET",
       "output_encoding": "no-op",
-      "backend": [{"url_pattern": "/api/profile/social/public/{id}", "encoding": "no-op", "host": ["http://perfil-service:8082"]}]
+      "backend": [{"url_pattern": "/api/profile/social/public/{id}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
     },
     {
       "endpoint": "/api/profile/social/following/{id}",
       "method": "GET",
       "output_encoding": "no-op",
-      "backend": [{"url_pattern": "/api/profile/social/following/{id}", "encoding": "no-op", "host": ["http://perfil-service:8082"]}]
+      "backend": [{"url_pattern": "/api/profile/social/following/{id}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
     },
     {
       "endpoint": "/api/profile/social/notifications/{userId}",
       "method": "GET",
       "output_encoding": "no-op",
-      "backend": [{"url_pattern": "/api/profile/social/notifications/{userId}", "encoding": "no-op", "host": ["http://perfil-service:8082"]}]
+      "backend": [{"url_pattern": "/api/profile/social/notifications/{userId}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
     },
     {
       "endpoint": "/api/profile/social/notifications/{userId}/read",
       "method": "PUT",
       "output_encoding": "no-op",
-      "backend": [{"url_pattern": "/api/profile/social/notifications/{userId}/read", "encoding": "no-op", "host": ["http://perfil-service:8082"]}]
+      "backend": [{"url_pattern": "/api/profile/social/notifications/{userId}/read", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
     },
     {
       "endpoint": "/api/profile/social/status/{idA}/{idB}",
       "method": "GET",
       "output_encoding": "no-op",
-      "backend": [{"url_pattern": "/api/profile/social/status/{idA}/{idB}", "encoding": "no-op", "host": ["http://perfil-service:8082"]}]
+      "backend": [{"url_pattern": "/api/profile/social/status/{idA}/{idB}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
     },
     {
       "endpoint": "/api/profile/social/send-request/{senderId}/{receiverId}",
       "method": "POST",
       "output_encoding": "no-op",
-      "backend": [{"url_pattern": "/api/profile/social/send-request/{senderId}/{receiverId}", "encoding": "no-op", "host": ["http://perfil-service:8082"]}]
+      "backend": [{"url_pattern": "/api/profile/social/send-request/{senderId}/{receiverId}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
     },
     {
       "endpoint": "/api/profile/social/accept-request/{senderId}/{receiverId}",
       "method": "POST",
       "output_encoding": "no-op",
-      "backend": [{"url_pattern": "/api/profile/social/accept-request/{senderId}/{receiverId}", "encoding": "no-op", "host": ["http://perfil-service:8082"]}]
+      "backend": [{"url_pattern": "/api/profile/social/accept-request/{senderId}/{receiverId}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
     },
     {
       "endpoint": "/api/profile/social/cancel-request/{senderId}/{receiverId}",
       "method": "DELETE",
       "output_encoding": "no-op",
-      "backend": [{"url_pattern": "/api/profile/social/cancel-request/{senderId}/{receiverId}", "encoding": "no-op", "host": ["http://perfil-service:8082"]}]
+      "backend": [{"url_pattern": "/api/profile/social/cancel-request/{senderId}/{receiverId}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
     },
     {
       "endpoint": "/api/profile/social/remove-friend/{userId}/{friendId}",
       "method": "DELETE",
       "output_encoding": "no-op",
-      "backend": [{"url_pattern": "/api/profile/social/remove-friend/{userId}/{friendId}", "encoding": "no-op", "host": ["http://perfil-service:8082"]}]
+      "backend": [{"url_pattern": "/api/profile/social/remove-friend/{userId}/{friendId}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
     },
 
 
