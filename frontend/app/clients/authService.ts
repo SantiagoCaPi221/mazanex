@@ -8,12 +8,45 @@ export const authService = {
       password: userData.password,
       role: "USER",
     };
-    const response = await fetch(`${BACKEND_URLS.AUTH}/register`, {
+
+    // ==========================================
+    // PASO 1: Crear la cuenta en ms-auth
+    // ==========================================
+    const authResponse = await fetch(`${BACKEND_URLS.AUTH}/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(adaptedData),
     });
-    return await response.json();
+
+    // Si falla el registro (ej. correo ya existe), cortamos aquí y devolvemos null
+    // para que useRegister muestre el error.
+    if (!authResponse.ok) {
+      return null; 
+    }
+
+    const newUser = await authResponse.json();
+
+    // ==========================================
+    // PASO 2: Sincronizar creando la ficha en ms-profile
+    // ==========================================
+    try {
+      // Asumimos que tienes PROFILE configurado en tus BACKEND_URLS
+      // Si no, puedes usar directamente "http://localhost:8080/api/profile"
+      await fetch(`${BACKEND_URLS.PROFILE}/sync`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: newUser.id,
+          name: adaptedData.name,
+          bio: "¡Nuevo en la comunidad Mazanex!",
+        }),
+      });
+    } catch (error) {
+      // Si esto falla, no rompemos el registro, solo avisamos en consola
+      console.warn("Cuenta creada, pero falló la sincronización con el perfil:", error);
+    }
+
+    return newUser;
   },
 
   async login(credentials: any) {

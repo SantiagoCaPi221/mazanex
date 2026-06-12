@@ -29,22 +29,27 @@ INSERT INTO users (id, username, email, password) VALUES
 (4, 'sarai', 'sarai@mazanex.cl', '$2a$10$xn3LI/AjqicFYZFruSwve.681477XaVNaUQbr1gioaWPn4t1KsnmG');
 
 -- ==========================================
--- 3. SEMBRADO DE PERFILES 
+-- 3. SEMBRADO DE PERFILES (CORREGIDO)
 -- ==========================================
 USE profile_db;
 
-CREATE TABLE IF NOT EXISTS user_profile (
+-- Creamos la tabla exactamente como la espera tu User.java
+CREATE TABLE IF NOT EXISTS users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT NOT NULL UNIQUE,
-    name VARCHAR(100) NOT NULL,
-    bio VARCHAR(255)
+    name VARCHAR(255),
+    email VARCHAR(255),
+    avatar_url LONGTEXT,
+    banner_url LONGTEXT,
+    bio VARCHAR(255),
+    background_url LONGTEXT
 );
 
-INSERT INTO user_profile (id, user_id, name, bio) VALUES
-(1, 1, 'Bruno Stockle', 'Full-stack dev. Maineando Next.js y Spring Boot.'),
-(2, 2, 'Santiago Catalan', 'DevOps Team. Listo para el despliegue.'),
-(3, 3, 'Nelson Baeza', 'Optimizando bases de datos y backend.'),
-(4, 4, 'Sarai Perez', 'Trabajando en la arquitectura cloud.');
+-- Insertamos al equipo
+INSERT INTO users (id, name, email, bio) VALUES
+(1, 'Bruno Stockle', 'bruno@mazanex.cl', 'Full-stack dev. Maineando Next.js y Spring Boot.'),
+(2, 'Santiago Catalan', 'santiago@mazanex.cl', 'DevOps Team. Listo para el despliegue.'),
+(3, 'Nelson Baeza', 'nelson@mazanex.cl', 'Optimizando bases de datos y backend.'),
+(4, 'Sarai Perez', 'sarai@mazanex.cl', 'Trabajando en la arquitectura cloud.');
 
 -- ==========================================
 -- 4. SEMBRADO DE PUBLICACIONES (El Muro)

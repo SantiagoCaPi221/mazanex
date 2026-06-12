@@ -60,7 +60,7 @@ export const gameService = {
   // Obtener Ranking Global
   async getRanking(game: string) {
     try {
-      const response = await fetch(`${BASE_RANKING}/ranking/${game}`);
+      const response = await fetch(`${BASE_RANKING}/${game}`);
       if (!response.ok) return [];
       return await response.json();
     } catch (error) {

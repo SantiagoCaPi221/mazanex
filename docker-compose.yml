@@ -28,7 +28,7 @@ services:
       - "8080:8080"
     depends_on:
       - auth-service
-      - perfil-service
+      - profile-service
       - publications-service
       - ranking-service
     networks:
@@ -56,7 +56,7 @@ services:
     networks:
       - mazanex-network
 
-  perfil-service:
+  profile-service:
     build:
       context: ./backend/ms-profile
       dockerfile: Dockerfile
