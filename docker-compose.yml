@@ -7,13 +7,14 @@ services:
     container_name: mazanex-db
     environment:
       - MYSQL_ROOT_PASSWORD=root
-      # Las bases de datos las crearán los microservicios gracias a JPA
     ports:
       - "3306:3306"
     networks:
       - mazanex-network
     volumes:
       - db_data:/var/lib/mysql
+      # ESTA ES LA LÍNEA QUE AGREGA EL SEMBRADO INICIAL
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   # ==========================================
   # 2. BFF (KrakenD)

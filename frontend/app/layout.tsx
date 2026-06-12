@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import "./globals.css";
 import Navbar from "@/app/components/Navbar";
 import { useUserStore } from "@/app/store/useUserStore";
@@ -13,20 +12,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // 1. Extraemos user y login de tu estado global
-  const { notification, hideNotification, user, login } = useUserStore();
-
-  // 2. Inyectamos la sesión falsa automáticamente
-  useEffect(() => {
-    if (!user) {
-      login({
-        id: 1,
-        name: "Bruno Stockle",
-        email: "bruno@mazanex.com",
-        role: "USER",
-      });
-    }
-  }, [user, login]);
+  // Solo conservamos el estado de las notificaciones
+  const { notification, hideNotification } = useUserStore();
 
   return (
     <html lang="es" suppressHydrationWarning>
@@ -37,7 +24,7 @@ export default function RootLayout({
               <Notification
                 key={notification.message}
                 message={notification.message}
-                type={notification.type}
+                type={notification.type as "success" | "error"}
                 onClose={hideNotification}
               />
             )}
