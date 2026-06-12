@@ -16,17 +16,6 @@ export default function RootLayout({
   // 1. Extraemos user y login de tu estado global
   const { notification, hideNotification, user, login } = useUserStore();
 
-  // 2. Inyectamos la sesión falsa automáticamente
-  useEffect(() => {
-    if (!user) {
-      login({
-        id: 1,
-        name: "Bruno Stockle",
-        email: "bruno@mazanex.com",
-        role: "USER",
-      });
-    }
-  }, [user, login]);
 
   return (
     <html lang="es" suppressHydrationWarning>
@@ -37,7 +26,7 @@ export default function RootLayout({
               <Notification
                 key={notification.message}
                 message={notification.message}
-                type={notification.type}
+                type={notification.type as "success" | "error"}
                 onClose={hideNotification}
               />
             )}
