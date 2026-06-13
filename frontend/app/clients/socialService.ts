@@ -3,17 +3,23 @@ import { authService } from "./authService";
 
 const BASE_SOCIAL = `${BACKEND_URLS.PROFILE}/social`;
 
-const getAuthHeaders = () => ({
-  "Content-Type": "application/json",
-  "Authorization": `Bearer ${authService.getToken()}`
-});
+const getAuthHeaders = () => {
+  const token = authService.getToken();
+  const headers: any = {
+    "Content-Type": "application/json",
+  };
+  if (token && token !== "null") {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return headers;
+};
 
 export const socialService = {
   async sendRequest(senderId: number, receiverId: number) {
     try {
       const response = await fetch(`${BASE_SOCIAL}/send-request/${senderId}/${receiverId}`, {
         method: "POST",
-        headers: getAuthHeaders(), // ✅ Token inyectado
+        headers: getAuthHeaders(),
         body: JSON.stringify({}),
       });
       return response.ok;
@@ -26,7 +32,7 @@ export const socialService = {
     try {
       const response = await fetch(`${BASE_SOCIAL}/cancel-request/${senderId}/${receiverId}`, {
         method: "DELETE",
-        headers: getAuthHeaders(), // ✅ Token inyectado
+        headers: getAuthHeaders(),
       });
       return response.ok;
     } catch (error) {
@@ -38,7 +44,7 @@ export const socialService = {
     try {
       const response = await fetch(`${BASE_SOCIAL}/accept-request/${senderId}/${receiverId}`, {
         method: "POST",
-        headers: getAuthHeaders(), // ✅ Token inyectado
+        headers: getAuthHeaders(),
         body: JSON.stringify({}),
       });
       return response.ok;
@@ -51,7 +57,7 @@ export const socialService = {
     try {
       const response = await fetch(`${BASE_SOCIAL}/remove-friend/${userId}/${friendId}`, {
         method: "DELETE",
-        headers: getAuthHeaders(), // ✅ Token inyectado
+        headers: getAuthHeaders(),
       });
       return response.ok;
     } catch (error) {
@@ -62,7 +68,7 @@ export const socialService = {
   async getNotifications(userId: number) {
     try {
       const response = await fetch(`${BASE_SOCIAL}/notifications/${userId}`, {
-        headers: getAuthHeaders() // ✅ Protegido
+        headers: getAuthHeaders()
       });
       return response.ok ? await response.json() : [];
     } catch (error) {
@@ -74,7 +80,7 @@ export const socialService = {
     try {
       const response = await fetch(`${BASE_SOCIAL}/notifications/${userId}/read`, {
         method: "PUT",
-        headers: getAuthHeaders(), // ✅ Token inyectado
+        headers: getAuthHeaders(),
       });
       return response.ok;
     } catch (error) {

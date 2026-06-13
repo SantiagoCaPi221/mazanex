@@ -1,4 +1,4 @@
-package com.mazanex.ranking.config;
+package com.mazanex.ranking.config; 
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -40,22 +40,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         jwt = authHeader.substring(7);
-        username = jwtService.extractUsername(jwt);
 
-        // 2. Si el username es válido y no hay sesión activa aún
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            
-            // 3. Creamos el objeto de autenticación
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    username,
-                    null,
-                    new ArrayList<>() // Aquí podrías añadir los roles/permisos del usuario
-            );
+        try {
+            // 2. Extraer el usuario (Esta línea valida la firma criptográfica internamente)
+            username = jwtService.extractUsername(jwt);
 
-            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            
-            // 4. "Logueamos" al usuario en el contexto de Spring Security
-            SecurityContextHolder.getContext().setAuthentication(authToken);
+            // 3. Si es válido y no está autenticado, lo dejamos pasar sin preguntar a la BD
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        username,
+                        null,
+                        new ArrayList<>() // Confía ciegamente en el token
+                );
+
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+                
+                // MENSAJE DE ÉXITO
+                System.out.println("✅ TOKEN ACEPTADO para el usuario: " + username);
+            }
+        } catch (Exception e) {
+            // SI ALGO FALLA (Firma inválida, llave distinta, etc), LO IMPRIMIRÁ AQUÍ
+            System.err.println("❌ ERROR AL VALIDAR TOKEN EN MICROSERVICIO: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

@@ -1,17 +1,23 @@
 import { BACKEND_URLS } from "@/app/config/endpoints";
 import { authService } from "./authService";  
 
-const getAuthHeaders = () => ({
-  "Content-Type": "application/json",
-  "Authorization": `Bearer ${authService.getToken()}`
-});
+const getAuthHeaders = () => {
+  const token = authService.getToken();
+  const headers: any = {
+    "Content-Type": "application/json",
+  };
+  if (token && token !== "null") {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return headers;
+};
 
 export const profileService = {
   async getAllProfiles() {
     try {
       const response = await fetch(`${BACKEND_URLS.PROFILE}/list`, {
         method: "GET",
-        headers: getAuthHeaders(), // ✅ Token inyectado
+        headers: getAuthHeaders(),
       });
       
       if (!response.ok) {
@@ -37,7 +43,7 @@ export const profileService = {
       
       const response = await fetch(`${BACKEND_URLS.PROFILE}/${id}`, {
         method: "PUT",
-        headers: getAuthHeaders(), // ✅ Token inyectado
+        headers: getAuthHeaders(),
         body: JSON.stringify(adaptedData),
       });
       return response.ok ? await response.json() : null;

@@ -1,17 +1,23 @@
 import { BACKEND_URLS } from "@/app/config/endpoints";
 import { authService } from "./authService";
 
-const getAuthHeaders = () => ({
-  "Content-Type": "application/json",
-  "Authorization": `Bearer ${authService.getToken()}`
-});
+const getAuthHeaders = () => {
+  const token = authService.getToken();
+  const headers: any = {
+    "Content-Type": "application/json",
+  };
+  if (token && token !== "null") {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return headers;
+};
 
 export const publicationService = {
   async getFeed() {
     try {
       const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}/feed`, {
-       headers: getAuthHeaders() 
-    });
+        headers: getAuthHeaders() 
+      });
       return response.ok ? await response.json() : [];
     } catch (error) {
       return [];
@@ -31,7 +37,7 @@ export const publicationService = {
     try {
       const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}`, {
         method: "POST",
-        headers: getAuthHeaders(), // Token inyectado
+        headers: getAuthHeaders(),
         body: JSON.stringify(publicationData),
       });
       return response.ok ? await response.json() : null;
@@ -44,7 +50,7 @@ export const publicationService = {
     try {
       const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}/${publicationId}/like`, {
         method: "POST",
-        headers: getAuthHeaders(), // Token inyectado
+        headers: getAuthHeaders(),
         body: JSON.stringify({ userId: userId }) 
       });
       return response.ok;
@@ -57,7 +63,7 @@ export const publicationService = {
     try {
       const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}/${publicationId}/comment`, {
         method: "POST",
-        headers: getAuthHeaders(), // Token inyectado
+        headers: getAuthHeaders(),
         body: JSON.stringify(commentData),
       });
       return response.ok ? await response.json() : null;
@@ -70,7 +76,7 @@ export const publicationService = {
     try {
       const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}/${publicationId}`, {
         method: "DELETE",
-        headers: getAuthHeaders(), // Token inyectado
+        headers: getAuthHeaders(),
       });
       return response.ok;
     } catch (error) {

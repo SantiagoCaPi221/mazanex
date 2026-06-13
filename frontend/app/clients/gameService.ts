@@ -3,10 +3,16 @@ import { authService } from "./authService";
 
 const BASE_RANKING = BACKEND_URLS.RANKING;
 
-const getAuthHeaders = () => ({
-  "Content-Type": "application/json",
-  "Authorization": `Bearer ${authService.getToken()}`
-});
+const getAuthHeaders = () => {
+  const token = authService.getToken();
+  const headers: any = {
+    "Content-Type": "application/json",
+  };
+  if (token && token !== "null") {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return headers;
+};
 
 export const gameService = {
   async getScoresByUserId(userId: number) {
@@ -23,7 +29,7 @@ export const gameService = {
     try {
       const response = await fetch(`${BASE_RANKING}/report/${scoreId}`, {
         method: "POST",
-        headers: getAuthHeaders(), // ✅ Token enviado
+        headers: getAuthHeaders(),
         body: JSON.stringify({ reporterId }),
       });
       return response.ok ? await response.json() : null;
@@ -36,7 +42,7 @@ export const gameService = {
     try {
       const response = await fetch(`${BASE_RANKING}/save-record`, {
         method: "POST",
-        headers: getAuthHeaders(), // ✅ Token enviado
+        headers: getAuthHeaders(),
         body: JSON.stringify(scoreData),
       });
       return response.ok ? await response.json() : null;
