@@ -34,6 +34,8 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Deja pasar la verificación del navegador
+                .requestMatchers(HttpMethod.GET, "/api/profile/list").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/profile/social/public/**").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

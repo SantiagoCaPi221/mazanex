@@ -219,6 +219,18 @@
       "output_encoding": "no-op",
       "headers_to_pass": ["Authorization", "Content-Type"],
       "backend": [{"url_pattern": "/api/ranking/{game}", "encoding": "no-op", "host": ["http://ranking-service:8084"]}]
+    },
+    {
+      "endpoint": "/*",
+      "method": "OPTIONS",
+      "backend": [
+        {
+          "url_pattern": "/",
+          "host": [
+             "http://auth-service:8081"
+          ]
+        }
+      ]
     }
   ]
 }
