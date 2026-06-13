@@ -8,9 +8,13 @@ import { useEffect, useState } from "react";
 import { socialService } from "@/app/clients/socialService";
 
 export default function Navbar() {
-  const user = useUserStore((state: any) => state.user);
+  // 1. Sacamos el usuario crudo del store
+  const rawUser = useUserStore((state: any) => state.user);
   const logout = useUserStore((state: any) => state.logout);
   const router = useRouter();
+
+  // 2. SOLUCIÓN: Desempaquetamos el nivel extra
+  const user = rawUser?.user || rawUser;
 
   // Estado para el contador de notificaciones
   const [unreadCount, setUnreadCount] = useState(0);
