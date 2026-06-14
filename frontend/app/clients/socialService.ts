@@ -1,16 +1,22 @@
 import { BACKEND_URLS } from "@/app/config/endpoints";
-import { authService } from "./authService";
 
 const BASE_SOCIAL = `${BACKEND_URLS.PROFILE}/social`;
 
 const getAuthHeaders = () => {
-  const token = authService.getToken();
+  let token = null;
+  if (typeof window !== "undefined") {
+    token = localStorage.getItem("token");
+  }
+
   const headers: any = {
     "Content-Type": "application/json",
   };
-  if (token && token !== "null") {
-    headers["Authorization"] = `Bearer ${token}`;
+
+  if (token && token !== "null" && token !== "undefined" && token.trim() !== "") {
+    const cleanToken = token.replace(/['"]+/g, '');
+    headers["Authorization"] = `Bearer ${cleanToken}`;
   }
+  
   return headers;
 };
 
@@ -100,7 +106,10 @@ export const socialService = {
 
   async getPublicProfile(id: number) {
     try {
-      const response = await fetch(`${BASE_SOCIAL}/public/${id}`);
+      const response = await fetch(`${BASE_SOCIAL}/public/${id}`, {
+          // Aunque sea público, le pasamos headers por si KrakenD exige autenticación en la ruta base
+          headers: getAuthHeaders() 
+      });
       return response.ok ? await response.json() : null;
     } catch (error) {
       return null;
@@ -109,7 +118,10 @@ export const socialService = {
 
   async getFollowingIds(id: number) {
     try {
-      const response = await fetch(`${BASE_SOCIAL}/following/${id}`);
+      const response = await fetch(`${BASE_SOCIAL}/following/${id}`, {
+          // Igual aquí, le pasamos los headers por si acaso
+          headers: getAuthHeaders() 
+      });
       return response.ok ? await response.json() : [];
     } catch (error) {
       return [];

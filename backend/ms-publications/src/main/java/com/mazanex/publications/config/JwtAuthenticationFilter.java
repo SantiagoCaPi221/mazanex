@@ -1,4 +1,4 @@
-package com.mazanex.publications.config; 
+package com.mazanex.publications.config;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,38 +30,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
+        
+        // 🕵️‍♂️ EL CHIVATO DEFINITIVO EN JAVA
+        System.out.println("====== NUEVA PETICIÓN ======");
+        System.out.println("Ruta: " + request.getRequestURI());
+        System.out.println("Header recibido en Java: " + authHeader);
+
         final String jwt;
         final String username;
 
-        // 1. Validar que el header exista y sea Bearer
-        if (authHeader == null || !authHeader.startsWith("Bearer ") || authHeader.equals("Bearer null") || authHeader.equals("Bearer undefined")) {
+        // 1. Validar que exista y empiece con bearer (ignorando mayúsculas/minúsculas)
+        if (authHeader == null || !authHeader.toLowerCase().startsWith("bearer ") || authHeader.contains("null") || authHeader.contains("undefined")) {
+            System.out.println("⚠️ Filtro ignorado: Header nulo o formato incorrecto.");
             filterChain.doFilter(request, response);
             return;
         }
 
+        // 2. Extraemos el token (siempre son 7 caracteres: "Bearer " o "bearer ")
         jwt = authHeader.substring(7);
 
         try {
-            // 2. Extraer el usuario (Esta línea valida la firma criptográfica internamente)
             username = jwtService.extractUsername(jwt);
 
-            // 3. Si es válido y no está autenticado, lo dejamos pasar sin preguntar a la BD
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         username,
                         null,
-                        new ArrayList<>() // Confía ciegamente en el token
+                        new ArrayList<>() 
                 );
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
                 
-                // MENSAJE DE ÉXITO
                 System.out.println("✅ TOKEN ACEPTADO para el usuario: " + username);
             }
         } catch (Exception e) {
-            // SI ALGO FALLA (Firma inválida, llave distinta, etc), LO IMPRIMIRÁ AQUÍ
             System.err.println("❌ ERROR AL VALIDAR TOKEN EN MICROSERVICIO: " + e.getMessage());
         }
 

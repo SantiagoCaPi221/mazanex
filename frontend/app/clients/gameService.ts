@@ -1,24 +1,31 @@
 import { BACKEND_URLS } from "@/app/config/endpoints";
-import { authService } from "./authService";
 
 const BASE_RANKING = BACKEND_URLS.RANKING;
 
 const getAuthHeaders = () => {
-  const token = authService.getToken();
+  let token = null;
+  if (typeof window !== "undefined") {
+    token = localStorage.getItem("token");
+  }
+
   const headers: any = {
     "Content-Type": "application/json",
   };
-  if (token && token !== "null") {
-    headers["Authorization"] = `Bearer ${token}`;
+
+  if (token && token !== "null" && token !== "undefined" && token.trim() !== "") {
+    const cleanToken = token.replace(/['"]+/g, '');
+    headers["Authorization"] = `Bearer ${cleanToken}`;
   }
+  
   return headers;
 };
 
 export const gameService = {
   async getScoresByUserId(userId: number) {
     try {
-      // Público: no requiere headers
-      const response = await fetch(`${BASE_RANKING}/user/${userId}`);
+      const response = await fetch(`${BASE_RANKING}/user/${userId}`, {
+        headers: getAuthHeaders(),
+      });
       return response.ok ? await response.json() : [];
     } catch (error) {
       return [];
@@ -53,7 +60,9 @@ export const gameService = {
 
   async getRanking(game: string) {
     try {
-      const response = await fetch(`${BASE_RANKING}/${game}`);
+      const response = await fetch(`${BASE_RANKING}/${game}`, {
+        headers: getAuthHeaders(),
+      });
       return response.ok ? await response.json() : [];
     } catch (error) {
       return [];
