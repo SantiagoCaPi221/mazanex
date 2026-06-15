@@ -30,6 +30,10 @@ public class User {
     @Column(columnDefinition = "LONGTEXT")
     private String backgroundUrl;
 
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String currentToken;
+
     public User() {}
 
     // Getters y Setters actualizados...
@@ -51,4 +55,6 @@ public class User {
     public void setBio(String bio) { this.bio = bio; }
     public String getBackgroundUrl() { return backgroundUrl; }
     public void setBackgroundUrl(String backgroundUrl) { this.backgroundUrl = backgroundUrl; }
+    public String getCurrentToken() { return currentToken; }
+    public void setCurrentToken(String currentToken) { this.currentToken = currentToken; }
 }

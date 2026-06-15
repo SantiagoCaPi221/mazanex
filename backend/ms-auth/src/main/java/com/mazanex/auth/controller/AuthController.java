@@ -1,8 +1,8 @@
 package com.mazanex.auth.controller;
 
 import com.mazanex.auth.dto.PasswordUpdateDTO;
-import com.mazanex.auth.dto.LoginResponseDTO; // Importamos el nuevo DTO
 import com.mazanex.auth.model.User;
+import com.mazanex.auth.dto.LoginResponseDTO;
 import com.mazanex.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -26,22 +27,23 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
-    // --- ENDPOINT DE LOGIN MODIFICADO ---
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User loginData) {
-        // Buscamos el usuario por su email/nombre y password
-        User user = authService.login(loginData.getEmail(), loginData.getPassword());
-        
-        if (user != null) {
-            // 1. En lugar de devolver el usuario completo, generamos su token asimétrico
-            String token = authService.generateToken(user);
-            
-            // 2. Respondemos con el DTO contenedor del JWT
-            return ResponseEntity.ok(new LoginResponseDTO(token));
+    public ResponseEntity<?> login(
+            @RequestBody User loginData) {
+
+        User user = authService.login(
+                loginData.getEmail(),
+                loginData.getPassword());
+
+        if (user == null) {
+
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Credenciales inválidas");
         }
-        
-        // Retorna 401 si las credenciales están erradas
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        // El token ya fue generado y guardado en la BD por authService.login()
+        return ResponseEntity.ok(new LoginResponseDTO(user.getCurrentToken()));
     }
 
     @GetMapping("/users")
@@ -58,14 +60,17 @@ public class AuthController {
         return ResponseEntity.ok(updated);
     }
 
+    // --- NUEVO ENDPOINT DE SEGURIDAD ---
     @PutMapping("/{id}/password")
     public ResponseEntity<?> updatePassword(@PathVariable Long id, @RequestBody PasswordUpdateDTO request) {
         try {
             User updatedUser = authService.updatePassword(id, request.getCurrentPassword(), request.getNewPassword());
             return ResponseEntity.ok(updatedUser);
         } catch (IllegalArgumentException e) {
+            // Error 400 si la clave actual es incorrecta
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
+            // Error 500 para fallos del servidor
             return ResponseEntity.internalServerError().body("Error al actualizar la credencial.");
         }
     }
@@ -73,5 +78,16 @@ public class AuthController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         return authService.deleteUser(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    }
+
+    // --- ENDPOINT DE LOGOUT ---
+    @PostMapping("/logout/{id}")
+    public ResponseEntity<?> logout(@PathVariable Long id) {
+        boolean success = authService.logout(id);
+        if (success) {
+            return ResponseEntity.ok(Map.of("message", "Sesi\u00f3n cerrada correctamente"));
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", "Usuario no encontrado"));
     }
 }

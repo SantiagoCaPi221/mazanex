@@ -41,7 +41,7 @@ public class AuthService {
     }
 
     /**
-     * Genera un token JWT firmado asimétricamente con RS256
+     * Genera un token JWT firmado asimétricamente con RS256 y lo almacena en la BD
      */
     public String generateToken(User user) {
         try {
@@ -50,7 +50,7 @@ public class AuthService {
             Date now = new Date(nowMillis);
             Date exp = new Date(nowMillis + 7200000); // El token expira en 2 horas
 
-            return Jwts.builder()
+            String token = Jwts.builder()
                     .subject(user.getId().toString()) // El identificador único en KrakenD (sub)
                     .claim("email", user.getEmail())
                     // Enviamos el rol dentro de una lista, que es como el validador JOSE de KrakenD prefiere leerlo
@@ -60,6 +60,12 @@ public class AuthService {
                     .expiration(exp)
                     .signWith(privateKey, Jwts.SIG.RS256) // Firma asimétrica con JJWT 0.12.x
                     .compact();
+            
+            // Guardar el token en la BD
+            user.setCurrentToken(token);
+            userRepository.save(user);
+            
+            return token;
         } catch (Exception e) {
             throw new RuntimeException("Error crítico al intentar firmar el token JWT", e);
         }
@@ -79,10 +85,17 @@ public class AuthService {
     }
 
     public User login(String identifier, String password) {
-        return userRepository.findByEmail(identifier)
+        User user = userRepository.findByEmail(identifier)
                 .or(() -> userRepository.findByName(identifier))
                 .filter(u -> u.getPassword().equals(password))
                 .orElse(null);
+        
+        // Si el usuario existe, generar y guardar el token
+        if (user != null) {
+            generateToken(user);
+        }
+        
+        return user;
     }
 
     public User updateProfile(Long id, User data) {
@@ -117,5 +130,16 @@ public class AuthService {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Realiza logout: limpia el token almacenado en la BD
+     */
+    public boolean logout(Long userId) {
+        return userRepository.findById(userId).map(user -> {
+            user.setCurrentToken(null);
+            userRepository.save(user);
+            return true;
+        }).orElse(false);
     }
 }
