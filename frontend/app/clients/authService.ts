@@ -24,6 +24,7 @@ export const authService = {
     });
     if (response.ok) {
       const data = await response.json();
+      localStorage.setItem("authToken", data.accessToken);  // ← AGREGA ESTA LÍNEA
       localStorage.setItem("user", JSON.stringify(data));
       return data;
     }
@@ -54,8 +55,8 @@ export const authService = {
 
   getCurrentUser() {
     if (typeof window !== "undefined") {
-      const user = localStorage.getItem("user");
-      return user ? JSON.parse(user) : null;
+      localStorage.removeItem("user");
+      localStorage.removeItem("authToken");
     }
     return null;
   },
