@@ -8,12 +8,32 @@ export const authService = {
       password: userData.password,
       role: "USER",
     };
-    const response = await fetch(`${BACKEND_URLS.AUTH}/register`, {
+
+    const authResponse = await fetch(`${BACKEND_URLS.AUTH}/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(adaptedData),
     });
-    return await response.json();
+
+    if (!authResponse.ok) return null;
+
+    const newUser = await authResponse.json();
+
+    try {
+      await fetch(`${BACKEND_URLS.PROFILE}/sync`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: newUser.id,
+          name: adaptedData.name,
+          bio: "¡Nuevo en la comunidad Mazanex!",
+        }),
+      });
+    } catch (error) {
+      console.warn("Fallo en sincronización de perfil:", error);
+    }
+
+    return newUser;
   },
 
   async login(credentials: any) {
@@ -22,33 +42,25 @@ export const authService = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials),
     });
+    
     if (response.ok) {
       const data = await response.json();
-      localStorage.setItem("user", JSON.stringify(data));
+      // data.token es el JWT que viene del backend
+      localStorage.setItem("user", JSON.stringify(data.user || data));
+      localStorage.setItem("token", data.token); 
       return data;
     }
     return null;
   },
 
-  async updatePassword(
-    userId: number,
-    passwordData: { currentPassword: string; newPassword: string }
-  ) {
-    const response = await fetch(`${BACKEND_URLS.AUTH}/${userId}/password`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(passwordData),
-    });
-
-    if (!response.ok) {
-      throw new Error("Contraseña incorrecta o error en el servidor");
-    }
-    return await response.json();
+  getToken() {
+    return typeof window !== "undefined" ? localStorage.getItem("token") : null;
   },
 
   logout() {
     if (typeof window !== "undefined") {
       localStorage.removeItem("user");
+      localStorage.removeItem("token");
     }
   },
 

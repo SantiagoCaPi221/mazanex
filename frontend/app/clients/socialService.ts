@@ -2,17 +2,32 @@ import { BACKEND_URLS } from "@/app/config/endpoints";
 
 const BASE_SOCIAL = `${BACKEND_URLS.PROFILE}/social`;
 
+const getAuthHeaders = () => {
+  let token = null;
+  if (typeof window !== "undefined") {
+    token = localStorage.getItem("token");
+  }
+
+  const headers: any = {
+    "Content-Type": "application/json",
+  };
+
+  if (token && token !== "null" && token !== "undefined" && token.trim() !== "") {
+    const cleanToken = token.replace(/['"]+/g, '');
+    headers["Authorization"] = `Bearer ${cleanToken}`;
+  }
+  
+  return headers;
+};
+
 export const socialService = {
   async sendRequest(senderId: number, receiverId: number) {
     try {
-      const response = await fetch(
-        `${BASE_SOCIAL}/send-request/${senderId}/${receiverId}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({}),
-        }
-      );
+      const response = await fetch(`${BASE_SOCIAL}/send-request/${senderId}/${receiverId}`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({}),
+      });
       return response.ok;
     } catch (error) {
       return false;
@@ -21,12 +36,10 @@ export const socialService = {
 
   async cancelRequest(senderId: number, receiverId: number) {
     try {
-      const response = await fetch(
-        `${BASE_SOCIAL}/cancel-request/${senderId}/${receiverId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`${BASE_SOCIAL}/cancel-request/${senderId}/${receiverId}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
       return response.ok;
     } catch (error) {
       return false;
@@ -35,14 +48,11 @@ export const socialService = {
 
   async acceptRequest(senderId: number, receiverId: number) {
     try {
-      const response = await fetch(
-        `${BASE_SOCIAL}/accept-request/${senderId}/${receiverId}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({}),
-        }
-      );
+      const response = await fetch(`${BASE_SOCIAL}/accept-request/${senderId}/${receiverId}`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({}),
+      });
       return response.ok;
     } catch (error) {
       return false;
@@ -51,12 +61,10 @@ export const socialService = {
 
   async removeFriend(userId: number, friendId: number) {
     try {
-      const response = await fetch(
-        `${BASE_SOCIAL}/remove-friend/${userId}/${friendId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`${BASE_SOCIAL}/remove-friend/${userId}/${friendId}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
       return response.ok;
     } catch (error) {
       return false;
@@ -65,9 +73,10 @@ export const socialService = {
 
   async getNotifications(userId: number) {
     try {
-      const response = await fetch(`${BASE_SOCIAL}/notifications/${userId}`);
-      if (!response.ok) return [];
-      return await response.json();
+      const response = await fetch(`${BASE_SOCIAL}/notifications/${userId}`, {
+        headers: getAuthHeaders()
+      });
+      return response.ok ? await response.json() : [];
     } catch (error) {
       return [];
     }
@@ -75,23 +84,21 @@ export const socialService = {
 
   async markNotificationsAsRead(userId: number) {
     try {
-      const response = await fetch(
-        `${BASE_SOCIAL}/notifications/${userId}/read`,
-        {
-          method: "PUT",
-        }
-      );
+      const response = await fetch(`${BASE_SOCIAL}/notifications/${userId}/read`, {
+        method: "PUT",
+        headers: getAuthHeaders(),
+      });
       return response.ok;
     } catch (error) {
       return false;
     }
   },
-
   async getRelationshipStatus(idA: number, idB: number) {
     try {
-      const response = await fetch(`${BASE_SOCIAL}/status/${idA}/${idB}`);
-      if (!response.ok) return { status: "NONE", isSender: false };
-      return await response.json();
+      const response = await fetch(`${BASE_SOCIAL}/status/${idA}/${idB}`, {
+        headers: getAuthHeaders() 
+      });
+      return response.ok ? await response.json() : { status: "NONE", isSender: false };
     } catch (error) {
       return { status: "NONE", isSender: false };
     }
@@ -99,9 +106,11 @@ export const socialService = {
 
   async getPublicProfile(id: number) {
     try {
-      const response = await fetch(`${BASE_SOCIAL}/public/${id}`);
-      if (!response.ok) return null;
-      return await response.json();
+      const response = await fetch(`${BASE_SOCIAL}/public/${id}`, {
+          // Aunque sea público, le pasamos headers por si KrakenD exige autenticación en la ruta base
+          headers: getAuthHeaders() 
+      });
+      return response.ok ? await response.json() : null;
     } catch (error) {
       return null;
     }
@@ -109,9 +118,11 @@ export const socialService = {
 
   async getFollowingIds(id: number) {
     try {
-      const response = await fetch(`${BASE_SOCIAL}/following/${id}`);
-      if (!response.ok) return [];
-      return await response.json();
+      const response = await fetch(`${BASE_SOCIAL}/following/${id}`, {
+          // Igual aquí, le pasamos los headers por si acaso
+          headers: getAuthHeaders() 
+      });
+      return response.ok ? await response.json() : [];
     } catch (error) {
       return [];
     }

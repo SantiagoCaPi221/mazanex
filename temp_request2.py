@@ -1,0 +1,10 @@
+import http.client, json
+body = json.dumps({'email':'test@example.com','name':'test','bio':'hola'})
+print(body)
+conn = http.client.HTTPConnection('localhost', 8082)
+conn.request('POST', '/api/profile/sync', body.encode('utf-8'), {'Content-Type': 'application/json'})
+resp = conn.getresponse()
+print(resp.status, resp.reason)
+print(resp.getheaders())
+print(resp.read().decode('utf-8', errors='replace'))
+conn.close()

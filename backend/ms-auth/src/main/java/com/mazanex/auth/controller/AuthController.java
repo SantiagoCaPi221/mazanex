@@ -1,9 +1,12 @@
 package com.mazanex.auth.controller;
 
 import com.mazanex.auth.dto.PasswordUpdateDTO;
-import jakarta.validation.Valid;
+import com.mazanex.auth.dto.UserRequestDto;
 import com.mazanex.auth.model.User;
 import com.mazanex.auth.service.AuthService;
+
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,26 +14,36 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "Authentication")
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
+
+    AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@Valid @RequestBody User user) {
-        User newUser = authService.registerUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+    public ResponseEntity<User> register(@RequestBody User user) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(user));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@Valid @RequestBody User loginData) {
-        User user = authService.login(loginData.getEmail(), loginData.getPassword());
-        if (user != null) {
-            return ResponseEntity.ok(user);
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Login successful"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid credentials")
+    })
+    public ResponseEntity<?> login(@RequestBody UserRequestDto user) {
+        // El controlador ahora es un simple intermediario. 
+        // Toda la magia del JWT y el empaquetado ocurre en AuthService.
+        Map<String, Object> authResponse = authService.login(user);
+        
+        if (authResponse != null) {
+            return ResponseEntity.ok(authResponse);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
@@ -41,7 +54,7 @@ public class AuthController {
     }
 
     @PutMapping("/profile/{id}")
-    public ResponseEntity<User> updateProfile(@PathVariable Long id, @Valid @RequestBody User data) {
+    public ResponseEntity<User> updateProfile(@PathVariable Long id, @RequestBody User data) {
         User updated = authService.updateProfile(id, data);
         if (updated == null) {
             return ResponseEntity.notFound().build();
@@ -49,17 +62,14 @@ public class AuthController {
         return ResponseEntity.ok(updated);
     }
 
-    // --- NUEVO ENDPOINT DE SEGURIDAD ---
     @PutMapping("/{id}/password")
-    public ResponseEntity<?> updatePassword(@PathVariable Long id, @Valid @RequestBody PasswordUpdateDTO request) {
+    public ResponseEntity<?> updatePassword(@PathVariable Long id, @RequestBody PasswordUpdateDTO request) {
         try {
             User updatedUser = authService.updatePassword(id, request.getCurrentPassword(), request.getNewPassword());
             return ResponseEntity.ok(updatedUser);
         } catch (IllegalArgumentException e) {
-            // Error 400 si la clave actual es incorrecta
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            // Error 500 para fallos del servidor
             return ResponseEntity.internalServerError().body("Error al actualizar la credencial.");
         }
     }

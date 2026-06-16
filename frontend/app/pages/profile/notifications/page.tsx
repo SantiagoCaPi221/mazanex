@@ -1,6 +1,6 @@
 "use client";
 
-import { useUserStore } from "@/store/useUserStore";
+import { useUserStore } from "@/app/store/useUserStore";
 
 import { useNotificationsPage } from "@/app/components/hooks/profile/notification/useNotification";
 

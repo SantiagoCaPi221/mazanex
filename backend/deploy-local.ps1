@@ -15,7 +15,7 @@ docker build -t mazanex-krakend:dev -f backend/bff/Dockerfile backend/bff
 Write-Host "Creating namespace (if needed) and applying manifests..."
 kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
 
-$services = @('mysql','ms-auth','ms-profile','ms-publications','ms-ranking','bff')
+$services = @('ms-auth','ms-profile','ms-publications','ms-ranking','bff')
 foreach ($svc in $services) {
     Write-Host "Applying kustomize for $svc"
     kubectl apply -k "backend/$svc/k8s" -n $NAMESPACE

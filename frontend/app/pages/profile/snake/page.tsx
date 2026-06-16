@@ -2,7 +2,7 @@
 
 import GoogleSnake from "@/app/components/GoogleSnake";
 import { gameService } from "@/app/clients/gameService";
-import { useUserStore } from "@/store/useUserStore";
+import { useUserStore } from "@/app/store/useUserStore";
 
 export default function Page() {
   const { user, showNotification } = useUserStore();

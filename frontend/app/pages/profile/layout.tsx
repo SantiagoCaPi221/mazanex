@@ -3,7 +3,7 @@
 import { useRef, useMemo } from "react";
 import { usePathname } from "next/navigation";
 
-import { useUserStore } from "@/store/useUserStore";
+import { useUserStore } from "@/app/store/useUserStore";
 
 import { useNotifications } from "@/app/components/hooks/profile/profile_layout/useNotifications";
 import { useProfileUI } from "@/app/components/hooks/profile/profile_layout/useProfileUI";
@@ -27,7 +27,12 @@ export default function ProfileLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, setUser, showNotification } = useUserStore();
+  // 1. Obtenemos el usuario "en bruto" desde Zustand
+  const { user: rawUser, setUser, showNotification } = useUserStore();
+  
+  // 2. SOLUCIÓN: Desempaquetamos el nivel extra. Si viene anidado, lo sacamos.
+  const user = rawUser?.user || rawUser;
+
   const pathname = usePathname();
 
   const { isGamesOpen, setIsGamesOpen, isProfileVisible, setIsProfileVisible } =
