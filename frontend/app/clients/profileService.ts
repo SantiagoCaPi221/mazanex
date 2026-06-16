@@ -1,54 +1,48 @@
-import { BACKEND_URLS } from "@/app/config/endpoints";
-import { authService } from "./authService";  
-
-const getAuthHeaders = () => {
-  const token = authService.getToken();
-  const headers: any = {
-    "Content-Type": "application/json",
-  };
-  if (token && token !== "null") {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
-  return headers;
-};
+const BASE_URL = process.env.NEXT_PUBLIC_GATEWAY_URL || "http://localhost:8080";
 
 export const profileService = {
-  async getAllProfiles() {
+  // 🔥 Ahora pedimos el token como tercer parámetro
+  updateProfile: async (id: number, data: any, token?: string) => {
     try {
-      const response = await fetch(`${BACKEND_URLS.PROFILE}/list`, {
-        method: "GET",
-        headers: getAuthHeaders(),
+      const response = await fetch(`${BASE_URL}/api/profile/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          // Pasamos el token directamente desde Zustand
+          "Authorization": token ? `Bearer ${token}` : "",
+        },
+        body: JSON.stringify(data),
       });
-      
+
       if (!response.ok) {
-        console.warn(`Error al obtener perfiles: ${response.status}`);
-        return [];
+        console.error("Error en updateProfile:", response.status, response.statusText);
+        return null;
       }
+
       return await response.json();
     } catch (error) {
-      console.error("Error al obtener todos los perfiles:", error);
-      return [];
-    }
-  },
-
-  async updateProfile(id: number, profileData: any) {
-    try {
-      const adaptedData = {
-        name: profileData.name,
-        bio: profileData.bio,
-        avatarUrl: profileData.avatarUrl,
-        bannerUrl: profileData.bannerUrl,
-        backgroundUrl: profileData.backgroundUrl,
-      };
-      
-      const response = await fetch(`${BACKEND_URLS.PROFILE}/${id}`, {
-        method: "PUT",
-        headers: getAuthHeaders(),
-        body: JSON.stringify(adaptedData),
-      });
-      return response.ok ? await response.json() : null;
-    } catch (error) {
+      console.error("Error de red en updateProfile:", error);
       return null;
     }
   },
+
+  // 🔥 Lo mismo para syncProfile, recibe el token como segundo parámetro
+  syncProfile: async (data: any, token?: string) => {
+    try {
+      const response = await fetch(`${BASE_URL}/api/profile/sync`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : "",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) return null;
+      return await response.json();
+    } catch (error) {
+      console.error("Error de red en syncProfile:", error);
+      return null;
+    }
+  }
 };
