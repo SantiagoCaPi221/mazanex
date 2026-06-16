@@ -1,31 +1,32 @@
 package com.mazanex.profile.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "followers")
-@Data
-@NoArgsConstructor
-public class Follower {
+public record Follower(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id,
 
     @ManyToOne
     @JoinColumn(name = "follower_id")
-    private User follower;
+    User follower,
 
     @ManyToOne
     @JoinColumn(name = "followed_id")
-    private User followed;
+    User followed,
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    LocalDateTime createdAt
+) {
+    // Constructor compacto para asegurar que 'createdAt' nunca sea nulo
+    public Follower {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 
+    // Constructor de 2 argumentos para mantener la compatibilidad con tu código actual
     public Follower(User follower, User followed) {
-        this.follower = follower;
-        this.followed = followed;
+        this(null, follower, followed, LocalDateTime.now());
     }
 }

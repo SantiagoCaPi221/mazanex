@@ -1,43 +1,32 @@
 package com.mazanex.profile.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "users")
-@Data
-@NoArgsConstructor
-public class User {
+public record User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
-    private Long id;
+    Long id,
     
-    private String name;
-    private String email;
+    String name,
+    String email,
 
     @Lob
     @Column(columnDefinition = "LONGTEXT")
-    private String avatarUrl;
+    String avatarUrl,
 
     @Lob
     @Column(columnDefinition = "LONGTEXT")
-    private String bannerUrl;
+    String bannerUrl,
 
     @Column(name = "bio")
-    private String bio;
+    String bio,
 
     @Lob
     @Column(columnDefinition = "LONGTEXT")
-    private String backgroundUrl;
-
+    String backgroundUrl
+) {
+    // Constructor de 6 argumentos para mantener la compatibilidad con tu código actual (deja el id como null)
     public User(String name, String email, String avatarUrl, String bannerUrl, String bio, String backgroundUrl) {
-        this.name = name;
-        this.email = email;
-        this.avatarUrl = avatarUrl;
-        this.bannerUrl = bannerUrl;
-        this.bio = bio;
-        this.backgroundUrl = backgroundUrl;
+        this(null, name, email, avatarUrl, bannerUrl, bio, backgroundUrl);
     }
 }

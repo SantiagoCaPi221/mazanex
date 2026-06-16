@@ -1,30 +1,36 @@
 package com.mazanex.profile.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "friend_requests")
-@Data
-@NoArgsConstructor
-public class FriendRequest {
-    
+public record Notification(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id,
 
     @ManyToOne
-    private User sender;
+    User targetUser,
 
-    @ManyToOne
-    private User receiver;
+    Long senderId,
+    String message,
+    String type,
+    boolean isRead,
+    LocalDateTime date
+) {
+    // Constructor compacto para manejar los valores por defecto
+    public Notification {
+        if (date == null) {
+            date = LocalDateTime.now();
+        }
+    }
 
-    private String status;
+    // Constructor de 3 argumentos requerido por tu lógica
+    public Notification(User targetUser, String type, String message) {
+        this(null, targetUser, null, message, type, false, LocalDateTime.now());
+    }
 
-    public FriendRequest(User sender, User receiver, String status) {
-        this.sender = sender;
-        this.receiver = receiver;
-        this.status = status;
+    // Constructor de 4 argumentos requerido por SocialService
+    public Notification(User targetUser, String type, String message, Long senderId) {
+        this(null, targetUser, senderId, message, type, false, LocalDateTime.now());
     }
 }

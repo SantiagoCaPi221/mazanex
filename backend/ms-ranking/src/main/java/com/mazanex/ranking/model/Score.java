@@ -1,58 +1,52 @@
 package com.mazanex.ranking.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
-@Table(name = "scores")
-@Data
-@NoArgsConstructor
-public class Score {
+public record Score(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id,
 
-    // MICROSERVICIO: Guardamos referencias directas en lugar de la clase User
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    Long userId,
 
     @Column(name = "player_name", nullable = false)
-    private String playerName;
+    String playerName,
 
-    private String game;
-    private String mode;
-    private Integer highScore;
+    String game,
+    String mode,
+    Integer highScore,
     
     @Lob
     @Column(columnDefinition = "LONGTEXT")
-    private String screenshotUrl;
+    String screenshotUrl,
     
     @JsonIgnore 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "score_reports", joinColumns = @JoinColumn(name = "score_id"))
     @Column(name = "reporter_id")
-    private Set<Long> reporters = new HashSet<>();
+    Set<Long> reporters,
     
-    private Boolean verified = false;
-    private LocalDateTime uploadDate;
-
-    @PrePersist
-    protected void onCreate() { this.uploadDate = LocalDateTime.now(); }
-
-    public Score(Long userId, String playerName, String game, String mode, Integer highScore, String screenshotUrl) {
-        this.userId = userId;
-        this.playerName = playerName;
-        this.game = game;
-        this.mode = mode;
-        this.highScore = highScore;
-        this.screenshotUrl = screenshotUrl;
+    Boolean verified,
+    LocalDateTime uploadDate
+) {
+    // Constructor compacto para manejar los valores por defecto y simular el @PrePersist
+    public Score {
+        if (reporters == null) reporters = new HashSet<>();
+        if (verified == null) verified = false;
+        if (uploadDate == null) uploadDate = LocalDateTime.now();
     }
 
+    // Constructor de 6 argumentos requerido por tu lógica original
+    public Score(Long userId, String playerName, String game, String mode, Integer highScore, String screenshotUrl) {
+        this(null, userId, playerName, game, mode, highScore, screenshotUrl, new HashSet<>(), false, LocalDateTime.now());
+    }
+
+    // Métodos utilitarios de tu clase original
     public boolean addReport(Long userId) {
         return this.reporters.add(userId); 
     }

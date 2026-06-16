@@ -27,12 +27,19 @@ public class PublicationService {
     }
 
     public Publication createPublication(PublicationDto dto) {
-        Publication pub = new Publication();
-        pub.setAuthorId(dto.getAuthorId());
-        pub.setAuthorName(dto.getAuthorName());
-        pub.setAuthorAvatarUrl(dto.getAuthorAvatarUrl());
-        pub.setContent(dto.getContent());
-        pub.setMediaUrl(dto.getMediaUrl());
+        // CORREGIDO: En records no hay setters. Instanciamos todo directamente desde el constructor.
+        // Los valores pasados como 'null' al final serán manejados por el constructor compacto del record.
+        Publication pub = new Publication(
+            null, // id autogenerado por BD
+            dto.getAuthorId(),
+            dto.getAuthorName(),
+            dto.getAuthorAvatarUrl(),
+            dto.getContent(),
+            dto.getMediaUrl(),
+            null, // likedBy (el record creará el HashSet vacío)
+            null, // comments (el record creará el ArrayList vacío)
+            null  // createdAt (el record asignará LocalDateTime.now())
+        );
         return publicationRepository.save(pub);
     }
 
@@ -40,12 +47,12 @@ public class PublicationService {
         Publication pub = publicationRepository.findById(publicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Publicación no encontrada"));
 
-        boolean isLiked = pub.toggleLike(userId);
+        boolean isLiked = pub.toggleLike(userId); // Tu método personalizado del record sigue funcionando
         publicationRepository.save(pub);
 
         Map<String, Object> response = new HashMap<>();
         response.put("liked", isLiked);
-        response.put("totalLikes", pub.getLikeCount());
+        response.put("totalLikes", pub.getLikeCount()); // Tu método personalizado
         return response;
     }
 
@@ -53,22 +60,28 @@ public class PublicationService {
         Publication pub = publicationRepository.findById(publicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Publicación no encontrada"));
 
-        Comment comment = new Comment();
-        comment.setAuthorId(dto.getAuthorId());
-        comment.setAuthorName(dto.getAuthorName());
-        comment.setAuthorAvatarUrl(dto.getAuthorAvatarUrl());
-        comment.setContent(dto.getContent());
+        // CORREGIDO: Creamos el comentario pasando los datos directamente al constructor del record
+        Comment comment = new Comment(
+            null, // id autogenerado por BD
+            publicationId,
+            dto.getAuthorId(),
+            dto.getAuthorName(),
+            dto.getAuthorAvatarUrl(),
+            dto.getContent(),
+            null  // createdAt (el record asignará LocalDateTime.now())
+        );
 
-        pub.getComments().add(comment); // Lo agregamos a la lista
-        return publicationRepository.save(pub); // JPA guarda el comentario automáticamente
+        // CORREGIDO: Cambiamos .getComments() por .comments()
+        pub.comments().add(comment); 
+        return publicationRepository.save(pub); 
     }
     
     public void deletePublication(Long publicationId, Long userId) {
         Publication pub = publicationRepository.findById(publicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Publicación no encontrada"));
         
-        // Medida de seguridad: solo el autor puede borrar su post
-        if (!pub.getAuthorId().equals(userId)) {
+        // CORREGIDO: Cambiamos .getAuthorId() por .authorId()
+        if (!pub.authorId().equals(userId)) {
             throw new IllegalStateException("No tienes permiso para borrar esto");
         }
         publicationRepository.delete(pub);
