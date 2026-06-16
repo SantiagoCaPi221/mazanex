@@ -47,7 +47,7 @@ export default function LoginForm() {
           <p className="text-sm text-slate-600">
             ¿No tienes cuenta?{" "}
             <Link
-              href="/register"
+              href="/pages/register"
               className="text-indigo-600 font-bold hover:underline"
             >
               Regístrate gratis

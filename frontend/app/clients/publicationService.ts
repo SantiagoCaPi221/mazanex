@@ -1,93 +1,98 @@
 import { BACKEND_URLS } from "@/app/config/endpoints";
 
+const getAuthHeaders = () => {
+  let token = null;
+  if (typeof window !== "undefined") {
+    token = localStorage.getItem("token");
+  }
+
+  const headers: any = {
+    "Content-Type": "application/json",
+  };
+
+  if (token && token !== "null" && token !== "undefined" && token.trim() !== "") {
+    const cleanToken = token.replace(/['"]+/g, '');
+    headers["Authorization"] = `Bearer ${cleanToken}`;
+  }
+  
+  return headers;
+};
+
 export const publicationService = {
-  // 1. Obtener el Feed Global (Muro principal)
   async getFeed() {
+    const headers = getAuthHeaders();
+    console.log("🚀 Enviando GET /feed con headers:", headers);
     try {
-      const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}/feed`);
-      if (!response.ok) return [];
-      return await response.json();
+      const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}/feed`, { headers });
+      return response.ok ? await response.json() : [];
     } catch (error) {
-      console.error("Error al cargar el feed:", error);
       return [];
     }
   },
 
-  // 2. Obtener las publicaciones de un usuario específico (Para su perfil)
   async getUserPublications(userId: number) {
+    const headers = getAuthHeaders();
+    console.log(`🚀 Enviando GET /user/${userId} con headers:`, headers);
     try {
-      const response = await fetch(
-        `${BACKEND_URLS.PUBLICATIONS}/user/${userId}`
-      );
-      if (!response.ok) return [];
-      return await response.json();
+      const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}/user/${userId}`, { headers });
+      return response.ok ? await response.json() : [];
     } catch (error) {
-      console.error("Error al cargar las publicaciones del usuario:", error);
       return [];
     }
   },
 
-  // 3. Crear una nueva publicación
   async createPublication(publicationData: any) {
+    const headers = getAuthHeaders();
+    console.log("🚀 Enviando POST /publications con headers:", headers);
     try {
-      const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}/create`, {
+      const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify(publicationData),
       });
       return response.ok ? await response.json() : null;
     } catch (error) {
-      console.error("Error al crear la publicación:", error);
       return null;
     }
   },
 
-  // 4. Dar/Quitar Like a una publicación
   async toggleLike(publicationId: number, userId: number) {
+    const headers = getAuthHeaders();
     try {
-      const response = await fetch(
-        `${BACKEND_URLS.PUBLICATIONS}/${publicationId}/like/${userId}`,
-        {
-          method: "POST",
-        }
-      );
+      const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}/${publicationId}/like`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ userId: userId }),
+      });
       return response.ok;
     } catch (error) {
-      console.error("Error al dar like:", error);
       return false;
     }
   },
 
-  // 5. Agregar un comentario
   async addComment(publicationId: number, commentData: any) {
+    const headers = getAuthHeaders();
     try {
-      const response = await fetch(
-        `${BACKEND_URLS.PUBLICATIONS}/${publicationId}/comment`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(commentData),
-        }
-      );
+      const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}/${publicationId}/comment`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(commentData),
+      });
       return response.ok ? await response.json() : null;
     } catch (error) {
-      console.error("Error al comentar:", error);
       return null;
     }
   },
 
-  // 6. Eliminar una publicación (Opcional)
   async deletePublication(publicationId: number) {
+    const headers = getAuthHeaders();
     try {
-      const response = await fetch(
-        `${BACKEND_URLS.PUBLICATIONS}/${publicationId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}/${publicationId}`, {
+        method: "DELETE",
+        headers,
+      });
       return response.ok;
     } catch (error) {
-      console.error("Error al eliminar la publicación:", error);
       return false;
     }
   },

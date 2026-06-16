@@ -7,7 +7,3 @@
 # Ignorar compilaciones y archivos pesados del Backend
 **/target/
 *.jar
-
-*.pem
-*.key
-*.pub

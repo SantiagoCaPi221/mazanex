@@ -7,13 +7,20 @@ services:
     container_name: mazanex-db
     environment:
       - MYSQL_ROOT_PASSWORD=root
-      # Las bases de datos las crearán los microservicios gracias a JPA
+      - MYSQL_ROOT_HOST=%
     ports:
       - "3306:3306"
     networks:
       - mazanex-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
     volumes:
       - db_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   # ==========================================
   # 2. BFF (KrakenD)
@@ -27,7 +34,7 @@ services:
       - "8080:8080"
     depends_on:
       - auth-service
-      - perfil-service
+      - profile-service
       - publications-service
       - ranking-service
     networks:
@@ -50,12 +57,14 @@ services:
       - MYSQLUSER=root
       - MYSQLPASSWORD=root
       - PORT=8081
+      - JWT_SECRET=f8a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - mazanex-network
 
-  perfil-service:
+  profile-service:
     build:
       context: ./backend/ms-profile
       dockerfile: Dockerfile
@@ -69,8 +78,10 @@ services:
       - MYSQLUSER=root
       - MYSQLPASSWORD=root
       - PORT=8082
+      - JWT_SECRET=f8a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - mazanex-network
 
@@ -88,8 +99,10 @@ services:
       - MYSQLUSER=root
       - MYSQLPASSWORD=root
       - PORT=8083
+      - JWT_SECRET=f8a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - mazanex-network
 
@@ -107,8 +120,10 @@ services:
       - MYSQLUSER=root
       - MYSQLPASSWORD=root
       - PORT=8084
+      - JWT_SECRET=f8a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - mazanex-network
 
@@ -124,18 +139,16 @@ services:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_GATEWAY_URL=http://localhost:8080
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - bff
     networks:
       - mazanex-network
-    # Permite ver los cambios en vivo si editas el código mientras Docker corre
     volumes:
       - ./frontend:/app
       - /app/node_modules
 
-# ==========================================
-# REDES Y VOLÚMENES
-# ==========================================
 networks:
   mazanex-network:
     driver: bridge

@@ -3,212 +3,222 @@
   "port": 8080,
   "extra_config": {
     "security/cors": {
-      "allow_origins": [
-        "http://localhost:3000"
-      ],
-      "allow_methods": [
-        "GET",
-        "POST",
-        "PUT",
-        "DELETE",
-        "OPTIONS"
-      ],
-      "allow_headers": [
-        "Origin",
-        "Authorization",
-        "Content-Type",
-        "Accept"
-      ],
-      "expose_headers": [
-        "Content-Length"
-      ],
+      "allow_origins": ["http://localhost:3000"],
+      "allow_methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      "allow_headers": ["Origin", "Authorization", "authorization", "Content-Type", "Accept"],
+      "expose_headers": ["Content-Length", "Authorization"],
       "max_age": "12h"
-    },
-    "auth/verifier": {
-      "keys": [
-        {
-          "alg": "RS256",
-          "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsYpC7HUw1XEXXq3Gjynh\nrM75Y2uzbqjioiX2vQtaBGzr/hF2RaC0PKqJ7CmYoD0jSjEzbb2ZyU4LI9ZmUBuR\n7vt7Idv67VTxYf2oKNQXsPplEmRZUHwGBY4bVY9NSRh5vqSQklad9zDBucue909d\n/B1vKEKnCZUvurtU0d2+u5cJtGZctSyPHk16uVtYwZQ+aQ2mjlZooQfagFOhbo/3\nZdJORWElcQOE6pGN/HK42RKuVXtZ47QCbfJ67Pf/DM4p2ShEhF1fZW5T/HfqK80q\nelB5hTKXE0brqo0tafj1ZR51fjuJ3wQKEftruT//qcVBsuVeWHi2WlNzj2Gt5s0p\noQIDAQAB\n-----END PUBLIC KEY-----"
-        }
-      ]
     }
   },
   "endpoints": [
     {
-      "endpoint": "/api/auth/{path}",
+      "endpoint": "/api/auth/register",
       "method": "POST",
       "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/auth/register", "encoding": "no-op", "host": ["http://auth-service:8081"]}]
+    },
+    {
+      "endpoint": "/api/auth/login",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/auth/login", "encoding": "no-op", "host": ["http://auth-service:8081"]}]
+    },
+    {
+      "endpoint": "/api/auth/users",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/auth/users", "encoding": "no-op", "host": ["http://auth-service:8081"]}]
+    },
+    {
+      "endpoint": "/api/auth/{id}/password",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/auth/{id}/password", "encoding": "no-op", "host": ["http://auth-service:8081"]}]
+    },
+    {
+      "endpoint": "/api/auth/profile/{id}",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/auth/profile/{id}", "encoding": "no-op", "host": ["http://auth-service:8081"]}]
+    },
+    {
+      "endpoint": "/api/auth/{id}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/auth/{id}", "encoding": "no-op", "host": ["http://auth-service:8081"]}]
+    },
+    {
+      "endpoint": "/api/profile/list",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/profile/list", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
+    },
+    {
+      "endpoint": "/api/profile/sync",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/profile/sync", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
+    },
+    {
+      "endpoint": "/api/profile/{id}",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/profile/{id}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
+    },
+    {
+      "endpoint": "/api/profile/{id}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/profile/{id}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
+    },
+    {
+      "endpoint": "/api/profile/social/public/{id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/profile/social/public/{id}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
+    },
+    {
+      "endpoint": "/api/profile/social/following/{id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/profile/social/following/{id}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
+    },
+    {
+      "endpoint": "/api/profile/social/notifications/{userId}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/profile/social/notifications/{userId}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
+    },
+    {
+      "endpoint": "/api/profile/social/notifications/{userId}/read",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/profile/social/notifications/{userId}/read", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
+    },
+    {
+      "endpoint": "/api/profile/social/status/{idA}/{idB}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/profile/social/status/{idA}/{idB}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
+    },
+    {
+      "endpoint": "/api/profile/social/send-request/{senderId}/{receiverId}",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/profile/social/send-request/{senderId}/{receiverId}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
+    },
+    {
+      "endpoint": "/api/profile/social/accept-request/{senderId}/{receiverId}",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/profile/social/accept-request/{senderId}/{receiverId}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
+    },
+    {
+      "endpoint": "/api/profile/social/cancel-request/{senderId}/{receiverId}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/profile/social/cancel-request/{senderId}/{receiverId}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
+    },
+    {
+      "endpoint": "/api/profile/social/remove-friend/{userId}/{friendId}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/profile/social/remove-friend/{userId}/{friendId}", "encoding": "no-op", "host": ["http://profile-service:8082"]}]
+    },
+    {
+      "endpoint": "/api/publications",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/publications", "encoding": "no-op", "host": ["http://publications-service:8083"]}]
+    },
+    {
+      "endpoint": "/api/publications/feed",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
       "backend": [
         {
-          "url_pattern": "/api/auth/{path}",
+          "url_pattern": "/api/publications/feed",
           "encoding": "no-op",
-          "host": [
-            "http://auth-service:8081"
-          ]
+          "host": ["http://publications-service:8083"]
         }
       ]
     },
     {
-      "endpoint": "/api/profile/{path}",
+      "endpoint": "/api/publications/user/{userId}",
       "method": "GET",
       "output_encoding": "no-op",
-      "backend": [
-        {
-          "url_pattern": "/api/profile/{path}",
-          "encoding": "no-op",
-          "host": [
-            "http://perfil-service:8082"
-          ]
-        }
-      ],
-      "extra_config": {
-        "auth/validator": {
-          "alg": "RS256",
-          "key_identify_strategy": "public_key",
-          "key_issuer": "mi-microservicio-auth",
-          "roles_key": "roles",
-          "roles": ["USER"],
-          "propagate_claims": [
-            ["sub", "X-User-Id"],
-            ["email", "X-User-Email"]
-          ]
-        }
-      }
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/publications/user/{userId}", "encoding": "no-op", "host": ["http://publications-service:8083"]}]
     },
     {
-      "endpoint": "/api/profile/{path}",
+      "endpoint": "/api/publications/{id}/like",
       "method": "POST",
       "output_encoding": "no-op",
-      "backend": [
-        {
-          "url_pattern": "/api/profile/{path}",
-          "encoding": "no-op",
-          "host": [
-            "http://perfil-service:8082"
-          ]
-        }
-      ],
-      "extra_config": {
-        "auth/validator": {
-          "alg": "RS256",
-          "key_identify_strategy": "public_key",
-          "key_issuer": "mi-microservicio-auth",
-          "roles_key": "roles",
-          "roles": ["USER"],
-          "propagate_claims": [
-            ["sub", "X-User-Id"],
-            ["email", "X-User-Email"]
-          ]
-        }
-      }
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/publications/{id}/like", "encoding": "no-op", "host": ["http://publications-service:8083"]}]
     },
     {
-      "endpoint": "/api/publications/{path}",
+      "endpoint": "/api/publications/{id}/comment",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/publications/{id}/comment", "encoding": "no-op", "host": ["http://publications-service:8083"]}]
+    },
+    {
+      "endpoint": "/api/publications/{id}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/publications/{id}", "encoding": "no-op", "host": ["http://publications-service:8083"]}]
+    },
+    {
+      "endpoint": "/api/ranking/save-record",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/ranking/save-record", "encoding": "no-op", "host": ["http://ranking-service:8084"]}]
+    },
+    {
+      "endpoint": "/api/ranking/report/{id}",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/ranking/report/{id}", "encoding": "no-op", "host": ["http://ranking-service:8084"]}]
+    },
+    {
+      "endpoint": "/api/ranking/user/{userId}",
       "method": "GET",
       "output_encoding": "no-op",
-      "backend": [
-        {
-          "url_pattern": "/api/publications/{path}",
-          "encoding": "no-op",
-          "host": [
-            "http://publications-service:8083"
-          ]
-        }
-      ],
-      "extra_config": {
-        "auth/validator": {
-          "alg": "RS256",
-          "key_identify_strategy": "public_key",
-          "key_issuer": "mi-microservicio-auth",
-          "roles_key": "roles",
-          "roles": ["USER"],
-          "propagate_claims": [
-            ["sub", "X-User-Id"],
-            ["email", "X-User-Email"]
-          ]
-        }
-      }
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/ranking/user/{userId}", "encoding": "no-op", "host": ["http://ranking-service:8084"]}]
     },
     {
-      "endpoint": "/api/publications/{path}",
-      "method": "POST",
-      "output_encoding": "no-op",
-      "backend": [
-        {
-          "url_pattern": "/api/publications/{path}",
-          "encoding": "no-op",
-          "host": [
-            "http://publications-service:8083"
-          ]
-        }
-      ],
-      "extra_config": {
-        "auth/validator": {
-          "alg": "RS256",
-          "key_identify_strategy": "public_key",
-          "key_issuer": "mi-microservicio-auth",
-          "roles_key": "roles",
-          "roles": ["USER"],
-          "propagate_claims": [
-            ["sub", "X-User-Id"],
-            ["email", "X-User-Email"]
-          ]
-        }
-      }
-    },
-    {
-      "endpoint": "/api/ranking/{path}",
+      "endpoint": "/api/ranking/{game}",
       "method": "GET",
       "output_encoding": "no-op",
-      "backend": [
-        {
-          "url_pattern": "/api/ranking/{path}",
-          "encoding": "no-op",
-          "host": [
-            "http://ranking-service:8084"
-          ]
-        }
-      ],
-      "extra_config": {
-        "auth/validator": {
-          "alg": "RS256",
-          "key_identify_strategy": "public_key",
-          "key_issuer": "mi-microservicio-auth",
-          "roles_key": "roles",
-          "roles": ["USER"],
-          "propagate_claims": [
-            ["sub", "X-User-Id"],
-            ["email", "X-User-Email"]
-          ]
-        }
-      }
-    },
-    {
-      "endpoint": "/api/ranking/{path}",
-      "method": "POST",
-      "output_encoding": "no-op",
-      "backend": [
-        {
-          "url_pattern": "/api/ranking/{path}",
-          "encoding": "no-op",
-          "host": [
-            "http://ranking-service:8084"
-          ]
-        }
-      ],
-      "extra_config": {
-        "auth/validator": {
-          "alg": "RS256",
-          "key_identify_strategy": "public_key",
-          "key_issuer": "mi-microservicio-auth",
-          "roles_key": "roles",
-          "roles": ["USER"],
-          "propagate_claims": [
-            ["sub", "X-User-Id"],
-            ["email", "X-User-Email"]
-          ]
-        }
-      }
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [{"url_pattern": "/api/ranking/{game}", "encoding": "no-op", "host": ["http://ranking-service:8084"]}]
     }
   ]
 }

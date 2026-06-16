@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import "./globals.css";
 import Navbar from "@/app/components/Navbar";
 import { useUserStore } from "@/app/store/useUserStore";
@@ -13,9 +12,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // 1. Extraemos user y login de tu estado global
-  const { notification, hideNotification, user, login } = useUserStore();
-
+  // Solo conservamos el estado de las notificaciones
+  const { notification, hideNotification } = useUserStore();
 
   return (
     <html lang="es" suppressHydrationWarning>

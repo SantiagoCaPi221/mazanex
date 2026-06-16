@@ -27,7 +27,12 @@ export default function ProfileLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, setUser, showNotification } = useUserStore();
+  // 1. Obtenemos el usuario "en bruto" desde Zustand
+  const { user: rawUser, setUser, showNotification } = useUserStore();
+  
+  // 2. SOLUCIÓN: Desempaquetamos el nivel extra. Si viene anidado, lo sacamos.
+  const user = rawUser?.user || rawUser;
+
   const pathname = usePathname();
 
   const { isGamesOpen, setIsGamesOpen, isProfileVisible, setIsProfileVisible } =
