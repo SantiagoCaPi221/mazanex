@@ -11,7 +11,6 @@ CREATE DATABASE IF NOT EXISTS ranking_db;
 -- ==========================================
 USE auth_db;
 
--- (Ajusta el nombre de la tabla si tu entidad Java se llama diferente, ej. 'user')
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE,
@@ -19,9 +18,6 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL
 );
 
--- Inyectamos usuarios de prueba. 
--- La contraseña para todos es: 123456
--- El string largo es el Hash BCrypt exacto que Spring Security espera leer.
 INSERT INTO users (id, name, email, password) VALUES 
 (1, 'bruno', 'bruno@mazanex.cl', '$2a$10$xn3LI/AjqicFYZFruSwve.681477XaVNaUQbr1gioaWPn4t1KsnmG'),
 (2, 'santiago', 'santiago@mazanex.cl', '$2a$10$xn3LI/AjqicFYZFruSwve.681477XaVNaUQbr1gioaWPn4t1KsnmG'),
@@ -33,9 +29,9 @@ INSERT INTO users (id, name, email, password) VALUES
 -- ==========================================
 USE profile_db;
 
--- Creamos la tabla exactamente como la espera tu User.java
+-- 🚨 CORRECCIÓN: Le quitamos el AUTO_INCREMENT al id
 CREATE TABLE IF NOT EXISTS users (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGINT PRIMARY KEY, 
     name VARCHAR(255),
     email VARCHAR(255),
     avatar_url LONGTEXT,
@@ -44,7 +40,6 @@ CREATE TABLE IF NOT EXISTS users (
     background_url LONGTEXT
 );
 
--- Insertamos al equipo
 INSERT INTO users (id, name, email, bio) VALUES
 (1, 'Bruno Stockle', 'bruno@mazanex.cl', 'Full-stack dev. Maineando Next.js y Spring Boot.'),
 (2, 'Santiago Catalan', 'santiago@mazanex.cl', 'DevOps Team. Listo para el despliegue.'),

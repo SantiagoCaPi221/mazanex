@@ -21,15 +21,24 @@ public class ProfileController {
 
     @PutMapping("/{id}")
     @Operation(
-        summary = "Actualizar perfil", 
-        description = "Modifica los datos de un usuario existente a partir de su ID."
+        summary = "Actualizar o crear perfil", 
+        description = "Modifica los datos de un usuario existente o lo crea si no existe."
     )
     public ResponseEntity<User> update(
             @Parameter(description = "ID del usuario a actualizar") @PathVariable Long id, 
             @RequestBody User data) {
         
+        // Intentamos actualizar
         User updated = profileService.updateProfile(id, data);
-        return (updated != null) ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
+        
+        // Si no existe (null), forzamos la creación (Upsert)
+        if (updated == null) {
+            data.setId(id); // Aseguramos que mantenga el ID del token/auth
+            profileService.syncProfile(data);
+            updated = profileService.updateProfile(id, data);
+        }
+        
+        return (updated != null) ? ResponseEntity.ok(updated) : ResponseEntity.badRequest().build();
     }
 
     @PostMapping("/sync")
