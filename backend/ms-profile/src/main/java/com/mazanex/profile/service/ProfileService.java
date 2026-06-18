@@ -14,8 +14,6 @@ public class ProfileService {
     @Autowired
     private UserRepository userRepository;
 
-    // Busca "auth.service.url" en application.properties. 
-    // Si no lo encuentra, usa "http://localhost:8081" por defecto.
     @Value("${auth.service.url:http://auth-service:8081}/api/auth/sync-profile")
     private String authSyncUrl;
 
@@ -46,13 +44,23 @@ public class ProfileService {
                 return userRepository.save(existing);
             })
             .orElseGet(() -> {
-                return userRepository.save(data);
+                // 🔥 SOLUCIÓN: Creamos un objeto nuevo y forzamos sus datos, 
+                // asegurándonos de que el ID manual se asigne correctamente.
+                User newUser = new User();
+                newUser.setId(data.getId()); // Forzamos el ID que viene de ms-auth
+                newUser.setEmail(data.getEmail());
+                newUser.setName(data.getName());
+                newUser.setAvatarUrl(data.getAvatarUrl());
+                newUser.setBannerUrl(data.getBannerUrl());
+                newUser.setBio(data.getBio());
+                newUser.setBackgroundUrl(data.getBackgroundUrl());
+                
+                return userRepository.save(newUser);
             });
     }
 
     private void syncWithAuth(User user) {
         try {
-            // Usamos la variable dinámica que declaramos arriba
             restTemplate.postForEntity(authSyncUrl, user, User.class);
         } catch (Exception e) {
             System.err.println("Sincronización fallida: " + e.getMessage());
