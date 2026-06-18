@@ -1,48 +1,54 @@
-const BASE_URL = process.env.NEXT_PUBLIC_GATEWAY_URL || "http://localhost:8080";
-//const BASE_URL = "http://localhost:8082";
+import { BACKEND_URLS } from "@/app/config/endpoints";
+
+const getAuthHeaders = () => {
+  let token = null;
+  if (typeof window !== "undefined") {
+    token = localStorage.getItem("token");
+  }
+
+  const headers: any = {
+    "Content-Type": "application/json",
+  };
+
+  if (token && token !== "null" && token !== "undefined" && token.trim() !== "") {
+    const cleanToken = token.replace(/['"]+/g, '');
+    headers["Authorization"] = `Bearer ${cleanToken}`;
+  }
+  
+  return headers;
+};
 
 export const profileService = {
-  // 🔥 Ahora pedimos el token como tercer parámetro
-  updateProfile: async (id: number, data: any, token?: string) => {
+  /**
+   * Obtiene la lista global de perfiles para la vista de Descubrir
+   */
+  async getAllProfiles() {
+    const headers = getAuthHeaders();
+    console.log("🚀 Enviando GET /api/profile/list con headers:", headers);
     try {
-      const response = await fetch(`${BASE_URL}/api/profile/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          // Pasamos el token directamente desde Zustand
-          "Authorization": token ? `Bearer ${token}` : "",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        console.error("Error en updateProfile:", response.status, response.statusText);
-        return null;
-      }
-
-      return await response.json();
+      const response = await fetch(`${BACKEND_URLS.PROFILE}/list`, { headers });
+      return response.ok ? await response.json() : [];
     } catch (error) {
-      console.error("Error de red en updateProfile:", error);
-      return null;
+      console.error("Error en getAllProfiles:", error);
+      return [];
     }
   },
 
-  // 🔥 Lo mismo para syncProfile, recibe el token como segundo parámetro
-  syncProfile: async (data: any, token?: string) => {
+  /**
+   * Actualiza los datos de un perfil específico (Biografía, Nombre, Avatar, Banner, etc.)
+   */
+  async updateProfile(id: number, profileData: any) {
+    const headers = getAuthHeaders();
+    console.log(`🚀 Enviando PUT /api/profile/${id} con headers:`, headers);
     try {
-      const response = await fetch(`${BASE_URL}/api/profile/sync`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": token ? `Bearer ${token}` : "",
-        },
-        body: JSON.stringify(data),
+      const response = await fetch(`${BACKEND_URLS.PROFILE}/${id}`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify(profileData),
       });
-
-      if (!response.ok) return null;
-      return await response.json();
+      return response.ok ? await response.json() : null;
     } catch (error) {
-      console.error("Error de red en syncProfile:", error);
+      console.error("Error en updateProfile:", error);
       return null;
     }
   }

@@ -93,6 +93,7 @@ export const socialService = {
       return false;
     }
   },
+  
   async getRelationshipStatus(idA: number, idB: number) {
     try {
       const response = await fetch(`${BASE_SOCIAL}/status/${idA}/${idB}`, {
@@ -107,7 +108,6 @@ export const socialService = {
   async getPublicProfile(id: number) {
     try {
       const response = await fetch(`${BASE_SOCIAL}/public/${id}`, {
-          // Aunque sea público, le pasamos headers por si KrakenD exige autenticación en la ruta base
           headers: getAuthHeaders() 
       });
       return response.ok ? await response.json() : null;
@@ -119,7 +119,6 @@ export const socialService = {
   async getFollowingIds(id: number) {
     try {
       const response = await fetch(`${BASE_SOCIAL}/following/${id}`, {
-          // Igual aquí, le pasamos los headers por si acaso
           headers: getAuthHeaders() 
       });
       return response.ok ? await response.json() : [];
