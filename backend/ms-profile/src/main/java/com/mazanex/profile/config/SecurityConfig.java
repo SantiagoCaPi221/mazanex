@@ -36,8 +36,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Deja pasar la verificación del navegador
                 .requestMatchers(HttpMethod.GET, "/api/profile/list").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/profile/social/public/**").permitAll()
-                // Require authentication for POST/PUT (use JWT)
-                // NOTE: removed temporary permitAll used for debugging
+                
+                // Le abrimos la puerta al ms-auth
+                .requestMatchers(HttpMethod.POST, "/api/profile/sync").permitAll() 
+                
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

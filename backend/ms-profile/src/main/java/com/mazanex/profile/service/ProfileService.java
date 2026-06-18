@@ -3,6 +3,7 @@ package com.mazanex.profile.service;
 import com.mazanex.profile.model.User;
 import com.mazanex.profile.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import java.util.List;
@@ -13,7 +14,11 @@ public class ProfileService {
     @Autowired
     private UserRepository userRepository;
 
-    private final String AUTH_SYNC_URL = "https://fullstack4-auth-production.up.railway.app/api/auth/sync-profile";
+    // Busca "auth.service.url" en application.properties. 
+    // Si no lo encuentra, usa "http://localhost:8081" por defecto.
+    @Value("${auth.service.url:http://auth-service:8081}/api/auth/sync-profile")
+    private String authSyncUrl;
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     public User updateProfile(Long id, User data) {
@@ -41,14 +46,14 @@ public class ProfileService {
                 return userRepository.save(existing);
             })
             .orElseGet(() -> {
-                data.setId(null);
                 return userRepository.save(data);
             });
     }
 
     private void syncWithAuth(User user) {
         try {
-            restTemplate.postForEntity(AUTH_SYNC_URL, user, User.class);
+            // Usamos la variable dinámica que declaramos arriba
+            restTemplate.postForEntity(authSyncUrl, user, User.class);
         } catch (Exception e) {
             System.err.println("Sincronización fallida: " + e.getMessage());
         }

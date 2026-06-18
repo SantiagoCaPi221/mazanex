@@ -1,4 +1,5 @@
 const BASE_URL = process.env.NEXT_PUBLIC_GATEWAY_URL || "http://localhost:8080";
+//const BASE_URL = "http://localhost:8082";
 
 export const profileService = {
   // 🔥 Ahora pedimos el token como tercer parámetro
