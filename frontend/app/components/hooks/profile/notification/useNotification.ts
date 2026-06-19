@@ -1,36 +1,36 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import { socialService } from "@/app/clients/socialService";
-
 import { Notification } from "@/app/components/types/notification";
-
 import {
   adaptNotifications,
   hasUnread,
 } from "@/app/components/utils/notification/notificationUtils";
-
 import { NOTIFICATION_MESSAGES } from "@/app/components/utils/message/notificationMessage";
 
-export function useNotificationsPage(user: any, showNotification: any) {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+export function useNotificationsPage(rawUser: any, showNotification: any) {
+  // Desempaquetado seguro del usuario
+  const user = rawUser?.user || rawUser;
 
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
   const loadNotifications = async () => {
-    if (!user?.id) return;
+    // Si no hay ID, apagamos el loader y salimos
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
 
     try {
       const data = await socialService.getNotifications(user.id);
-
       const adapted = adaptNotifications(data);
 
       setNotifications(adapted);
 
       if (hasUnread(adapted)) {
         await socialService.markNotificationsAsRead(user.id);
-
         setNotifications((prev) =>
           prev.map((n) => ({
             ...n,
@@ -52,7 +52,6 @@ export function useNotificationsPage(user: any, showNotification: any) {
   const acceptFriendRequest = async (notification: Notification) => {
     if (!user?.id || !notification.senderId) {
       showNotification(NOTIFICATION_MESSAGES.PROTOCOL_ERROR, "error");
-
       return;
     }
 
@@ -76,7 +75,6 @@ export function useNotificationsPage(user: any, showNotification: any) {
       showNotification(NOTIFICATION_MESSAGES.ACCEPT_SUCCESS, "success");
     } else {
       showNotification(NOTIFICATION_MESSAGES.ACCEPT_ERROR, "error");
-
       loadNotifications();
     }
   };

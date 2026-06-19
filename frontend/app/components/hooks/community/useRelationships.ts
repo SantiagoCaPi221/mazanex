@@ -7,22 +7,26 @@ import { useUserStore } from "@/app/store/useUserStore";
 import type { Relationship, User } from "@/app/components/types/community";
 
 export function useRelationships(users: User[]) {
-  const { user } = useUserStore();
+  const { user: rawUser } = useUserStore();
+  const currentUser = rawUser?.user || rawUser;
 
   const [relationships, setRelationships] = useState<Record<number, Relationship>>({});
-  // Iniciamos en true, pero nos aseguramos de apagarlo
   const [loadingRelationships, setLoading] = useState(true);
 
   const fetchRelationships = async () => {
+    // Verificación extra de seguridad
+    if (!currentUser?.id) return;
+
     setLoading(true);
 
     try {
       const map: Record<number, Relationship> = {};
 
+      // Hacemos las consultas por cada usuario en la lista
       await Promise.all(
         users.map(async (u) => {
-          // El '!' le dice a TypeScript que estamos seguros de que user.id existe aquí
-          map[u.id] = await socialService.getRelationshipStatus(user!.id, u.id);
+          // Usamos currentUser.id que ya garantizamos que existe
+          map[u.id] = await socialService.getRelationshipStatus(currentUser.id, u.id);
         })
       );
 
@@ -35,14 +39,15 @@ export function useRelationships(users: User[]) {
   };
 
   useEffect(() => {
-    if (!users || users.length === 0 || !user?.id) {
-      setLoading(false); // ... apagamos el loading inmediatamente.
-      return;            // y nos salimos.
+    // Ahora validamos con el currentUser correcto
+    if (!users || users.length === 0 || !currentUser?.id) {
+      setLoading(false); 
+      return;            
     }
 
-    // Si pasamos los filtros de arriba, entonces sí vamos al backend a consultar
+    // Si todo está bien, disparamos la búsqueda
     fetchRelationships();
-  }, [users, user?.id]);
+  }, [users, currentUser?.id]); // Escuchamos cambios en currentUser
 
   return {
     relationships,
