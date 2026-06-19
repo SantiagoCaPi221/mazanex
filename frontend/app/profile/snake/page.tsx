@@ -1,18 +1,30 @@
 "use client";
 
 import GoogleSnake from "@/components/GoogleSnake";
-import { gameService } from "@/service/gameService";
+import { gameService } from "@/app/clients/gameService";
 import { useUserStore } from "@/store/useUserStore";
 
 export default function Page() {
   const { user, showNotification } = useUserStore();
 
   const handleSnakeGameOver = async (puntos: number, modoJugado: string) => {
+    // 1. Validación estricta
     if (!user || puntos <= 0) return;
 
-    // Actualizado al nuevo gameService
+    // 2. "Seguro de vida" para el nombre: 
+    // Si user.username es null o undefined, usamos "JugadorAnonimo" 
+    // para evitar que el backend explote por el campo nulo.
+    const nameToSave = user.username || "JugadorAnonimo";
+
+    console.log("DEBUG [Page.tsx]: Enviando datos:", { 
+      userId: user.id, 
+      player_name: nameToSave 
+    });
+
+    // 3. Envío al servicio
     const exito = await gameService.saveScore({
       userId: user.id,
+      player_name: nameToSave, // <--- Coincide con lo que espera el Backend
       game: "SNAKE",
       highScore: puntos,
       screenshotUrl: "SISTEMA_VERIFICADO",
