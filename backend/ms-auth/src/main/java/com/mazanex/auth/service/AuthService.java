@@ -5,7 +5,9 @@ import com.mazanex.auth.dto.UserRequestDto;
 import com.mazanex.auth.dto.UserResponseDto;
 import com.mazanex.auth.model.User;
 import com.mazanex.auth.repository.UserRepository;
-import com.mazanex.auth.util.SimpleCircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -21,7 +23,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final RestTemplate restTemplate;
-    private final SimpleCircuitBreaker profileSyncCircuitBreaker;
+    private final CircuitBreaker profileSyncCircuitBreaker;
     
     // Busca la URL de profile en properties. Si no existe, asume Docker (profile-service:8082)
     @Value("${profile.service.url:http://profile-service:8082}/api/profile/sync")
@@ -29,11 +31,12 @@ public class AuthService {
 
     AuthService(UserRepository userRepository,
                 JwtService jwtService,
-                RestTemplate restTemplate) {
+                RestTemplate restTemplate,
+                CircuitBreakerRegistry circuitBreakerRegistry) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.restTemplate = restTemplate;
-        this.profileSyncCircuitBreaker = new SimpleCircuitBreaker(5, 2, 10000);
+        this.profileSyncCircuitBreaker = circuitBreakerRegistry.circuitBreaker("profileSync");
     }
 
     public List<User> getAllUsers() {
@@ -58,8 +61,10 @@ public class AuthService {
     private void syncWithProfile(User user) {
         try {
             System.out.println("Enviando usuario ID " + user.getId() + " a ms-profile...");
-            profileSyncCircuitBreaker.execute(() -> restTemplate.postForEntity(profileSyncUrl, user, User.class));
+            profileSyncCircuitBreaker.executeSupplier(() -> restTemplate.postForEntity(profileSyncUrl, user, User.class));
             System.out.println("Usuario sincronizado exitosamente con ms-profile.");
+        } catch (CallNotPermittedException e) {
+            System.err.println("Circuit breaker abierto en ms-auth->ms-profile: " + e.getMessage());
         } catch (Exception e) {
             System.err.println("Error al avisarle a ms-profile: " + e.getMessage());
         }
