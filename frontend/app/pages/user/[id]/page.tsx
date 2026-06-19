@@ -44,7 +44,10 @@ function ProfileAvatar({ src, name }: { src: string; name: string }) {
 export default function UserPublicProfilePage() {
   const { id } = useParams();
   const router = useRouter();
-  const { user: currentUser, showNotification } = useUserStore();
+  
+  // Desempaquetado seguro del usuario
+  const { user: rawUser, showNotification } = useUserStore();
+  const currentUser = rawUser?.user || rawUser;
 
   const [profile, setProfile] = useState<any>(null);
   const [scores, setScores] = useState<any[]>([]);
@@ -54,7 +57,9 @@ export default function UserPublicProfilePage() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const fetchData = async () => {
-    if (!id || !currentUser) return;
+    // Verificamos currentUser.id explícitamente
+    if (!id || !currentUser?.id) return;
+    
     try {
       const data = await socialService.getPublicProfile(Number(id));
       setProfile(data);
@@ -78,48 +83,32 @@ export default function UserPublicProfilePage() {
 
   useEffect(() => {
     fetchData();
-  }, [id, currentUser]);
+  }, [id, currentUser?.id]);
 
-  // LA LÓGICA DEL REPORTE BLINDADA CONTRA SPAM
   const handleReport = async (scoreId: number) => {
     if (!currentUser?.id) return;
 
-    if (
-      !confirm(
-        "¿Reportar evidencia? 3 reportes de usuarios distintos la eliminarán."
-      )
-    ) {
+    if (!confirm("¿Reportar evidencia? 3 reportes de usuarios distintos la eliminarán.")) {
       return;
     }
 
-    // Pasamos el ID del usuario actual al backend
     const result = await gameService.reportScore(scoreId, currentUser.id);
 
-    // Atrapamos si ya lo había reportado
     if (result?.error === "ALREADY_REPORTED") {
-      showNotification(
-        "Ya has reportado esta evidencia anteriormente.",
-        "error"
-      );
+      showNotification("Ya has reportado esta evidencia anteriormente.", "error");
       return;
     }
 
     if (result?.status === "DELETED") {
-      showNotification(
-        "Evidencia eliminada por consenso comunitario.",
-        "error"
-      );
+      showNotification("Evidencia eliminada por consenso comunitario.", "error");
       setScores((prev) => prev.filter((p) => p.id !== scoreId));
     } else if (result) {
-      showNotification(
-        `Reporte registrado (${result.count || 1}/3).`,
-        "success"
-      );
+      showNotification(`Reporte registrado (${result.count || 1}/3).`, "success");
     }
   };
 
   const handleSocialAction = async () => {
-    if (!currentUser || !profile) return;
+    if (!currentUser?.id || !profile?.id) return;
     let res = null;
 
     if (relationship.status === "NONE") {

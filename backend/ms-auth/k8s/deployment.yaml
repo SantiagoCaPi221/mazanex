@@ -33,8 +33,6 @@ spec:
           env:
             - name: PORT
               value: "8081"
-            - name: DEPLOY_ENV
-              value: "local"
             - name: MYSQLDATABASE
               value: "db_auth"
           resources:

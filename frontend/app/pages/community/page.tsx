@@ -15,7 +15,9 @@ import { Users, Search, Trophy } from "lucide-react";
 import type { RankingEntry } from "@/app/components/types/community";
 
 export default function CommunityPage() {
-  const { user, showNotification } = useUserStore();
+  const { user: rawUser, showNotification } = useUserStore();
+  const currentUser = rawUser?.user || rawUser;
+
   const {
     loading,
     users,
@@ -25,7 +27,7 @@ export default function CommunityPage() {
     selectedGame,
     setSelectedGame,
     availableGames,
-    handleSocialAction,
+    handleSocialAction, // Esta función ya viene inyectada con tu ID desde useCommunity
     fetchLeaderboard,
   } = useCommunity();
 
@@ -40,7 +42,8 @@ export default function CommunityPage() {
   );
 
   const handleReportEvidence = async (scoreId: number) => {
-    if (!user?.id) return;
+    // Usamos el currentUser desempaquetado
+    if (!currentUser?.id) return;
     if (
       !confirm(
         "¿Reportar evidencia? 3 reportes de usuarios distintos la eliminarán."
@@ -48,7 +51,7 @@ export default function CommunityPage() {
     )
       return;
 
-    const result = await gameService.reportScore(scoreId, user.id);
+    const result = await gameService.reportScore(scoreId, currentUser.id);
 
     if (result?.error === "ALREADY_REPORTED") {
       showNotification(

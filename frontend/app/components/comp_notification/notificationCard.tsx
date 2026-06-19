@@ -58,7 +58,7 @@ export default function NotificationCard({
 
           {notification.senderId && (
             <Link
-              href={`/user/${notification.senderId}`}
+              href={`/pages/user/${notification.senderId}`}
               className="p-2.5 bg-slate-100 text-slate-400 rounded-xl hover:bg-slate-200 hover:text-slate-600 transition-all"
             >
               <ArrowRight className="w-4 h-4" />

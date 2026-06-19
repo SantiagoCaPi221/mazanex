@@ -51,80 +51,16 @@ INSERT INTO users (id, name, email, bio) VALUES
 -- ==========================================
 USE publications_db;
 
-CREATE TABLE IF NOT EXISTS publications (
+CREATE TABLE IF NOT EXISTS publication (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    author_id BIGINT NOT NULL,
-    author_name VARCHAR(255) NOT NULL,
-    author_avatar_url LONGTEXT,
-    content VARCHAR(2000),
-    media_url LONGTEXT,
+    user_id BIGINT NOT NULL,
+    content VARCHAR(255),
+    likes INT DEFAULT 0,
     created_at DATETIME
 );
 
-CREATE TABLE IF NOT EXISTS comments (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    publication_id BIGINT NOT NULL,
-    author_id BIGINT NOT NULL,
-    author_name VARCHAR(255) NOT NULL,
-    author_avatar_url LONGTEXT,
-    content VARCHAR(1000) NOT NULL,
-    created_at DATETIME
-);
-
-CREATE TABLE IF NOT EXISTS publication_likes (
-    publication_id BIGINT NOT NULL,
-    user_id BIGINT NOT NULL,
-    PRIMARY KEY (publication_id, user_id)
-);
-
-INSERT INTO publications (author_id, author_name, content, created_at) VALUES 
-(1, 'Bruno Stockle', '¡Logré levantar toda la arquitectura con KrakenD y Docker! 🚀', NOW()),
-(2, 'Santiago Catalan', '¿A qué hora revisamos los pipelines de CI/CD para la entrega?', NOW()),
-(3, 'Nelson Baeza', 'Subiendo los últimos cambios de los microservicios a GitHub.', NOW()),
-(4, 'Sarai Perez', 'El reporte de la estrategia Lift & Shift quedó impecable. ¡Buen trabajo equipo!', NOW());
-
-INSERT INTO comments (publication_id, author_id, author_name, content, created_at) VALUES
-(1, 2, 'Santiago Catalan', '¡Buen trabajo! Ya veo que el gateway está respondiendo bien.', NOW()),
-(1, 3, 'Nelson Baeza', 'Perfecto, ahora probemos con más usuarios conectados.', NOW()),
-(2, 1, 'Bruno Stockle', 'Sí, revisemos también los tiempos de respuesta de la API.', NOW()),
-(4, 3, 'Nelson Baeza', 'Voy a subir el test de carga para validar el ranking.', NOW());
-
-INSERT INTO publication_likes (publication_id, user_id) VALUES
-(1, 2),|
-(1, 3),
-(2, 1),
-(2, 4),
-(3, 4),
-(4, 1);
-
--- ==========================================
--- 5. SEMBRADO DE RANKING
--- ==========================================
-USE ranking_db;
-
-CREATE TABLE IF NOT EXISTS scores (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT NOT NULL,
-    player_name VARCHAR(255) NOT NULL,
-    game VARCHAR(255),
-    mode VARCHAR(255),
-    high_score INT,
-    screenshot_url LONGTEXT,
-    verified BOOLEAN DEFAULT FALSE,
-    upload_date DATETIME
-);
-
-CREATE TABLE IF NOT EXISTS score_reports (
-    score_id BIGINT NOT NULL,
-    reporter_id BIGINT NOT NULL,
-    PRIMARY KEY (score_id, reporter_id)
-);
-
-INSERT INTO scores (user_id, player_name, game, mode, high_score, screenshot_url, verified, upload_date) VALUES
-(1, 'Bruno Stockle', 'Snake', 'Classic', 9800, 'https://mazanex.local/screenshots/snake-classic-9800.png', TRUE, NOW()),
-(2, 'Santiago Catalan', 'Snake', 'Challenge', 8700, 'https://mazanex.local/screenshots/snake-challenge-8700.png', FALSE, NOW());
-
-INSERT INTO score_reports (score_id, reporter_id) VALUES
-(1, 2),
-(1, 3),
-(2, 1);
+INSERT INTO publication (user_id, content, likes, created_at) VALUES 
+(1, '¡Logré levantar toda la arquitectura con KrakenD y Docker! 🚀', 15, NOW()),
+(2, '¿A qué hora revisamos los pipelines de CI/CD para la entrega?', 4, NOW()),
+(3, 'Subiendo los últimos cambios de los microservicios a GitHub.', 7, NOW()),
+(4, 'El reporte de la estrategia Lift & Shift quedó impecable. ¡Buen trabajo equipo!', 12, NOW());

@@ -13,7 +13,6 @@ RUN mvn clean package -DskipTests
 # ETAPA 2: Runtime
 FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
-ENV DEPLOY_ENV=local
 
 # El JAR se genera en la carpeta target local del stage anterior
 COPY --from=build /app/target/*.jar app.jar

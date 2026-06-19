@@ -2,9 +2,7 @@ package com.mazanex.profile.service;
 
 import com.mazanex.profile.model.User;
 import com.mazanex.profile.repository.UserRepository;
-import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
-import io.github.resilience4j.circuitbreaker.CircuitBreaker;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -13,20 +11,13 @@ import java.util.List;
 @Service
 public class ProfileService {
 
-    private final UserRepository userRepository;
-    private final RestTemplate restTemplate;
-    private final CircuitBreaker authSyncCircuitBreaker;
+    @Autowired
+    private UserRepository userRepository;
 
     @Value("${auth.service.url:http://auth-service:8081}/api/auth/sync-profile")
     private String authSyncUrl;
 
-    public ProfileService(UserRepository userRepository,
-                          RestTemplate restTemplate,
-                          CircuitBreakerRegistry circuitBreakerRegistry) {
-        this.userRepository = userRepository;
-        this.restTemplate = restTemplate;
-        this.authSyncCircuitBreaker = circuitBreakerRegistry.circuitBreaker("authSync");
-    }
+    private final RestTemplate restTemplate = new RestTemplate();
 
     public User updateProfile(Long id, User data) {
         return userRepository.findById(id).map(user -> {
@@ -70,9 +61,7 @@ public class ProfileService {
 
     private void syncWithAuth(User user) {
         try {
-            authSyncCircuitBreaker.executeSupplier(() -> restTemplate.postForEntity(authSyncUrl, user, User.class));
-        } catch (CallNotPermittedException e) {
-            System.err.println("Circuit breaker abierto en ms-profile->ms-auth: " + e.getMessage());
+            restTemplate.postForEntity(authSyncUrl, user, User.class);
         } catch (Exception e) {
             System.err.println("Sincronización fallida: " + e.getMessage());
         }
