@@ -1,9 +1,13 @@
 package com.mazanex.ranking.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -17,13 +21,17 @@ public class Score {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // MICROSERVICIO: Guardamos referencias directas en lugar de la clase User
+    // Validación para que no te pasen un ID nulo
+    @NotNull(message = "El user_id es obligatorio")
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    // LA SOLUCIÓN: @JsonProperty lee "player_name" del JSON y @NotBlank ataja el nulo
+    @JsonProperty("player_name")
+    @NotBlank(message = "El player_name no puede estar vacío")
     @Column(name = "player_name", nullable = false)
     private String playerName;
-
+    
     private String game;
     private String mode;
     private Integer highScore;
