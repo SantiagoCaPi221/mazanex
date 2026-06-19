@@ -27,17 +27,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Habilita CORS
-            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable()) // ESTO YA ESTÁ BIEN
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Deja pasar la verificación del navegador
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
                 .requestMatchers(HttpMethod.GET, "/api/profile/list").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/profile/social/public/**").permitAll()
-                // Require authentication for POST/PUT (use JWT)
-                // NOTE: removed temporary permitAll used for debugging
+                .requestMatchers(HttpMethod.POST, "/api/profile/sync").permitAll() 
+                
+                // 🔥 LA CLAVE: Dejamos pasar la ruta de errores para ver el problema real
+                .requestMatchers("/error").permitAll() 
+                
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
