@@ -26,7 +26,7 @@ export default function InputField({
 
         <input
           type={type}
-          value={value}
+          value={value || ""}
           onChange={onChange}
           disabled={disabled}
           className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all disabled:opacity-60 font-medium text-slate-700"
