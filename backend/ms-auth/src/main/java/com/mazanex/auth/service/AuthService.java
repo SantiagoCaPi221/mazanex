@@ -6,7 +6,9 @@ import com.mazanex.auth.dto.UserResponseDto;
 import com.mazanex.auth.model.User;
 import com.mazanex.auth.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,9 +19,14 @@ import java.util.Optional;
 public class AuthService {
 
     private final UserRepository userRepository;
-
-    // Inyectamos el servicio de JWT directamente en la capa lógica
     private final JwtService jwtService;
+
+
+    private final RestTemplate restTemplate = new RestTemplate();
+    
+    // Busca la URL de profile en properties. Si no existe, asume Docker (profile-service:8082)
+    @Value("${profile.service.url:http://profile-service:8082}/api/profile/sync")
+    private String profileSyncUrl;
 
     AuthService(UserRepository userRepository, JwtService jwtService) {
         this.userRepository = userRepository;
@@ -34,11 +41,28 @@ public class AuthService {
         if (user.getRole() == null || user.getRole().isEmpty()) {
             user.setRole("USER");
         }
-        // Nota para el futuro: Aquí es donde implementarías la encriptación (ej. BCrypt)
-        return userRepository.save(user);
+        
+        // 1. Guardamos en Auth_DB
+        User savedUser = userRepository.save(user);
+
+        // 2. Sincronizamos con Profile_DB
+        syncWithProfile(savedUser);
+
+        return savedUser;
     }
 
-    // Ahora devuelve un Map con el token y el DTO, haciendo toda la lógica aquí
+    // Método para sincronizar con Profile service 
+    private void syncWithProfile(User user) {
+        try {
+            System.out.println("Enviando usuario ID " + user.getId() + " a ms-profile...");
+            // Le manda el usuario recién creado al endpoint /sync de Profile
+            restTemplate.postForEntity(profileSyncUrl, user, User.class);
+            System.out.println("Usuario sincronizado exitosamente con ms-profile.");
+        } catch (Exception e) {
+            System.err.println("Error al avisarle a ms-profile: " + e.getMessage());
+        }
+    }
+
     public Map<String, Object> login(UserRequestDto userDto) {
         String identifier = userDto.email();
         String password = userDto.password();
@@ -49,17 +73,14 @@ public class AuthService {
         if (optUser.isPresent() && optUser.get().getPassword().equals(password)) {
             User u = optUser.get();
             
-            // 1. Mapeamos los datos del usuario al DTO
             UserResponseDto userResponse = new UserResponseDto(
                     u.getId(), u.getName(), u.getEmail(), u.getPassword(),
                     u.getRole(), u.getAvatarUrl(), u.getBannerUrl(),
                     u.getBio(), u.getBackgroundUrl()
             );
 
-            // 2. Generamos el token
             String token = jwtService.generateToken(u.getEmail());
 
-            // 3. Empaquetamos todo
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
             response.put("user", userResponse);
@@ -67,7 +88,7 @@ public class AuthService {
             return response;
         }
         
-        return null; // Credenciales inválidas
+        return null;
     }
 
     public User updateProfile(Long id, User data) {
@@ -88,12 +109,10 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // Comparamos la contraseña enviada con la guardada en la base de datos
         if (!user.getPassword().equals(currentPassword)) {
             throw new IllegalArgumentException("La contraseña actual es incorrecta");
         }
 
-        // Si coincide, guardamos la nueva
         user.setPassword(newPassword);
         return userRepository.save(user);
     }

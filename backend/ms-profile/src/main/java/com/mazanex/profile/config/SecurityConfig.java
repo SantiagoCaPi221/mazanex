@@ -1,4 +1,4 @@
-package com.mazanex.profile.config;
+package com.mazanex.profile.config; 
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +11,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import java.util.List;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -26,31 +27,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // Habilitar la configuración de CORS definida abajo
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) 
-            
-            // Deshabilitar CSRF obligatorio para APIs REST con JWT
-            .csrf(csrf -> csrf.disable())
-            
-            // Política de sesión sin estado
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable()) // ESTO YA ESTÁ BIEN
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-            
-            // Reglas de autorización de rutas
             .authorizeHttpRequests(auth -> auth
-                // Dejar pasar las peticiones preflight del navegador
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
-                
-                // Endpoints públicos explícitos
                 .requestMatchers(HttpMethod.GET, "/api/profile/list").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/profile/social/public/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/profile/sync").permitAll() 
                 
-                // Cualquier otra petición (como el PUT /{id}) requerirá token válido
+                // 🔥 LA CLAVE: Dejamos pasar la ruta de errores para ver el problema real
+                .requestMatchers("/error").permitAll() 
+                
                 .anyRequest().authenticated()
             )
-            
-            // Inyectamos nuestro filtro antes del interceptor básico de Spring
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -59,12 +51,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
-        // Permite peticiones desde cualquier origen en desarrollo
-        configuration.setAllowedOrigins(List.of("*")); 
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        
+        configuration.setAllowedOrigins(Arrays.asList("*")); 
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

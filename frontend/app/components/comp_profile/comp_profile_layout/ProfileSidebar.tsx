@@ -1,8 +1,10 @@
 import Link from "next/link";
-
 import { Settings2, Gamepad2, ChevronDown } from "lucide-react";
 
 export default function ProfileSidebar({
+  username,
+  formattedUsername,
+  bio,
   menu,
   pathname,
   unreadCount,
@@ -11,6 +13,23 @@ export default function ProfileSidebar({
 }: any) {
   return (
     <aside className="space-y-8">
+      <div className="flex flex-col items-center md:items-start text-center md:text-left pt-14 md:pt-4 px-2">
+        <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
+          {username || "Sin Nombre"}
+        </h2>
+        
+        <p className="text-sm font-medium text-indigo-500/80 mb-3">
+          @{formattedUsername || "usuario"}
+        </p>
+
+        {bio && (
+          <p className="text-sm text-slate-600 leading-relaxed italic border-l-2 border-indigo-200 pl-3">
+            "{bio}"
+          </p>
+        )}
+      </div>
+
+      {/* BLOQUE EXISTENTE: Menú de Atajos */}
       <div className="p-5 bg-white/60 backdrop-blur-md rounded-3xl border border-white/50 shadow-sm">
         <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
           <Settings2 className="w-4 h-4" />

@@ -1,4 +1,4 @@
-package com.mazanex.profile.config;
+package com.mazanex.profile.config; 
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -6,13 +6,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
-import java.util.List;
+import java.util.ArrayList;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -34,9 +33,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String username;
 
-        // 1. Validar que el header exista, sea Bearer y no venga corrupto desde el front
-        if (authHeader == null || !authHeader.startsWith("Bearer ") || 
-            authHeader.equals("Bearer null") || authHeader.equals("Bearer undefined")) {
+        // 1. Validar que el header exista y sea Bearer
+        if (authHeader == null || !authHeader.startsWith("Bearer ") || authHeader.equals("Bearer null") || authHeader.equals("Bearer undefined")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -47,30 +45,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 2. Extraer el usuario (Esta línea valida la firma criptográfica internamente)
             username = jwtService.extractUsername(jwt);
 
-            // 3. Si es válido y no está autenticado en el contexto actual de la petición
+            // 3. Si es válido y no está autenticado, lo dejamos pasar sin preguntar a la BD
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 
-                // SOLUCIÓN AL 403: Asignamos al menos una autoridad estándar (ROLE_USER).
-                // Spring Security rechaza mutaciones (PUT/POST) si la lista de roles es totalmente vacía.
-                List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
-
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         username,
                         null,
-                        authorities
+                        new ArrayList<>() // Confía ciegamente en el token
                 );
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                
-                // Guardamos la autenticación en el contexto de Spring
                 SecurityContextHolder.getContext().setAuthentication(authToken);
                 
-                // Mensaje de control en tu terminal
-                System.out.println("✅ [JwtFilter] TOKEN ACEPTADO para: " + username + " | Roles: " + authorities);
+                // MENSAJE DE ÉXITO
+                System.out.println("✅ TOKEN ACEPTADO para el usuario: " + username);
             }
         } catch (Exception e) {
-            // Si la firma no coincide o el token expiró, saltará aquí
-            System.err.println("❌ [JwtFilter] ERROR AL VALIDAR TOKEN EN MICROSERVICIO: " + e.getMessage());
+            // SI ALGO FALLA (Firma inválida, llave distinta, etc), LO IMPRIMIRÁ AQUÍ
+            System.err.println("❌ ERROR AL VALIDAR TOKEN EN MICROSERVICIO: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

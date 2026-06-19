@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Optional;
 
 @Service
@@ -29,50 +28,36 @@ public class RankingService {
 
         if (existingScore.isPresent()) {
             Score s = existingScore.get();
-            
-            // CORREGIDO: Cambiado de s.getHighScore() a s.highScore()
-            if (highScore > s.highScore()) {
-                
-                // CORREGIDO: Como no hay setters, creamos un nuevo Record clonando los datos
-                // pasándole las variables actualizadas y un nuevo HashSet vacío para limpiar los reportes.
-                Score updatedScore = new Score(
-                    s.id(),
-                    s.userId(),
-                    playerName,       // Nuevo player name
-                    s.game(),
-                    s.mode(),
-                    highScore,        // Nuevo record
-                    screenshotUrl,    // Nueva foto
-                    new HashSet<>(),  // Reemplaza el s.getReporters().clear()
-                    s.verified(),
-                    s.uploadDate()
-                );
-                
-                return scoreRepository.save(updatedScore);
+            if (highScore > s.getHighScore()) {
+                s.setHighScore(highScore);
+                s.setScreenshotUrl(screenshotUrl);
+                s.setPlayerName(playerName);
+                s.getReporters().clear(); 
+                return scoreRepository.save(s);
             }
             return Map.of("status", "NO_RECORD");
         }
 
-        // El constructor de 6 argumentos que le creamos al record sigue funcionando impecable aquí
         Score newScore = new Score(userId, playerName, game, mode, highScore, screenshotUrl);
         return scoreRepository.save(newScore);
     }
 
+    // LÓGICA PURA: Cero HTTP aquí.
     public Map<String, Object> reportScore(Long id, Long reporterId) {
         Score score = scoreRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("NOT_FOUND"));
 
-        // Esto funciona porque aunque el record es de solo lectura, 
-        // el Set interno permite que le agregues elementos con el método que creamos.
         boolean isNewReport = score.addReport(reporterId);
         
+        // REGLA DE NEGOCIO: No se puede reportar dos veces
         if (!isNewReport) {
+            // Detenemos el código y lanzamos una excepción
             throw new IllegalStateException("ALREADY_REPORTED");
         }
         
         Map<String, Object> response = new HashMap<>();
         
-        // CORREGIDO: score.getReportCount() funciona porque es el método manual del record
+        // REGLA DE NEGOCIO: 3 strikes y se elimina
         if (score.getReportCount() >= 3) {
             scoreRepository.delete(score);
             response.put("status", "DELETED");

@@ -1,33 +1,34 @@
 package com.mazanex.publications.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import java.time.LocalDateTime;
 
-public record Comment(
+@Entity
+@Table(name = "comments")
+@Data
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id,
+    private Long id;
 
+    // No ponemos objeto Publication entero para evitar loops infinitos en el JSON
     @Column(name = "publication_id", insertable = false, updatable = false)
-    Long publicationId,
+    private Long publicationId;
 
     @Column(nullable = false)
-    Long authorId,
+    private Long authorId;
 
     @Column(nullable = false)
-    String authorName,
+    private String authorName;
 
-    String authorAvatarUrl,
+    private String authorAvatarUrl;
 
     @Column(nullable = false, length = 1000)
-    String content,
+    private String content;
 
-    LocalDateTime createdAt
-) {
-    // Reemplazo de @PrePersist: si la fecha viene nula, se asigna la actual al instanciar
-    public Comment {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-    }
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() { this.createdAt = LocalDateTime.now(); }
 }
