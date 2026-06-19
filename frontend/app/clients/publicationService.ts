@@ -84,10 +84,10 @@ export const publicationService = {
     }
   },
 
-  async deletePublication(publicationId: number) {
+  async deletePublication(publicationId: number, userId: number) {
     const headers = getAuthHeaders();
     try {
-      const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}/${publicationId}`, {
+      const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}/${publicationId}?userId=${userId}`, {
         method: "DELETE",
         headers,
       });

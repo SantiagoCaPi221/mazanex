@@ -1,4 +1,4 @@
-package com.mazanex.ranking.config; // Verifica que este package coincida con el tuyo
+package com.mazanex.ranking.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,27 +27,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Habilita CORS
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-                // 🔥 1. PREVENCIÓN DE BLOQUEO CORS (Preflight OPTIONS)
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
-                
-                // 🔥 2. ENMASCARAMIENTO DE ERRORES (Evita el falso 403)
-                .requestMatchers("/error").permitAll() 
-                
-                // 🎯 3. RUTAS DE SWAGGER (Si lo usas en este microservicio)
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-
-                // 🎯 4. TUS RUTAS PÚBLICAS DE RANKING
-                .requestMatchers(HttpMethod.GET, "/api/ranking/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/ranking/save-record").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/ranking/report/**").permitAll()
-                
-                // Todo lo demás requiere token válido
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Deja pasar la verificación del navegador
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -58,7 +44,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("*")); // En producción, ajusta el "*" a tu dominio
+        configuration.setAllowedOrigins(Arrays.asList("*")); 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

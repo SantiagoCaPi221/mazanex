@@ -10,7 +10,9 @@ import { useSocialActions } from "./useSocialActions";
 import { filterUsers } from "@/app/components/utils/community/filters";
 
 export function useCommunity() {
-  const { user } = useUserStore();
+  // 1. Obtenemos el usuario en bruto y aseguramos la estructura correcta
+  const { user: rawUser } = useUserStore();
+  const currentUser = rawUser?.user || rawUser;
 
   const usersHook = useUsers();
   const relationshipsHook = useRelationships(usersHook.users);
@@ -29,7 +31,7 @@ export function useCommunity() {
   });
 
   return {
-    user,
+    user: currentUser,
 
     loading: usersHook.loadingUsers || relationshipsHook.loadingRelationships,
 
@@ -53,6 +55,14 @@ export function useCommunity() {
       (rankingHook as any).fetchLeaderboard ||
       (rankingHook as any).fetchRanking,
 
-    handleSocialAction: social.handleSocialAction,
+    // 🔥 MODO PRO: Inyectamos el ID automáticamente. 
+    // La UI solo necesita pasar a quién se le envía (targetId)
+    handleSocialAction: (targetId: number) => {
+      if (!currentUser?.id) {
+        console.error("No hay sesión activa para enviar la solicitud");
+        return;
+      }
+      return social.handleSocialAction(currentUser.id, targetId);
+    },
   };
 }
