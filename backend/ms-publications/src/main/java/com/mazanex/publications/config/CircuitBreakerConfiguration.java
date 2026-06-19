@@ -14,11 +14,11 @@ public class CircuitBreakerConfiguration {
     @Bean
     public CircuitBreakerRegistry circuitBreakerRegistry(
             @Value("${DEPLOY_ENV:local}") String deployEnv,
-            @Value("${CB_FAILURE_RATE:0}") float failureRateThreshold,
-            @Value("${CB_SLIDING_WINDOW_SIZE:0}") int slidingWindowSize,
-            @Value("${CB_WAIT_DURATION_IN_OPEN_STATE:0}") int waitDurationInOpenState,
-            @Value("${CB_PERMITTED_NUMBER_OF_CALLS_IN_HALF_OPEN_STATE:0}") int permittedNumberOfCallsInHalfOpenState,
-            @Value("${CB_MINIMUM_NUMBER_OF_CALLS:0}") int minimumNumberOfCalls
+            @Value("${cb.failure.rate:${CB_FAILURE_RATE:0}}") float failureRateThreshold,
+            @Value("${cb.sliding.window.size:${CB_SLIDING_WINDOW_SIZE:0}}") int slidingWindowSize,
+            @Value("${cb.wait.duration.open:${CB_WAIT_DURATION_IN_OPEN_STATE:0}}") int waitDurationInOpenState,
+            @Value("${cb.permitted.calls.half.open:${CB_PERMITTED_NUMBER_OF_CALLS_IN_HALF_OPEN_STATE:0}}") int permittedNumberOfCallsInHalfOpenState,
+            @Value("${cb.minimum.calls:${CB_MINIMUM_NUMBER_OF_CALLS:0}}") int minimumNumberOfCalls
     ) {
         boolean railway = "railway".equalsIgnoreCase(deployEnv);
         float failureRate = failureRateThreshold > 0 ? failureRateThreshold : (railway ? 50f : 75f);

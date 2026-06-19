@@ -53,6 +53,11 @@ public class AuthController {
         return authService.getAllUsers();
     }
 
+    @GetMapping("/circuit-breaker")
+    public ResponseEntity<Map<String, Object>> getCircuitBreakerStatus() {
+        return ResponseEntity.ok(authService.getProfileSyncCircuitBreakerStatus());
+    }
+
     @PutMapping("/profile/{id}")
     public ResponseEntity<User> updateProfile(@PathVariable Long id, @RequestBody User data) {
         User updated = authService.updateProfile(id, data);
