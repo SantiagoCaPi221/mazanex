@@ -2,6 +2,7 @@ import { BACKEND_URLS } from "@/app/config/endpoints";
 
 const getAuthHeaders = () => {
   let token = null;
+
   if (typeof window !== "undefined") {
     token = localStorage.getItem("token");
   }
@@ -10,20 +11,31 @@ const getAuthHeaders = () => {
     "Content-Type": "application/json",
   };
 
-  if (token && token !== "null" && token !== "undefined" && token.trim() !== "") {
-    const cleanToken = token.replace(/['"]+/g, '');
+  if (
+    token &&
+    token !== "null" &&
+    token !== "undefined" &&
+    token.trim() !== ""
+  ) {
+    const cleanToken = token.replace(/['"]+/g, "");
     headers["Authorization"] = `Bearer ${cleanToken}`;
   }
-  
+
   return headers;
 };
 
 export const publicationService = {
   async getFeed() {
     const headers = getAuthHeaders();
+
     console.log("🚀 Enviando GET /feed con headers:", headers);
+
     try {
-      const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}/feed`, { headers });
+      const response = await fetch(
+        `${BACKEND_URLS.PUBLICATIONS}/feed`,
+        { headers }
+      );
+
       return response.ok ? await response.json() : [];
     } catch (error) {
       return [];
@@ -32,9 +44,18 @@ export const publicationService = {
 
   async getUserPublications(userId: number) {
     const headers = getAuthHeaders();
-    console.log(`🚀 Enviando GET /user/${userId} con headers:`, headers);
+
+    console.log(
+      `🚀 Enviando GET /user/${userId} con headers:`,
+      headers
+    );
+
     try {
-      const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}/user/${userId}`, { headers });
+      const response = await fetch(
+        `${BACKEND_URLS.PUBLICATIONS}/user/${userId}`,
+        { headers }
+      );
+
       return response.ok ? await response.json() : [];
     } catch (error) {
       return [];
@@ -43,13 +64,22 @@ export const publicationService = {
 
   async createPublication(publicationData: any) {
     const headers = getAuthHeaders();
-    console.log("🚀 Enviando POST /publications con headers:", headers);
+
+    console.log(
+      "🚀 Enviando POST /publications con headers:",
+      headers
+    );
+
     try {
-      const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(publicationData),
-      });
+      const response = await fetch(
+        `${BACKEND_URLS.PUBLICATIONS}`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify(publicationData),
+        }
+      );
+
       return response.ok ? await response.json() : null;
     } catch (error) {
       return null;
@@ -58,12 +88,19 @@ export const publicationService = {
 
   async toggleLike(publicationId: number, userId: number) {
     const headers = getAuthHeaders();
+
     try {
-      const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}/${publicationId}/like`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ userId: userId }),
-      });
+      const response = await fetch(
+        `${BACKEND_URLS.PUBLICATIONS}/${publicationId}/like`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            userId: userId,
+          }),
+        }
+      );
+
       return response.ok;
     } catch (error) {
       return false;
@@ -72,12 +109,17 @@ export const publicationService = {
 
   async addComment(publicationId: number, commentData: any) {
     const headers = getAuthHeaders();
+
     try {
-      const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}/${publicationId}/comment`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(commentData),
-      });
+      const response = await fetch(
+        `${BACKEND_URLS.PUBLICATIONS}/${publicationId}/comment`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify(commentData),
+        }
+      );
+
       return response.ok ? await response.json() : null;
     } catch (error) {
       return null;
@@ -86,13 +128,26 @@ export const publicationService = {
 
   async deletePublication(publicationId: number, userId: number) {
     const headers = getAuthHeaders();
+
+    delete headers["Content-Type"];
+
     try {
-      const response = await fetch(`${BACKEND_URLS.PUBLICATIONS}/${publicationId}?userId=${userId}`, {
-        method: "DELETE",
-        headers,
-      });
+      const response = await fetch(
+        `${BACKEND_URLS.PUBLICATIONS}/${publicationId}/${userId}`,
+        {
+          method: "DELETE",
+          headers,
+        }
+      );
+
+      const text = await response.text();
+
+      console.log("DELETE STATUS:", response.status);
+      console.log("DELETE RESPONSE:", text);
+
       return response.ok;
     } catch (error) {
+      console.error("DELETE ERROR:", error);
       return false;
     }
   },

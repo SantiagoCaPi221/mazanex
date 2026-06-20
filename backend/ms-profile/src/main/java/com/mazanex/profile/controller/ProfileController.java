@@ -59,11 +59,6 @@ public class ProfileController {
         return ResponseEntity.ok(profileService.listAll());
     }
 
-    @GetMapping("/circuit-breaker")
-    public ResponseEntity<Map<String, Object>> getCircuitBreakerStatus() {
-        return ResponseEntity.ok(profileService.getAuthSyncCircuitBreakerStatus());
-    }
-
     @DeleteMapping("/{id}")
     @Operation(
         summary = "Eliminar perfil", 

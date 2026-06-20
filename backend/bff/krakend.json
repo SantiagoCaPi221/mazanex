@@ -186,12 +186,18 @@
       "backend": [{"url_pattern": "/api/publications/{id}/comment", "encoding": "no-op", "host": ["http://publications-service:8083"]}]
     },
     {
-      "endpoint": "/api/publications/{id}",
-      "method": "DELETE",
-      "output_encoding": "no-op",
-      "input_headers": ["Authorization", "authorization", "Content-Type"],
-      "backend": [{"url_pattern": "/api/publications/{id}", "encoding": "no-op", "host": ["http://publications-service:8083"]}]
-    },
+    "endpoint": "/api/publications/{id}/{userId}",
+    "method": "DELETE",
+    "output_encoding": "no-op",
+    "input_headers": ["Authorization", "authorization", "Content-Type"],
+    "backend": [
+    {
+      "url_pattern": "/api/publications/{id}/{userId}",
+      "encoding": "no-op",
+      "host": ["http://publications-service:8083"]
+    }
+  ]
+},
     {
       "endpoint": "/api/ranking/save-record",
       "method": "POST",
