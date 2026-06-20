@@ -43,6 +43,7 @@ export default function EmulatorSubmission({ game, onSuccess }: Props) {
     // Usando el gameService y las variables en inglés para el backend
     const isSuccess = await gameService.saveScore({
       userId: user.id,
+      playerName: user.name,
       game: game,
       mode: "ARCADE MODE",
       highScore: Number(score),
@@ -53,7 +54,7 @@ export default function EmulatorSubmission({ game, onSuccess }: Props) {
       showNotification("Récord enviado con éxito", "success");
       onSuccess();
     } else {
-      showNotification("No superaste tu récord actual", "info");
+      showNotification("No superaste tu récord actual", "error");
     }
     setIsLoading(false);
   };

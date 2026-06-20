@@ -44,20 +44,22 @@ public class RankingController {
     }
 
     @PostMapping("/save-record")
-    @Operation(
-        summary = "Guardar nuevo récord", 
-        description = "Registra una nueva puntuación máxima para un jugador, incluyendo el modo de juego y evidencia opcional (screenshot)."
-    )
     public ResponseEntity<?> saveRecord(@RequestBody ScoreRequestDto req) {
-        return ResponseEntity.ok(rankingService.saveRecord(
-            req.getUserId(), 
-            req.getPlayerName(), 
-            req.getGame(), 
-            req.getMode(), 
-            req.getHighScore(), 
-            req.getScreenshotUrl()
-        ));
+    System.out.println("DEBUG: Recibido ScoreRequestDto -> " + req.toString()); // <-- AGREGA ESTO
+    
+    if (req.getPlayerName() == null) {
+        return ResponseEntity.badRequest().body("El nombre del jugador es nulo");
     }
+    
+    return ResponseEntity.ok(rankingService.saveRecord(
+        req.getUserId(), 
+        req.getPlayerName(), 
+        req.getGame(), 
+        req.getMode(), 
+        req.getHighScore(), 
+        req.getScreenshotUrl()
+    ));
+}
 
     @PostMapping("/report/{id}")
     @Operation(
