@@ -3,15 +3,14 @@ package com.mazanex.ranking.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-@Data 
+@Data // <-- ESTA ANOTACIÓN GENERA getGame()
 public class ScoreRequestDto {
     private Long userId;
-
-    // Con esto le dices a Java: "Si recibes 'player_name', mételo en 'playerName'"
-    @JsonProperty("player_name") 
+    
+    @JsonProperty("player_name")
     private String playerName;
     
-    private String game;
+    private String game; // <-- El método se genera basado en este nombre
     private String mode;
     private Integer highScore;
     private String screenshotUrl;

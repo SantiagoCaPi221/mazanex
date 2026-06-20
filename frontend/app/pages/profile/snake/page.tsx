@@ -7,29 +7,34 @@ import { useUserStore } from "@/app/store/useUserStore";
 export default function Page() {
   const { user, showNotification } = useUserStore();
 
-  const handleSnakeGameOver = async (puntos: number, modoJugado: string) => {
+const handleSnakeGameOver = async (puntos: number, modoJugado: string) => {
+    console.log("DEBUG: ¿Cómo se llama mi usuario?", JSON.stringify(user, null, 2));
+
     if (!user || puntos <= 0) return;
 
-    // Actualizado al nuevo gameService
-    const exito = await gameService.saveScore({
+    // Construimos el objeto con la llave 'player_name' 
+    // para que el @JsonProperty del backend lo atrape.
+// En Page.tsx
+    const payload = {
       userId: user.id,
+      player_name: user.name || "JugadorAnonimo", // Forzamos un string por seguridad
       game: "SNAKE",
       highScore: puntos,
       screenshotUrl: "SISTEMA_VERIFICADO",
       mode: modoJugado,
-    });
+    };
+
+// IMPRIME EL OBJETO ANTES DEL STRINGIFY PARA VER SI REALMENTE TIENE LA LLAVE
+    console.log("OBJETO ANTES DE JSON.STRINGIFY:", payload); 
+
+    const exito = await gameService.saveScore(payload);
 
     if (exito) {
-      showNotification(
-        `Récord en [${modoJugado}] guardado: ${puntos} pts`,
-        "success"
-      );
+      showNotification(`Récord guardado: ${puntos} pts`, "success");
     } else {
-      console.log(
-        `El puntaje de ${puntos} no supera tu récord actual en la categoría: ${modoJugado}`
-      );
+      showNotification("No se pudo guardar el récord", "error"); // Agregamos mensaje de error
     }
-  };
+};
 
   return (
     <div className="animate-in fade-in zoom-in duration-500 flex flex-col items-center">

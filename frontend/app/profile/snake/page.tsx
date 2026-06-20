@@ -9,6 +9,8 @@ export default function Page() {
 
   const handleSnakeGameOver = async (puntos: number, modoJugado: string) => {
     // 1. Validación estricta
+    console.log("DEBUG: ¿Qué hay en user?", user);
+    
     if (!user || puntos <= 0) return;
 
     // 2. "Seguro de vida" para el nombre: 
