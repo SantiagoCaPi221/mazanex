@@ -2,19 +2,6 @@ import { BACKEND_URLS } from "@/app/config/endpoints";
 
 const BASE_RANKING = BACKEND_URLS.RANKING;
 
-// 1. DEFINIMOS EL CONTRATO DE DATOS
-// Esto debe coincidir exactamente con los nombres de campo de tu ScoreRequestDto en Java
-// En tu archivo gameService.ts
-
-export interface ScorePayload {
-  userId: number;        // Corresponde a la columna user_id
-  player_name: string;    // Corresponde a la columna player_name
-  game: string;          // Corresponde a la columna game
-  mode: string;          // Corresponde a la columna mode
-  highScore: number;     // Corresponde a la columna high_score
-  screenshotUrl: string; // Corresponde a la columna screenshot_url
-}
-
 const getAuthHeaders = () => {
   let token = null;
   if (typeof window !== "undefined") {
@@ -34,10 +21,31 @@ const getAuthHeaders = () => {
 };
 
 export const gameService = {
-  // ... resto de métodos (getScoresByUserId, reportScore, getRanking)
+  async getScoresByUserId(userId: number) {
+    try {
+      const response = await fetch(`${BASE_RANKING}/user/${userId}`, {
+        headers: getAuthHeaders(),
+      });
+      return response.ok ? await response.json() : [];
+    } catch (error) {
+      return [];
+    }
+  },
 
-  // 2. ACTUALIZAMOS EL TIPO DE DATO AQUÍ
-  async saveScore(scoreData: ScorePayload) {
+  async reportScore(scoreId: number, reporterId: number) {
+    try {
+      const response = await fetch(`${BASE_RANKING}/report/${scoreId}`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ reporterId }),
+      });
+      return response.ok ? await response.json() : null;
+    } catch (error) {
+      return null;
+    }
+  },
+
+  async saveScore(scoreData: any) {
     try {
       const response = await fetch(`${BASE_RANKING}/save-record`, {
         method: "POST",
@@ -46,10 +54,18 @@ export const gameService = {
       });
       return response.ok ? await response.json() : null;
     } catch (error) {
-      console.error("Error al guardar:", error);
       return null;
     }
   },
-  
-  // ... resto del objeto
+
+  async getRanking(game: string) {
+    try {
+      const response = await fetch(`${BASE_RANKING}/${game}`, {
+        headers: getAuthHeaders(),
+      });
+      return response.ok ? await response.json() : [];
+    } catch (error) {
+      return [];
+    }
+  },
 };
