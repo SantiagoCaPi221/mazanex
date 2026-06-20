@@ -55,7 +55,7 @@ export default function Navbar() {
 
             {/* --- Dashboard Link (Gestión de Proyectos) --- */}
             <Link
-              href="/dashboard"
+              href="/pages/dashboard"
               className="p-2 text-slate-400 hover:text-indigo-400 transition-all hover:bg-slate-900 rounded-full"
               title="Gestión de Proyectos"
             >

@@ -10,8 +10,14 @@ public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
     private Long projectId;
-    private Long assignedUserId;
+    
+    // Cambiamos assignedUserId por assignee
+    @Column(name = "assignee")
+    private String assignee;
+    
     private String title;
+    
     private String status;
 }

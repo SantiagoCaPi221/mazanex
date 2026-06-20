@@ -38,18 +38,23 @@ public class AuthService {
     }
 
     public User registerUser(User user) {
-        if (user.getRole() == null || user.getRole().isEmpty()) {
-            user.setRole("USER");
-        }
-        
-        // 1. Guardamos en Auth_DB
-        User savedUser = userRepository.save(user);
-
-        // 2. Sincronizamos con Profile_DB
-        syncWithProfile(savedUser);
-
-        return savedUser;
+    // 1. Validación de duplicados (Asegúrate de tener existsByEmail en tu UserRepository)
+    if (userRepository.existsByEmail(user.getEmail())) {
+        throw new RuntimeException("El email ya está registrado");
     }
+
+    if (user.getRole() == null || user.getRole().isEmpty()) {
+        user.setRole("USER");
+    }
+    
+    // 2. Guardamos en Auth_DB
+    User savedUser = userRepository.save(user);
+
+    // 3. Sincronizamos (en un entorno de test real, esto no fallará porque no llegará aquí si el test falla antes)
+    syncWithProfile(savedUser);
+
+    return savedUser;
+}
 
     // Método para sincronizar con Profile service 
     private void syncWithProfile(User user) {

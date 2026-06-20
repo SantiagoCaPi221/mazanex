@@ -1,5 +1,6 @@
 import { BACKEND_URLS } from "@/app/config/endpoints";
 
+// Funcion auxiliar para obtener los headers con el token
 const getAuthHeaders = () => {
   let token = null;
   if (typeof window !== "undefined") {
@@ -19,14 +20,12 @@ const getAuthHeaders = () => {
 };
 
 export const profileService = {
-  /**
-   * Obtiene la lista global de perfiles para la vista de Descubrir
-   */
+  // Obtiene la lista global de perfiles
   async getAllProfiles() {
     const headers = getAuthHeaders();
-    console.log("🚀 Enviando GET /api/profile/list con headers:", headers);
+    // KrakenD espera /api/profile/list
     try {
-      const response = await fetch(`${BACKEND_URLS.PROFILE}/list`, { headers });
+      const response = await fetch(`${BACKEND_URLS.PROFILE}/api/profile/list`, { headers });
       return response.ok ? await response.json() : [];
     } catch (error) {
       console.error("Error en getAllProfiles:", error);
@@ -34,19 +33,42 @@ export const profileService = {
     }
   },
 
-  /**
-   * Actualiza los datos de un perfil específico (Biografía, Nombre, Avatar, Banner, etc.)
-   */
+  // Obtiene un perfil especifico por ID
+  async getProfile(id: number) {
+    const headers = getAuthHeaders();
+    // KrakenD espera /api/profile/{id}
+    try {
+      const response = await fetch(`${BACKEND_URLS.PROFILE}/api/profile/${id}`, { headers });
+      return response.ok ? await response.json() : null;
+    } catch (error) {
+      console.error("Error al obtener perfil especifico:", error);
+      return null;
+    }
+  },
+
+  // Actualiza los datos de un perfil
   async updateProfile(id: number, profileData: any) {
     const headers = getAuthHeaders();
-    console.log(`🚀 Enviando PUT /api/profile/${id} con headers:`, headers);
+    const url = `${BACKEND_URLS.PROFILE}/api/profile/${id}`;
+    
     try {
-      const response = await fetch(`${BACKEND_URLS.PROFILE}/${id}`, {
+      const response = await fetch(url, {
         method: "PUT",
         headers,
         body: JSON.stringify(profileData),
       });
-      return response.ok ? await response.json() : null;
+
+      if (response.ok) {
+        const updatedData = await response.json();
+        
+        // Sincronizar el localStorage
+        const localUser = JSON.parse(localStorage.getItem("user") || "{}");
+        const newUser = { ...localUser, ...updatedData };
+        localStorage.setItem("user", JSON.stringify(newUser));
+        
+        return updatedData;
+      }
+      return null;
     } catch (error) {
       console.error("Error en updateProfile:", error);
       return null;

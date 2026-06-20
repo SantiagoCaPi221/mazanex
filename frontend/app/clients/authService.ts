@@ -45,10 +45,33 @@ export const authService = {
     
     if (response.ok) {
       const data = await response.json();
-      // data.token es el JWT que viene del backend
-      localStorage.setItem("user", JSON.stringify(data.user || data));
-      localStorage.setItem("token", data.token); 
-      return data;
+      const token = data.token;
+      // Obtenemos el usuario básico desde auth
+      let user = data.user || data;
+
+      // 🔥 AQUÍ ESTÁ LA MAGIA: "Hidratar" con los datos del perfil
+      try {
+        const profileResponse = await fetch(`${BACKEND_URLS.PROFILE}/api/profile/${user.id}`, {
+          headers: { 
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        });
+        
+        if (profileResponse.ok) {
+          const profileData = await profileResponse.json();
+          // Combinamos: Auth tiene el ID/Nombre, Profile tiene las fotos/bio
+          user = { ...user, ...profileData };
+        }
+      } catch (err) {
+        console.warn("No se pudo cargar el perfil completo, usando datos básicos", err);
+      }
+
+      // 🔥 Guardamos el objeto COMPLETO (Auth + Perfil)
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", token); 
+      
+      return { user, token };
     }
     return null;
   },
