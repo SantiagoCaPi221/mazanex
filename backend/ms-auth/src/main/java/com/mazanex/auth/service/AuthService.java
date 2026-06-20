@@ -5,7 +5,6 @@ import com.mazanex.auth.dto.UserRequestDto;
 import com.mazanex.auth.dto.UserResponseDto;
 import com.mazanex.auth.model.User;
 import com.mazanex.auth.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -14,48 +13,52 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthService {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
-
-
     private final RestTemplate restTemplate = new RestTemplate();
     
-    // Busca la URL de profile en properties. Si no existe, asume Docker (profile-service:8082)
     @Value("${profile.service.url:http://profile-service:8082}/api/profile/sync")
     private String profileSyncUrl;
 
-    AuthService(UserRepository userRepository, JwtService jwtService) {
+    public AuthService(UserRepository userRepository, JwtService jwtService) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    // --- Helper Method para mapear de User a UserResponseDto ---
+    private UserResponseDto mapToDto(User u) {
+        return new UserResponseDto(
+                u.getId(), u.getName(), u.getEmail(), u.getRole(),
+                u.getAvatarUrl(), u.getBannerUrl(), u.getBio(), u.getBackgroundUrl()
+        ); // Nota: ¡Sin contraseña!
     }
 
-    public User registerUser(User user) {
+    public List<UserResponseDto> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    public UserResponseDto registerUser(User user) {
         if (user.getRole() == null || user.getRole().isEmpty()) {
             user.setRole("USER");
         }
         
-        // 1. Guardamos en Auth_DB
         User savedUser = userRepository.save(user);
-
-        // 2. Sincronizamos con Profile_DB
         syncWithProfile(savedUser);
 
-        return savedUser;
+        return mapToDto(savedUser);
     }
 
-    // Método para sincronizar con Profile service 
     private void syncWithProfile(User user) {
         try {
             System.out.println("Enviando usuario ID " + user.getId() + " a ms-profile...");
-            // Le manda el usuario recién creado al endpoint /sync de Profile
             restTemplate.postForEntity(profileSyncUrl, user, User.class);
             System.out.println("Usuario sincronizado exitosamente con ms-profile.");
         } catch (Exception e) {
@@ -64,6 +67,7 @@ public class AuthService {
     }
 
     public Map<String, Object> login(UserRequestDto userDto) {
+        // En los records, accedemos a las variables directamente por su nombre
         String identifier = userDto.email();
         String password = userDto.password();
 
@@ -73,12 +77,7 @@ public class AuthService {
         if (optUser.isPresent() && optUser.get().getPassword().equals(password)) {
             User u = optUser.get();
             
-            UserResponseDto userResponse = new UserResponseDto(
-                    u.getId(), u.getName(), u.getEmail(), u.getPassword(),
-                    u.getRole(), u.getAvatarUrl(), u.getBannerUrl(),
-                    u.getBio(), u.getBackgroundUrl()
-            );
-
+            UserResponseDto userResponse = mapToDto(u);
             String token = jwtService.generateToken(u.getEmail());
 
             Map<String, Object> response = new HashMap<>();
@@ -91,7 +90,7 @@ public class AuthService {
         return null;
     }
 
-    public User updateProfile(Long id, User data) {
+    public UserResponseDto updateProfile(Long id, User data) {
         return userRepository.findById(id).map(existingUser -> {
             if (data.getName() != null) existingUser.setName(data.getName());
             if (data.getEmail() != null) existingUser.setEmail(data.getEmail());
@@ -101,11 +100,12 @@ public class AuthService {
             if (data.getBio() != null) existingUser.setBio(data.getBio());
             if (data.getBackgroundUrl() != null) existingUser.setBackgroundUrl(data.getBackgroundUrl());
             
-            return userRepository.save(existingUser);
+            User updatedUser = userRepository.save(existingUser);
+            return mapToDto(updatedUser);
         }).orElse(null);
     }
 
-    public User updatePassword(Long userId, String currentPassword, String newPassword) {
+    public UserResponseDto updatePassword(Long userId, String currentPassword, String newPassword) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -114,7 +114,8 @@ public class AuthService {
         }
 
         user.setPassword(newPassword);
-        return userRepository.save(user);
+        User updatedUser = userRepository.save(user);
+        return mapToDto(updatedUser);
     }
 
     public boolean deleteUser(Long id) {
