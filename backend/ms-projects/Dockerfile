@@ -1,14 +1,31 @@
 # ETAPA 1: Build
-FROM maven:3.8.5-openjdk-17 AS build
+# Usamos una imagen específica para asegurar la compatibilidad con Java 17
+FROM maven:3.8.5-openjdk-17-slim AS build
+
+# Establecer directorio de trabajo
 WORKDIR /app
+
+# Copiar archivos de dependencias primero para aprovechar el caché de Docker
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
+
+# Copiar el código fuente
 COPY src ./src
+
+# Limpiar y compilar, saltando tests para evitar fallos de entorno en Docker
 RUN mvn clean package -DskipTests
 
 # ETAPA 2: Runtime
+# Usamos JRE para que sea más ligero y evitar incluir el compilador JDK en producción
 FROM eclipse-temurin:17-jre-alpine
+
 WORKDIR /app
+
+# Copiar el jar generado en la etapa de build
 COPY --from=build /app/target/*.jar app.jar
+
+# Puerto expuesto
 EXPOSE 8085
-ENTRYPOINT ["java", "-jar", "app.jar"]ssss
+
+# Ejecutar la aplicación
+ENTRYPOINT ["java", "-jar", "app.jar"]
