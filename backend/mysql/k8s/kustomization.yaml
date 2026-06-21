@@ -1,6 +1,0 @@
-resources:
-  - mysql-secret.yaml
-  # - mysql-pvc.yaml  # StatefulSet uses volumeClaimTemplates instead
-  - mysql-headless-service.yaml
-  - mysql-service.yaml
-  - mysql-statefulset.yaml
