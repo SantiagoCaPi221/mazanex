@@ -23,9 +23,8 @@ export const profileService = {
   // Obtiene la lista global de perfiles
   async getAllProfiles() {
     const headers = getAuthHeaders();
-    // KrakenD espera /api/profile/list
     try {
-      const response = await fetch(`${BACKEND_URLS.PROFILE}/api/profile/list`, { headers });
+      const response = await fetch(`${BACKEND_URLS.PROFILE}/list`, { headers });
       return response.ok ? await response.json() : [];
     } catch (error) {
       console.error("Error en getAllProfiles:", error);
@@ -36,9 +35,8 @@ export const profileService = {
   // Obtiene un perfil especifico por ID
   async getProfile(id: number) {
     const headers = getAuthHeaders();
-    // KrakenD espera /api/profile/{id}
     try {
-      const response = await fetch(`${BACKEND_URLS.PROFILE}/api/profile/${id}`, { headers });
+      const response = await fetch(`${BACKEND_URLS.PROFILE}/${id}`, { headers });
       return response.ok ? await response.json() : null;
     } catch (error) {
       console.error("Error al obtener perfil especifico:", error);
@@ -49,7 +47,7 @@ export const profileService = {
   // Actualiza los datos de un perfil
   async updateProfile(id: number, profileData: any) {
     const headers = getAuthHeaders();
-    const url = `${BACKEND_URLS.PROFILE}/api/profile/${id}`;
+    const url = `${BACKEND_URLS.PROFILE}/${id}`;
     
     try {
       const response = await fetch(url, {
