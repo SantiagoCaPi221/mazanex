@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
+import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 public class ProfileServiceTest {
@@ -73,5 +74,98 @@ public class ProfileServiceTest {
 
     // Assert
     verify(userRepository, times(1)).save(any(User.class));
-}
+    }
+
+    @Test
+    void updateProfile_ShouldUpdateAllFields_WhenUserExists() {
+        // Arrange
+        User existingUser = new User();
+        existingUser.setId(1L);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+
+        User newData = new User();
+        newData.setName("Nuevo Nombre");
+        newData.setAvatarUrl("avatar.png");
+        newData.setBannerUrl("banner.png");
+        newData.setBio("Nueva bio");
+        newData.setBackgroundUrl("bg.png");
+
+        when(userRepository.save(any(User.class))).thenReturn(existingUser);
+
+        // Act
+        User result = profileService.updateProfile(1L, newData);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("Nuevo Nombre", existingUser.getName());
+        assertEquals("Nueva bio", existingUser.getBio());
+        verify(userRepository).save(existingUser);
+    }
+
+    @Test
+    void syncProfile_ShouldCreateNewUser_WhenEmailNotFound() {
+        // Arrange
+        User newData = new User();
+        newData.setId(99L);
+        newData.setEmail("nuevo@test.com");
+        newData.setName("Nuevo Usuario");
+
+        // Simulamos que NO encuentra el email para forzar el orElseGet
+        when(userRepository.findByEmail("nuevo@test.com")).thenReturn(Optional.empty());
+        when(userRepository.save(any(User.class))).thenReturn(newData);
+
+        // Act
+        User result = profileService.syncProfile(newData);
+
+        // Assert
+        assertNotNull(result);
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void listAll_ShouldReturnUserList() {
+        // Arrange
+        when(userRepository.findAll()).thenReturn(List.of(new User(), new User()));
+        
+        // Act
+        List<User> result = profileService.listAll();
+        
+        // Assert
+        assertEquals(2, result.size());
+        verify(userRepository).findAll();
+    }
+
+    @Test
+    void delete_ShouldCallRepository() {
+        // Act
+        profileService.delete(1L);
+        
+        // Assert
+        verify(userRepository).deleteById(1L);
+    }
+
+    @Test
+    void syncProfile_ShouldUpdateExistingUser_WhenEmailExists() {
+        // Arrange
+        User existingUser = new User();
+        existingUser.setId(1L);
+        existingUser.setEmail("test@test.com");
+
+        User newData = new User();
+        newData.setEmail("test@test.com");
+        newData.setName("Actualizado");
+        newData.setBio("Nueva bio");
+
+        // Simulamos que SÍ encuentra el email
+        when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(existingUser));
+        when(userRepository.save(any(User.class))).thenReturn(existingUser);
+
+        // Act
+        User result = profileService.syncProfile(newData);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("Actualizado", existingUser.getName());
+        verify(userRepository).save(existingUser);
+    }
 }
