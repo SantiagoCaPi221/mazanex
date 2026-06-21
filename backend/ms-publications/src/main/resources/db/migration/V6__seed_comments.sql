@@ -34,10 +34,3 @@ INSERT INTO comments
 VALUES
 (7, 15, 'Felipe Cloud', '¡Buenísima, Ana! Esa certificación es bien pesada. ¡Felicitaciones!', NOW()),
 (7, 16, 'Esteban DevOps', '¡A romperla! El siguiente paso es la Professional, ¡éxito!', NOW());
-
--- Comentarios para Publicación 8 (Aniversario de Camila)
-INSERT INTO comments
-(publication_id, author_id, author_name, content, created_at)
-VALUES
-(8, 17, 'Gonzalo HR', '¡Feliz aniversario, Cami! Gracias por tu compromiso y buena energía diaria.', NOW()),
-(8, 18, 'Daniela UX', '¡Qué rápido pasa el tiempo! Un placer compartir squad contigo.', NOW());
