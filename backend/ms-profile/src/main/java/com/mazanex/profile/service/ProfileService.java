@@ -20,18 +20,28 @@ public class ProfileService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public User updateProfile(Long id, User data) {
-        return userRepository.findById(id).map(user -> {
-            if (data.getName() != null) user.setName(data.getName());
-            if (data.getAvatarUrl() != null) user.setAvatarUrl(data.getAvatarUrl());
-            if (data.getBannerUrl() != null) user.setBannerUrl(data.getBannerUrl());
-            if (data.getBio() != null) user.setBio(data.getBio());
-            if (data.getBackgroundUrl() != null) user.setBackgroundUrl(data.getBackgroundUrl());
+    return userRepository.findById(id).map(user -> {
+        // Solo actualizamos si el campo no es nulo Y no es una cadena vacía
+        if (data.getName() != null && !data.getName().isEmpty()) 
+            user.setName(data.getName());
             
-            User saved = userRepository.save(user);
-            syncWithAuth(saved); 
-            return saved;
-        }).orElse(null);
-    }
+        if (data.getAvatarUrl() != null && !data.getAvatarUrl().isEmpty()) 
+            user.setAvatarUrl(data.getAvatarUrl());
+            
+        if (data.getBannerUrl() != null && !data.getBannerUrl().isEmpty()) 
+            user.setBannerUrl(data.getBannerUrl());
+            
+        if (data.getBio() != null) 
+            user.setBio(data.getBio());
+            
+        if (data.getBackgroundUrl() != null && !data.getBackgroundUrl().isEmpty()) 
+            user.setBackgroundUrl(data.getBackgroundUrl());
+        
+        User saved = userRepository.save(user);
+        syncWithAuth(saved); 
+        return saved;
+    }).orElse(null);
+}
 
     public User syncProfile(User data) {
         return userRepository.findByEmail(data.getEmail())

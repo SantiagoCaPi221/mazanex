@@ -225,6 +225,58 @@
       "output_encoding": "no-op",
       "input_headers": ["Authorization", "authorization", "Content-Type"],
       "backend": [{"url_pattern": "/api/ranking/{game}", "encoding": "no-op", "host": ["http://ranking-service:8084"]}]
+    },
+    {
+      "endpoint": "/api/projects/{projectId}/tasks",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [
+        {
+          "url_pattern": "/api/projects/{projectId}/tasks",
+          "encoding": "no-op",
+          "host": ["http://projects-service:8085"]
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/projects/{projectId}/tasks",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [
+        {
+          "url_pattern": "/api/projects/{projectId}/tasks",
+          "encoding": "no-op",
+          "host": ["http://projects-service:8085"]
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/projects/{projectId}/tasks/{taskId}",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [
+        {
+          "url_pattern": "/api/projects/{projectId}/tasks/{taskId}",
+          "encoding": "no-op",
+          "host": ["http://projects-service:8085"]
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/projects/{projectId}/tasks/{taskId}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [
+        {
+          "url_pattern": "/api/projects/{projectId}/tasks/{taskId}",
+          "encoding": "no-op",
+          "host": ["http://projects-service:8085"]
+        }
+      ]
     }
-  ]
+  ] 
 }

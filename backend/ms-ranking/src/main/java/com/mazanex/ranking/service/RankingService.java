@@ -23,24 +23,34 @@ public class RankingService {
         return scoreRepository.findByGameOrderByHighScoreDesc(game);
     }
 
-    public Object saveRecord(Long userId, String playerName, String game, String mode, Integer highScore, String screenshotUrl) {
-        Optional<Score> existingScore = scoreRepository.findByUserIdAndGameAndMode(userId, game, mode);
+        public Object saveRecord(Long userId, String playerName, String game, String mode, Integer highScore, String screenshotUrl) {
 
-        if (existingScore.isPresent()) {
-            Score s = existingScore.get();
-            if (highScore > s.getHighScore()) {
-                s.setHighScore(highScore);
-                s.setScreenshotUrl(screenshotUrl);
-                s.setPlayerName(playerName);
-                s.getReporters().clear(); 
-                return scoreRepository.save(s);
-            }
-            return Map.of("status", "NO_RECORD");
+            // Se eliminó la validación (if playerName == null)
+            if (playerName == null || playerName.trim().isEmpty()) {
+            throw new IllegalArgumentException("El playerName no puede ser nulo o vacío");
         }
 
-        Score newScore = new Score(userId, playerName, game, mode, highScore, screenshotUrl);
-        return scoreRepository.save(newScore);
-    }
+            Optional<Score> existingScore = scoreRepository.findByUserIdAndGameAndMode(userId, game, mode);
+
+            if (existingScore.isPresent()) {
+                Score s = existingScore.get();
+                if (highScore > s.getHighScore()) {
+                    s.setHighScore(highScore);
+                    s.setScreenshotUrl(screenshotUrl);
+                    
+                    // Si el nombre viene nulo, reemplazará el nombre anterior por null
+                    s.setPlayerName(playerName); 
+                    
+                    s.getReporters().clear(); 
+                    return scoreRepository.save(s);
+                }
+                return Map.of("status", "NO_RECORD");
+            }
+
+            // Se creará y guardará con playerName = null
+            Score newScore = new Score(userId, playerName, game, mode, highScore, screenshotUrl);
+            return scoreRepository.save(newScore);
+        }
 
     // LÓGICA PURA: Cero HTTP aquí.
     public Map<String, Object> reportScore(Long id, Long reporterId) {
