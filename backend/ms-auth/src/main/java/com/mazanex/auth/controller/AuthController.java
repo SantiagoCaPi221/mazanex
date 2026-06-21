@@ -4,9 +4,11 @@ import com.mazanex.auth.dto.PasswordUpdateDTO;
 import com.mazanex.auth.dto.UserRequestDto;
 import com.mazanex.auth.model.User;
 import com.mazanex.auth.service.AuthService;
+
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +23,6 @@ public class AuthController {
 
     private final AuthService authService;
 
-    // Inyección por constructor (Inyección implícita, no requiere @Autowired)
     AuthController(AuthService authService) {
         this.authService = authService;
     }
@@ -37,7 +38,10 @@ public class AuthController {
         @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid credentials")
     })
     public ResponseEntity<?> login(@RequestBody UserRequestDto user) {
+        // El controlador ahora es un simple intermediario. 
+        // Toda la magia del JWT y el empaquetado ocurre en AuthService.
         Map<String, Object> authResponse = authService.login(user);
+        
         if (authResponse != null) {
             return ResponseEntity.ok(authResponse);
         }

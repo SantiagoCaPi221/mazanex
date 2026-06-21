@@ -5,6 +5,7 @@ import com.mazanex.auth.dto.UserRequestDto;
 import com.mazanex.auth.dto.UserResponseDto;
 import com.mazanex.auth.model.User;
 import com.mazanex.auth.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -19,8 +20,11 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
+
+
     private final RestTemplate restTemplate = new RestTemplate();
     
+    // Busca la URL de profile en properties. Si no existe, asume Docker (profile-service:8082)
     @Value("${profile.service.url:http://profile-service:8082}/api/profile/sync")
     private String profileSyncUrl;
 
@@ -34,27 +38,29 @@ public class AuthService {
     }
 
     public User registerUser(User user) {
-        if (userRepository.existsByEmail(user.email())) {
-            throw new RuntimeException("El email ya está registrado");
-        }
-
-        // Al ser inmutable, si el rol viene vacío, creamos una copia con el rol por defecto
-        User userToSave = user;
-        if (user.role() == null || user.role().isEmpty()) {
-            userToSave = new User(
-                user.id(), user.name(), user.email(), user.password(),
-                "USER", user.avatarUrl(), user.bannerUrl(), user.bio(), user.backgroundUrl()
-            );
-        }
-        
-        User savedUser = userRepository.save(userToSave);
-        syncWithProfile(savedUser);
-        return savedUser;
+    // 1. Validación de duplicados (Asegúrate de tener existsByEmail en tu UserRepository)
+    if (userRepository.existsByEmail(user.getEmail())) {
+        throw new RuntimeException("El email ya está registrado");
     }
 
+    if (user.getRole() == null || user.getRole().isEmpty()) {
+        user.setRole("USER");
+    }
+    
+    // 2. Guardamos en Auth_DB
+    User savedUser = userRepository.save(user);
+
+    // 3. Sincronizamos (en un entorno de test real, esto no fallará porque no llegará aquí si el test falla antes)
+    syncWithProfile(savedUser);
+
+    return savedUser;
+}
+
+    // Método para sincronizar con Profile service 
     private void syncWithProfile(User user) {
         try {
-            System.out.println("Enviando usuario ID " + user.id() + " a ms-profile...");
+            System.out.println("Enviando usuario ID " + user.getId() + " a ms-profile...");
+            // Le manda el usuario recién creado al endpoint /sync de Profile
             restTemplate.postForEntity(profileSyncUrl, user, User.class);
             System.out.println("Usuario sincronizado exitosamente con ms-profile.");
         } catch (Exception e) {
@@ -69,15 +75,16 @@ public class AuthService {
         Optional<User> optUser = userRepository.findByEmail(identifier)
                 .or(() -> userRepository.findByName(identifier));
 
-        if (optUser.isPresent() && optUser.get().password().equals(password)) {
+        if (optUser.isPresent() && optUser.get().getPassword().equals(password)) {
             User u = optUser.get();
             
             UserResponseDto userResponse = new UserResponseDto(
-                u.id(), u.name(), u.email(), u.password(),
-                u.role(), u.avatarUrl(), u.bannerUrl(), u.bio(), u.backgroundUrl()
+                    u.getId(), u.getName(), u.getEmail(), u.getPassword(),
+                    u.getRole(), u.getAvatarUrl(), u.getBannerUrl(),
+                    u.getBio(), u.getBackgroundUrl()
             );
 
-            String token = jwtService.generateToken(u.email());
+            String token = jwtService.generateToken(u.getEmail());
 
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
@@ -91,20 +98,15 @@ public class AuthService {
 
     public User updateProfile(Long id, User data) {
         return userRepository.findById(id).map(existingUser -> {
-            // Recreamos el objeto con los datos modificados (Patrón Wither conceptual)
-            User updatedUser = new User(
-                existingUser.id(),
-                data.name() != null ? data.name() : existingUser.name(),
-                data.email() != null ? data.email() : existingUser.email(),
-                existingUser.password(), // La contraseña se maneja en su propio endpoint
-                data.role() != null ? data.role() : existingUser.role(),
-                data.avatarUrl() != null ? data.avatarUrl() : existingUser.avatarUrl(),
-                data.bannerUrl() != null ? data.bannerUrl() : existingUser.bannerUrl(),
-                data.bio() != null ? data.bio() : existingUser.bio(),
-                data.backgroundUrl() != null ? data.backgroundUrl() : existingUser.backgroundUrl()
-            );
+            if (data.getName() != null) existingUser.setName(data.getName());
+            if (data.getEmail() != null) existingUser.setEmail(data.getEmail());
+            if (data.getRole() != null) existingUser.setRole(data.getRole());
+            if (data.getAvatarUrl() != null) existingUser.setAvatarUrl(data.getAvatarUrl());
+            if (data.getBannerUrl() != null) existingUser.setBannerUrl(data.getBannerUrl());
+            if (data.getBio() != null) existingUser.setBio(data.getBio());
+            if (data.getBackgroundUrl() != null) existingUser.setBackgroundUrl(data.getBackgroundUrl());
             
-            return userRepository.save(updatedUser);
+            return userRepository.save(existingUser);
         }).orElse(null);
     }
 
@@ -112,17 +114,12 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        if (!user.password().equals(currentPassword)) {
+        if (!user.getPassword().equals(currentPassword)) {
             throw new IllegalArgumentException("La contraseña actual es incorrecta");
         }
 
-        // Generamos un nuevo record con la contraseña cambiada
-        User updatedUser = new User(
-            user.id(), user.name(), user.email(), newPassword,
-            user.role(), user.avatarUrl(), user.bannerUrl(), user.bio(), user.backgroundUrl()
-        );
-        
-        return userRepository.save(updatedUser);
+        user.setPassword(newPassword);
+        return userRepository.save(user);
     }
 
     public boolean deleteUser(Long id) {
