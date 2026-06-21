@@ -23,22 +23,16 @@ VALUES
 INSERT INTO publications
 (id, author_id, author_name, content, media_url, created_at)
 VALUES
-(5, 5, 'Carlos Mendoza', 'Cerrando el trimestre con los objetivos cumplidos y un equipo de primer nivel. ¡Orgulloso de lo que logramos!', '/team_celebration.png', DATE_SUB(NOW(), INTERVAL 45 MINUTE));
+(5, 5, 'Carlos Mendoza', 'Cerrando el trimestre con los objetivos cumplidos y un equipo de primer nivel. ¡Orgulloso de lo que logramos!', '/selfies_team.jpg', DATE_SUB(NOW(), INTERVAL 45 MINUTE));
 
 -- Post de reclutamiento (Hiring)
 INSERT INTO publications
 (id, author_id, author_name, content, media_url, created_at)
 VALUES
-(6, 6, 'Diego Peralta', '¡Estamos contratando! Busco perfiles de QA Automation para sumarse a nuestro squad técnico. Interesados al DM o dejen su CV.', '/hiring_now.png', DATE_SUB(NOW(), INTERVAL 2 HOUR));
+(6, 6, 'Diego Peralta', '¡Estamos contratando! Busco perfiles de QA Automation para sumarse a nuestro squad técnico. Interesados al DM o dejen su CV.', '/busquedajob.jpg', DATE_SUB(NOW(), INTERVAL 2 HOUR));
 
 -- Nueva certificación
 INSERT INTO publications
 (id, author_id, author_name, content, media_url, created_at)
 VALUES
-(7, 7, 'Ana María Silva', 'Muy feliz de haber completado la certificación en AWS Certified Solutions Architect. ¡A seguir sumando conocimiento!', '/aws_certification.png', DATE_SUB(NOW(), INTERVAL 5 HOUR));
-
--- Aniversario laboral
-INSERT INTO publications
-(id, author_id, author_name, content, media_url, created_at)
-VALUES
-(8, 8, 'Camila Rojas', 'Hoy cumplo 3 años en la empresa. Agradecida por las oportunidades de crecimiento y el excelente ambiente laboral diaria.', '/aniversario_laboral.png', DATE_SUB(NOW(), INTERVAL 1 DAY));
+(7, 7, 'Ana María Silva', 'Muy feliz de haber completado la certificación en AWS Certified Solutions Architect. ¡A seguir sumando conocimiento!', '/selfies2.png', DATE_SUB(NOW(), INTERVAL 5 HOUR));

@@ -59,6 +59,8 @@ public class PublicationService {
         comment.setAuthorAvatarUrl(dto.getAuthorAvatarUrl());
         comment.setContent(dto.getContent());
 
+        comment.setPublication(pub);
+
         pub.getComments().add(comment); // Lo agregamos a la lista
         return publicationRepository.save(pub); // JPA guarda el comentario automáticamente
     }
