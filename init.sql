@@ -46,21 +46,3 @@ INSERT INTO users (id, name, email, bio) VALUES
 (3, 'Nelson Baeza', 'nelson@mazanex.cl', 'Optimizando bases de datos y backend.'),
 (4, 'Sarai Perez', 'sarai@mazanex.cl', 'Trabajando en la arquitectura cloud.');
 
--- ==========================================
--- 4. SEMBRADO DE PUBLICACIONES (El Muro)
--- ==========================================
-USE publications_db;
-
-CREATE TABLE IF NOT EXISTS publication (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT NOT NULL,
-    content VARCHAR(255),
-    likes INT DEFAULT 0,
-    created_at DATETIME
-);
-
-INSERT INTO publication (user_id, content, likes, created_at) VALUES 
-(1, '¡Logré levantar toda la arquitectura con KrakenD y Docker! 🚀', 15, NOW()),
-(2, '¿A qué hora revisamos los pipelines de CI/CD para la entrega?', 4, NOW()),
-(3, 'Subiendo los últimos cambios de los microservicios a GitHub.', 7, NOW()),
-(4, 'El reporte de la estrategia Lift & Shift quedó impecable. ¡Buen trabajo equipo!', 12, NOW());
