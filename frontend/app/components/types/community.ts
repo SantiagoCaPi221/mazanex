@@ -16,7 +16,7 @@ export type User = {
 
 export type UsersFilterType = "ALL" | "FRIENDS";
 
-export type GameType = "SNAKE" | "KOF";
+export type GameType = "SNAKE";
 
 export type RankingEntry = {
   id: number;

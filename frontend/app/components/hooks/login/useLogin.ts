@@ -53,7 +53,7 @@ export const useLogin = () => {
 
       login(user);
       showNotification("¡Sesión iniciada con éxito!", "success");
-      router.push("/pages/profile");
+      router.push("/");
     } catch (error) {
       setError("Error inesperado al iniciar sesión.");
     } finally {

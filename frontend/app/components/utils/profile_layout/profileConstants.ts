@@ -33,8 +33,8 @@ export const MENU_ITEMS: ProfileMenuItem[] = [
       },
 
       {
-        name: "KOF 2002",
-        href: "/pages/profile/kof",
+        name: "coming soon...",
+        href: "",
       },
     ],
   },
