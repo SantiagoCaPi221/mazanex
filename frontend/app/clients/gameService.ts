@@ -16,7 +16,6 @@ const getAuthHeaders = () => {
     const cleanToken = token.replace(/['"]+/g, '');
     headers["Authorization"] = `Bearer ${cleanToken}`;
   }
-  
   return headers;
 };
 

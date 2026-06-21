@@ -21,8 +21,9 @@ public class ProjectController {
 
     @PostMapping("/{projectId}/tasks")
     @Operation(summary = "Crear nueva tarea", description = "Crea una tarea asociada a un proyecto específico mediante Factory Pattern")
-    public ResponseEntity<Task> addTask(@PathVariable Long projectId, @RequestParam String title) {
-        Task createdTask = taskService.createTask(title, projectId);
+    public ResponseEntity<Task> addTask(@PathVariable Long projectId, @RequestBody Task taskDetails) {
+        // Ahora pasamos el objeto completo al servicio
+        Task createdTask = taskService.createTask(taskDetails, projectId);
         return ResponseEntity.ok(createdTask);
     }
 

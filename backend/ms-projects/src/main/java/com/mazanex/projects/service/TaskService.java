@@ -14,9 +14,14 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
-    public Task createTask(String title, Long projectId) {
-        // Uso del Factory Pattern para cumplir con el requerimiento del caso semestral
-        Task newTask = TaskFactory.createDefaultTask(title, projectId);
+    public Task createTask(Task taskDetails, Long projectId) {
+        // 1. Extraemos el título del objeto JSON y usamos tu Factory Pattern (Cumpliendo el requisito)
+        Task newTask = TaskFactory.createDefaultTask(taskDetails.getTitle(), projectId);
+        
+        // 2. Extraemos el responsable que viene desde el frontend y se lo asignamos
+        newTask.setAssignee(taskDetails.getAssignee());
+        
+        // 3. Guardamos en la base de datos
         return taskRepository.save(newTask);
     }
 

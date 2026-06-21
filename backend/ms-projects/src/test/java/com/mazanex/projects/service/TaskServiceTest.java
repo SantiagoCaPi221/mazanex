@@ -27,21 +27,27 @@ public class TaskServiceTest {
     @Test
     void createTask_ShouldSaveAndReturnTask() {
         // Arrange
-        String title = "Integrar API K8s";
         Long projectId = 100L;
         
+        // Creamos el objeto que ahora espera recibir el método
+        Task inputTask = new Task();
+        inputTask.setTitle("Integrar API K8s");
+        inputTask.setAssignee("Santiago");
+        
         Task mockTask = new Task();
-        mockTask.setTitle(title);
+        mockTask.setTitle("Integrar API K8s");
+        mockTask.setAssignee("Santiago");
         mockTask.setProjectId(projectId);
 
         when(taskRepository.save(any(Task.class))).thenReturn(mockTask);
 
-        // Act
-        Task result = taskService.createTask(title, projectId);
+        // Act - Le pasamos el objeto inputTask en lugar del String
+        Task result = taskService.createTask(inputTask, projectId);
 
         // Assert
         assertNotNull(result);
         assertEquals("Integrar API K8s", result.getTitle());
+        assertEquals("Santiago", result.getAssignee());
         assertEquals(100L, result.getProjectId());
         verify(taskRepository).save(any(Task.class));
     }

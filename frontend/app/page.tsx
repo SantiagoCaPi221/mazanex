@@ -124,21 +124,21 @@ export default function Home() {
         <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-4 w-full border border-white/5 rounded-3xl overflow-hidden bg-white/[0.02] backdrop-blur-xl shadow-2xl">
           <GamerCard
             icon={<Trophy className="w-7 h-7 text-indigo-400" />}
-            title="SALA DE TROFEOS (comming soon)"
-            desc="Snake, KOF, Smash. Tus récords certificados por la comunidad. Aquí no hay lugar para mentiras."
+            title="RANKING GLOBAL"
+            desc="Compite en tiempo real en los juegos más desafiantes. Demuestra tu habilidad y escala hasta la cima de la tabla."
           />
           <GamerCard
             icon={<Users className="w-7 h-7 text-purple-400" />}
-            title="EL SINDICATO"
-            desc="Conecta con pro-players, forma alianzas o declara la guerra en las tablas de clasificación global."
+            title="COMUNIDAD MAZANEX"
+            desc="Conecta con otros jugadores, crea tu red de amigos y comparte tus mejores momentos en el muro social."
           />
           <GamerCard
             icon={<Zap className="w-7 h-7 text-amber-400" />}
-            title="SKILL-CHECK"
-            desc="Analítica de juego avanzada y notificaciones instantáneas. Si alguien te supera, lo sabrás al segundo."
+            title="MONITOREO DE PROYECTOS"
+            desc="Analítica avanzada del progreso de desarrollo. Gestión de tareas y recursos con visibilidad total para el equipo."
           />
         </div>
-      </div>
+        </div>
 
       {/* FOOTER INYECTADO DESDE SU PROPIO ARCHIVO */}
       <Footer />
