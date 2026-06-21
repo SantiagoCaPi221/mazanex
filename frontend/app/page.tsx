@@ -122,23 +122,22 @@ export default function Home() {
 
         {/* STATS / FEATURES CARDS - Escala Corregida */}
         <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-4 w-full border border-white/5 rounded-3xl overflow-hidden bg-white/[0.02] backdrop-blur-xl shadow-2xl">
-
-        <GamerCard
-          icon={<Zap className="w-7 h-7 text-amber-400" />}
-          title="WORKFLOW GAMIFICADO"
-          desc="Sigue el estado de tus entregas y recibe notificaciones en tiempo real."
-        />
-        <GamerCard
-          icon={<Trophy className="w-7 h-7 text-indigo-400" />}
-          title="SPRINTS & TROFEOS"
-          desc="Gestiona tus tareas del proyecto y, en tus pausas, rompe récords en Snake y compartelo con tus colegas. Productividad y gaming en un solo lugar."
-        />
-        <GamerCard
-          icon={<Users className="w-7 h-7 text-purple-400" />}
-          title="COWORKING Y COMPETENCIA"
-          desc="Publica actualizaciones de tu equipo, coordina desarrollos y declara la guerra en las tablas de clasificación global."
-        />       
-      </div>
+          <GamerCard
+            icon={<Trophy className="w-7 h-7 text-indigo-400" />}
+            title="SALA DE TROFEOS (comming soon)"
+            desc="Snake, KOF, Smash. Tus récords certificados por la comunidad. Aquí no hay lugar para mentiras."
+          />
+          <GamerCard
+            icon={<Users className="w-7 h-7 text-purple-400" />}
+            title="EL SINDICATO"
+            desc="Conecta con pro-players, forma alianzas o declara la guerra en las tablas de clasificación global."
+          />
+          <GamerCard
+            icon={<Zap className="w-7 h-7 text-amber-400" />}
+            title="SKILL-CHECK"
+            desc="Analítica de juego avanzada y notificaciones instantáneas. Si alguien te supera, lo sabrás al segundo."
+          />
+        </div>
       </div>
 
       {/* FOOTER INYECTADO DESDE SU PROPIO ARCHIVO */}
