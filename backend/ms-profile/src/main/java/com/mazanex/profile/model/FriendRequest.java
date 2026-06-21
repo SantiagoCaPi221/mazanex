@@ -1,12 +1,14 @@
 package com.mazanex.profile.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "friend_requests")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class FriendRequest {
     

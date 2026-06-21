@@ -28,11 +28,12 @@ public class PublicationService {
 
     public Publication createPublication(PublicationDto dto) {
         Publication pub = new Publication();
-        pub.setAuthorId(dto.getAuthorId());
-        pub.setAuthorName(dto.getAuthorName());
-        pub.setAuthorAvatarUrl(dto.getAuthorAvatarUrl());
-        pub.setContent(dto.getContent());
-        pub.setMediaUrl(dto.getMediaUrl());
+        // Adaptado al acceso de métodos nativos de Record
+        pub.setAuthorId(dto.authorId());
+        pub.setAuthorName(dto.authorName());
+        pub.setAuthorAvatarUrl(dto.authorAvatarUrl());
+        pub.setContent(dto.content());
+        pub.setMediaUrl(dto.mediaUrl());
         return publicationRepository.save(pub);
     }
 
@@ -54,20 +55,20 @@ public class PublicationService {
                 .orElseThrow(() -> new IllegalArgumentException("Publicación no encontrada"));
 
         Comment comment = new Comment();
-        comment.setAuthorId(dto.getAuthorId());
-        comment.setAuthorName(dto.getAuthorName());
-        comment.setAuthorAvatarUrl(dto.getAuthorAvatarUrl());
-        comment.setContent(dto.getContent());
+        // Adaptado al acceso de métodos nativos de Record
+        comment.setAuthorId(dto.authorId());
+        comment.setAuthorName(dto.authorName());
+        comment.setAuthorAvatarUrl(dto.authorAvatarUrl());
+        comment.setContent(dto.content());
 
-        pub.getComments().add(comment); // Lo agregamos a la lista
-        return publicationRepository.save(pub); // JPA guarda el comentario automáticamente
+        pub.getComments().add(comment); 
+        return publicationRepository.save(pub); 
     }
     
     public void deletePublication(Long publicationId, Long userId) {
         Publication pub = publicationRepository.findById(publicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Publicación no encontrada"));
         
-        // Medida de seguridad: solo el autor puede borrar su post
         if (!pub.getAuthorId().equals(userId)) {
             throw new IllegalStateException("No tienes permiso para borrar esto");
         }

@@ -23,51 +23,42 @@ public class RankingService {
         return scoreRepository.findByGameOrderByHighScoreDesc(game);
     }
 
-        public Object saveRecord(Long userId, String playerName, String game, String mode, Integer highScore, String screenshotUrl) {
+    public Object saveRecord(Long userId, String playerName, String game, String mode, Integer highScore, String screenshotUrl) {
 
-            // Se eliminó la validación (if playerName == null)
-            if (playerName == null || playerName.trim().isEmpty()) {
+        if (playerName == null || playerName.trim().isEmpty()) {
             throw new IllegalArgumentException("El playerName no puede ser nulo o vacío");
         }
 
-            Optional<Score> existingScore = scoreRepository.findByUserIdAndGameAndMode(userId, game, mode);
+        Optional<Score> existingScore = scoreRepository.findByUserIdAndGameAndMode(userId, game, mode);
 
-            if (existingScore.isPresent()) {
-                Score s = existingScore.get();
-                if (highScore > s.getHighScore()) {
-                    s.setHighScore(highScore);
-                    s.setScreenshotUrl(screenshotUrl);
-                    
-                    // Si el nombre viene nulo, reemplazará el nombre anterior por null
-                    s.setPlayerName(playerName); 
-                    
-                    s.getReporters().clear(); 
-                    return scoreRepository.save(s);
-                }
-                return Map.of("status", "NO_RECORD");
+        if (existingScore.isPresent()) {
+            Score s = existingScore.get();
+            if (highScore > s.getHighScore()) {
+                s.setHighScore(highScore);
+                s.setScreenshotUrl(screenshotUrl);
+                s.setPlayerName(playerName); 
+                s.getReporters().clear(); 
+                return scoreRepository.save(s);
             }
-
-            // Se creará y guardará con playerName = null
-            Score newScore = new Score(userId, playerName, game, mode, highScore, screenshotUrl);
-            return scoreRepository.save(newScore);
+            return Map.of("status", "NO_RECORD");
         }
 
-    // LÓGICA PURA: Cero HTTP aquí.
+        Score newScore = new Score(userId, playerName, game, mode, highScore, screenshotUrl);
+        return scoreRepository.save(newScore);
+    }
+
     public Map<String, Object> reportScore(Long id, Long reporterId) {
         Score score = scoreRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("NOT_FOUND"));
 
         boolean isNewReport = score.addReport(reporterId);
         
-        // REGLA DE NEGOCIO: No se puede reportar dos veces
         if (!isNewReport) {
-            // Detenemos el código y lanzamos una excepción
             throw new IllegalStateException("ALREADY_REPORTED");
         }
         
         Map<String, Object> response = new HashMap<>();
         
-        // REGLA DE NEGOCIO: 3 strikes y se elimina
         if (score.getReportCount() >= 3) {
             scoreRepository.delete(score);
             response.put("status", "DELETED");

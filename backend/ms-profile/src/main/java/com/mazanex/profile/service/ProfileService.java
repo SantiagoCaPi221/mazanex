@@ -44,8 +44,6 @@ public class ProfileService {
                 return userRepository.save(existing);
             })
             .orElseGet(() -> {
-                // 🔥 SOLUCIÓN: Creamos un objeto nuevo y forzamos sus datos, 
-                // asegurándonos de que el ID manual se asigne correctamente.
                 User newUser = new User();
                 newUser.setId(data.getId()); // Forzamos el ID que viene de ms-auth
                 newUser.setEmail(data.getEmail());

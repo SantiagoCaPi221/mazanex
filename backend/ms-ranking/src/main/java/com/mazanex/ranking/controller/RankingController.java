@@ -40,17 +40,16 @@ public class RankingController {
     @PostMapping("/save-record")
     @Operation(summary = "Guardar nuevo récord")
     public ResponseEntity<?> saveRecord(@RequestBody ScoreRequestDto req) {
-        // Esto imprimirá el contenido del objeto. Si playerName es null, lo verás aquí.
         log.info("DEBUG: Objeto recibido: {}", req);
 
-        // Sin filtros. Esto pasará directamente al service y disparará el error si hay un null.
+        // Adaptado para usar los métodos de acceso nativos del Record
         return ResponseEntity.ok(rankingService.saveRecord(
-            req.getUserId(), 
-            req.getPlayerName(), 
-            req.getGame(), 
-            req.getMode(), 
-            req.getHighScore(), 
-            req.getScreenshotUrl()
+            req.userId(), 
+            req.playerName(), 
+            req.game(), 
+            req.mode(), 
+            req.highScore(), 
+            req.screenshotUrl()
         ));
     }
 

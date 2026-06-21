@@ -1,33 +1,32 @@
 package com.mazanex.profile.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter 
+@Setter
 @NoArgsConstructor
 public class User {
     @Id
-
     private Long id;
     
     private String name;
     private String email;
 
-    @Lob
+    // Se remueve @Lob para evitar errores de conversión en Hibernate 6
     @Column(columnDefinition = "LONGTEXT")
     private String avatarUrl;
 
-    @Lob
     @Column(columnDefinition = "LONGTEXT")
     private String bannerUrl;
 
     @Column(name = "bio")
     private String bio;
 
-    @Lob
     @Column(columnDefinition = "LONGTEXT")
     private String backgroundUrl;
 
