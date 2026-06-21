@@ -124,18 +124,18 @@ export default function Home() {
         <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-4 w-full border border-white/5 rounded-3xl overflow-hidden bg-white/[0.02] backdrop-blur-xl shadow-2xl">
           <GamerCard
             icon={<Trophy className="w-7 h-7 text-indigo-400" />}
-            title="SALA DE TROFEOS (comming soon)"
-            desc="Snake, KOF, Smash. Tus récords certificados por la comunidad. Aquí no hay lugar para mentiras."
+            title="Administrador de proyectos"
+            desc="Organiza tus proyectos de desarrollo con herramientas de gestión integradas, seguimiento de tareas y colaboración en tiempo real."
           />
           <GamerCard
             icon={<Users className="w-7 h-7 text-purple-400" />}
-            title="EL SINDICATO"
-            desc="Conecta con pro-players, forma alianzas o declara la guerra en las tablas de clasificación global."
+            title="Comunidad de Genios"
+            desc="Únete a una comunidad vibrante de desarrolladores de proyectos, comparte tus proyectos, recibe feedback y colabora con otros genios del gaming."
           />
           <GamerCard
             icon={<Zap className="w-7 h-7 text-amber-400" />}
-            title="SKILL-CHECK"
-            desc="Analítica de juego avanzada y notificaciones instantáneas. Si alguien te supera, lo sabrás al segundo."
+            title="Sala de trofeos (Comming soon)"
+            desc="Muestra tus logros y proyectos destacados en tu sala de trofeos personalizada, donde otros pueden admirar tu talento y creatividad."
           />
         </div>
       </div>
