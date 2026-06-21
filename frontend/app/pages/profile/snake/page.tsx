@@ -12,9 +12,7 @@ const handleSnakeGameOver = async (puntos: number, modoJugado: string) => {
 
     if (!user || puntos <= 0) return;
 
-    // Construimos el objeto con la llave 'player_name' 
-    // para que el @JsonProperty del backend lo atrape.
-// En Page.tsx
+
     const payload = {
       userId: user.id,
       player_name: user.name || "JugadorAnonimo", // Forzamos un string por seguridad
@@ -30,7 +28,7 @@ const handleSnakeGameOver = async (puntos: number, modoJugado: string) => {
     const exito = await gameService.saveScore(payload);
 
     if (exito) {
-      showNotification(`Récord guardado: ${puntos} pts`, "success");
+      showNotification(`Récord guardado: ${puntos} pts` , "success");
     } else {
       showNotification("No se pudo guardar el récord", "error"); // Agregamos mensaje de error
     }
