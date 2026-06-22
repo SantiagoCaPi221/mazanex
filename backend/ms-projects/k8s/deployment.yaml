@@ -1,26 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ms-profile
+  name: ms-projects
   namespace: mazanex
   labels:
-    app: ms-profile
+    app: ms-projects
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ms-profile
+      app: ms-projects
   template:
     metadata:
       labels:
-        app: ms-profile
+        app: ms-projects
     spec:
       containers:
-        - name: ms-profile
-          image: mazanex-ms-profile:latest
+        - name: ms-projects
+          image: mazanex-ms-projects:latest
           imagePullPolicy: Never
           ports:
-            - containerPort: 8082
+            - containerPort: 8083
           envFrom:
             - configMapRef:
                 name: mazanex-config
@@ -37,13 +37,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ms-profile-service
+  name: ms-projects-service
   namespace: mazanex
 spec:
   selector:
-    app: ms-profile
+    app: ms-projects
   ports:
     - protocol: TCP
-      port: 8082
-      targetPort: 8082
+      port: 8083
+      targetPort: 8083
   type: ClusterIP

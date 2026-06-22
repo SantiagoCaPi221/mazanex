@@ -5,7 +5,7 @@ import com.mazanex.auth.dto.UserRequestDto;
 import com.mazanex.auth.dto.UserResponseDto;
 import com.mazanex.auth.model.User;
 import com.mazanex.auth.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -20,15 +20,12 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
-
-
     private final RestTemplate restTemplate = new RestTemplate();
     
-    // Busca la URL de profile en properties. Si no existe, asume Docker (profile-service:8082)
     @Value("${profile.service.url:http://profile-service:8082}/api/profile/sync")
     private String profileSyncUrl;
 
-    AuthService(UserRepository userRepository, JwtService jwtService) {
+    public AuthService(UserRepository userRepository, JwtService jwtService) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
     }
@@ -38,86 +35,61 @@ public class AuthService {
     }
 
     public User registerUser(User user) {
-    // 1. Validación de duplicados (Asegúrate de tener existsByEmail en tu UserRepository)
-    if (userRepository.existsByEmail(user.getEmail())) {
-        throw new RuntimeException("El email ya está registrado");
-    }
-
-    if (user.getRole() == null || user.getRole().isEmpty()) {
-        user.setRole("USER");
-    }
-    
-    // 2. Guardamos en Auth_DB
-    User savedUser = userRepository.save(user);
-
-    // 3. Sincronizamos (en un entorno de test real, esto no fallará porque no llegará aquí si el test falla antes)
-    syncWithProfile(savedUser);
-
-    return savedUser;
-}
-
-    // Método para sincronizar con Profile service 
-    private void syncWithProfile(User user) {
-        try {
-            System.out.println("Enviando usuario ID " + user.getId() + " a ms-profile...");
-            // Le manda el usuario recién creado al endpoint /sync de Profile
-            restTemplate.postForEntity(profileSyncUrl, user, User.class);
-            System.out.println("Usuario sincronizado exitosamente con ms-profile.");
-        } catch (Exception e) {
-            System.err.println("Error al avisarle a ms-profile: " + e.getMessage());
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new RuntimeException("El email ya está registrado");
         }
+        if (user.getRole() == null || user.getRole().isEmpty()) {
+            user.setRole("USER");
+        }
+        User savedUser = userRepository.save(user);
+        syncWithProfile(savedUser);
+        return savedUser;
+    }
+
+    @CircuitBreaker(name = "authService", fallbackMethod = "fallbackSync")
+    public void syncWithProfile(User user) {
+        restTemplate.postForEntity(profileSyncUrl, user, User.class);
+    }
+
+    public void fallbackSync(User user, Exception e) {
+        System.err.println("Circuit Breaker activo: No se pudo sincronizar con ms-profile. " + e.getMessage());
     }
 
     public Map<String, Object> login(UserRequestDto userDto) {
-        String identifier = userDto.email();
-        String password = userDto.password();
+        Optional<User> optUser = userRepository.findByEmail(userDto.email())
+                .or(() -> userRepository.findByName(userDto.email()));
 
-        Optional<User> optUser = userRepository.findByEmail(identifier)
-                .or(() -> userRepository.findByName(identifier));
-
-        if (optUser.isPresent() && optUser.get().getPassword().equals(password)) {
+        if (optUser.isPresent() && optUser.get().getPassword().equals(userDto.password())) {
             User u = optUser.get();
-            
-            UserResponseDto userResponse = new UserResponseDto(
-                    u.getId(), u.getName(), u.getEmail(), u.getPassword(),
-                    u.getRole(), u.getAvatarUrl(), u.getBannerUrl(),
-                    u.getBio(), u.getBackgroundUrl()
-            );
-
             String token = jwtService.generateToken(u.getEmail());
-
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
-            response.put("user", userResponse);
-
+            response.put("user", u);
             return response;
         }
-        
         return null;
     }
 
     public User updateProfile(Long id, User data) {
-        return userRepository.findById(id).map(existingUser -> {
-            if (data.getName() != null) existingUser.setName(data.getName());
-            if (data.getEmail() != null) existingUser.setEmail(data.getEmail());
-            if (data.getRole() != null) existingUser.setRole(data.getRole());
-            if (data.getAvatarUrl() != null) existingUser.setAvatarUrl(data.getAvatarUrl());
-            if (data.getBannerUrl() != null) existingUser.setBannerUrl(data.getBannerUrl());
-            if (data.getBio() != null) existingUser.setBio(data.getBio());
-            if (data.getBackgroundUrl() != null) existingUser.setBackgroundUrl(data.getBackgroundUrl());
-            
-            return userRepository.save(existingUser);
+        return userRepository.findById(id).map(u -> {
+            if (data.getName() != null) u.setName(data.getName());
+            if (data.getEmail() != null) u.setEmail(data.getEmail());
+            if (data.getRole() != null) u.setRole(data.getRole());
+            if (data.getAvatarUrl() != null) u.setAvatarUrl(data.getAvatarUrl());
+            if (data.getBannerUrl() != null) u.setBannerUrl(data.getBannerUrl());
+            if (data.getBio() != null) u.setBio(data.getBio());
+            if (data.getBackgroundUrl() != null) u.setBackgroundUrl(data.getBackgroundUrl());
+            if (data.getPassword() != null) u.setPassword(data.getPassword());
+            return userRepository.save(u);
         }).orElse(null);
     }
 
     public User updatePassword(Long userId, String currentPassword, String newPassword) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
         if (!user.getPassword().equals(currentPassword)) {
-            throw new IllegalArgumentException("La contraseña actual es incorrecta");
+            throw new IllegalArgumentException("Contraseña actual incorrecta");
         }
-
         user.setPassword(newPassword);
         return userRepository.save(user);
     }

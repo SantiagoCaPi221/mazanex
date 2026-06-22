@@ -1,21 +1,30 @@
-# ETAPA 1: Build
-FROM maven:3.8.5-openjdk-17 AS build
+# ETAPA 1: Construcción (Maven)
+FROM maven:3.8.5-openjdk-17-slim AS build
 WORKDIR /app
 
-# Al estar el Root Directory en 'auth', el pom.xml está en la raíz del contexto
+# Copiamos solo el pom.xml para aprovechar la caché de capas de Docker
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
 
-# Copiamos la carpeta src (que está dentro de auth/)
+# Copiamos el código fuente y compilamos
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# ETAPA 2: Runtime
-FROM eclipse-temurin:17-jdk-alpine
+# ETAPA 2: Ejecución (Runtime ligero)
+FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 
-# El JAR se genera en la carpeta target local
+# Creamos un usuario no-root por seguridad
+RUN addgroup --system spring && adduser --system spring --ingroup spring
+USER spring:spring
+
+# Copiamos solo el JAR desde la etapa de construcción
 COPY --from=build /app/target/*.jar app.jar
 
-# Railway inyecta la variable $PORT
-ENTRYPOINT java -Dserver.port=${PORT:-8081} -jar app.jar
+# Exponemos el puerto (informativo para K8s/Docker)
+EXPOSE 8081
+
+# Usamos ENTRYPOINT directo. 
+# Spring Boot leerá la variable SERVER_PORT si la inyectamos 
+# desde K8s o Docker, o usará 8081 por defecto.
+ENTRYPOINT ["java", "-jar", "app.jar"]
