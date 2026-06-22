@@ -38,21 +38,19 @@ public class RankingController {
     }
 
     @PostMapping("/save-record")
-    @Operation(summary = "Guardar nuevo récord")
-    public ResponseEntity<?> saveRecord(@RequestBody ScoreRequestDto req) {
-        // Esto imprimirá el contenido del objeto. Si playerName es null, lo verás aquí.
-        log.info("DEBUG: Objeto recibido: {}", req);
+@Operation(summary = "Guardar nuevo récord")
+public ResponseEntity<?> saveRecord(@RequestBody ScoreRequestDto req) {
+    log.info("DEBUG: Objeto recibido: {}", req);
 
-        // Sin filtros. Esto pasará directamente al service y disparará el error si hay un null.
-        return ResponseEntity.ok(rankingService.saveRecord(
-            req.getUserId(), 
-            req.getPlayerName(), 
-            req.getGame(), 
-            req.getMode(), 
-            req.getHighScore(), 
-            req.getScreenshotUrl()
-        ));
-    }
+    return ResponseEntity.ok(rankingService.saveRecord(
+        req.userId(),          // Acceso al record
+        req.playerName(),      // Acceso al record
+        req.game(),            // Acceso al record
+        req.mode(),            // Acceso al record
+        req.highScore(),       // Acceso al record
+        req.screenshotUrl()    // Acceso al record
+    ));
+}
 
     @PostMapping("/report/{id}")
     @Operation(summary = "Reportar puntuación sospechosa")
