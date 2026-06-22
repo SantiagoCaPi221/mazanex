@@ -27,10 +27,10 @@ const Dashboard = () => {
     const [editTaskTitle, setEditTaskTitle] = useState('');
     const [editTaskAssignee, setEditTaskAssignee] = useState('');
 
-    // 🔥 NUEVO: Estado para el Modal de Confirmación de Borrado 🔥
+    // Estado para el Modal de Confirmación de Borrado
     const [taskToDelete, setTaskToDelete] = useState<number | null>(null);
 
-    // CAMBIA ESTE CORREO POR EL QUE USES PARA TU CUENTA ADMIN
+    // Correo de administrador
     const adminEmail = "bruno@mazanex.cl"; 
 
     useEffect(() => {
@@ -61,7 +61,7 @@ const Dashboard = () => {
         try {
             const token = localStorage.getItem('token');
             const response = await axios.put(`http://localhost:8080/api/projects/1/tasks/${task.id}`, 
-                { title: task.title, status: 'DONE' },
+                { title: task.title, status: 'DONE', assignee: task.assignee },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             setTasks(tasks.map(t => t.id === task.id ? response.data : t));
@@ -124,7 +124,6 @@ const Dashboard = () => {
         }
     };
 
-    // 🔥 NUEVO: Función que ejecuta el borrado cuando confirmas en el modal
     const confirmDeleteTask = async () => {
         if (taskToDelete === null) return;
         
@@ -134,7 +133,7 @@ const Dashboard = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setTasks(tasks.filter(t => t.id !== taskToDelete));
-            setTaskToDelete(null); // Cierra el modal
+            setTaskToDelete(null); 
         } catch (err) {
             console.error("Error al borrar tarea:", err);
             alert("Error al borrar la tarea. Revisa la consola.");
@@ -156,8 +155,8 @@ const Dashboard = () => {
         return t.status !== 'DONE' && t.status !== 'COMPLETADA';
     });
 
-    if (loading) return <div className="p-10 text-center text-slate-400">Cargando métricas de Innovatech...</div>;
-    if (error) return <div className="p-10 text-center text-red-500">{error}</div>;
+    if (loading) return <div className="p-10 text-center text-slate-400 font-bold">Cargando métricas de proyectos...</div>;
+    if (error) return <div className="p-10 text-center text-red-500 font-bold">{error}</div>;
 
     return (
         <div className="p-8 max-w-6xl mx-auto bg-slate-50 min-h-screen relative">
@@ -246,7 +245,8 @@ const Dashboard = () => {
                         {filteredTasks.length > 0 ? (
                             filteredTasks.map((task) => {
                                 const isDone = task.status === 'DONE' || task.status === 'COMPLETADA';
-                                const isMyTask = currentUser?.name === task.assignee;
+                                // Validación robusta de string
+                                const isMyTask = currentUser?.name?.trim().toLowerCase() === task.assignee?.trim().toLowerCase();
 
                                 return (
                                     <tr key={task.id} className="hover:bg-slate-50 transition-colors group">
@@ -270,7 +270,6 @@ const Dashboard = () => {
                                                     <button onClick={() => openEditModal(task)} className="text-blue-500 hover:text-blue-700 p-1 bg-blue-50 rounded" title="Editar">
                                                         <Edit2 size={16} />
                                                     </button>
-                                                    {/* 🔥 CAMBIO: Ahora abre el modal seteando el ID en lugar de borrar directo */}
                                                     <button onClick={() => setTaskToDelete(task.id)} className="text-red-500 hover:text-red-700 p-1 bg-red-50 rounded" title="Borrar">
                                                         <Trash2 size={16} />
                                                     </button>
@@ -279,7 +278,7 @@ const Dashboard = () => {
                                                 !isDone && isMyTask && (
                                                     <button 
                                                         onClick={() => handleCompleteTask(task)}
-                                                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-lg text-xs font-bold transition-all shadow-sm opacity-0 group-hover:opacity-100"
+                                                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-lg text-xs font-bold transition-all shadow-sm opacity-100 md:opacity-0 group-hover:opacity-100"
                                                     >
                                                         <Check size={14} /> Completar
                                                     </button>
@@ -380,7 +379,7 @@ const Dashboard = () => {
                 </div>
             )}
 
-            {/* 🔥 NUEVO: MODAL DE CONFIRMACIÓN DE BORRADO 🔥 */}
+            {/* MODAL DE CONFIRMACIÓN DE BORRADO */}
             {taskToDelete !== null && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
                     <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
