@@ -1,5 +1,5 @@
 -- Anuncio de nuevo trabajo (Más reciente, arriba)
-INSERT INTO publications (id, author_id, author_name, content, media_url, created_at)
+INSERT INTO publications (id, author_id, author_name, content, created_at)
 VALUES (4, 4, 'Valeria Gómez', '¡Feliz de compartir que hoy empiezo un nuevo desafío como Senior Software Engineer! Agradecida por esta oportunidad.', DATE_SUB(NOW(), INTERVAL 5 MINUTE));
 
 -- Celebración de fin de proyecto (Reciente)
