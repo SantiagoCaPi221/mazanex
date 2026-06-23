@@ -25,7 +25,7 @@ spec:
             - configMapRef:
                 name: mazanex-config
             - secretRef:
-                name: mazanex-secrets
+                name: auth-secrets
           resources:
             requests:
               cpu: "100m"
