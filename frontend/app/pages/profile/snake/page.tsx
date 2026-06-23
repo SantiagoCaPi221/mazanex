@@ -1,6 +1,6 @@
 "use client";
 
-import GoogleSnake from "@/app/components/GoogleSnake";
+import GoogleSnake from "@/app/components/hooks/game/GoogleSnake";
 import { gameService } from "@/app/clients/gameService";
 import { useUserStore } from "@/app/store/useUserStore";
 
