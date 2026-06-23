@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: bff
-        image: mazanex-bff:latest
+        image: bff:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080

@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
         - name: ms-auth
-          image: mazanex-ms-auth:latest
-          imagePullPolicy: IfNotPresent
+          image: ms-auth:latest
+          imagePullPolicy: Never
           ports:
             - containerPort: 8081
           envFrom:
