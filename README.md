@@ -38,7 +38,7 @@ Infraestructura: Docker y Kubernetes (K8s).
 CI/CD: Pipeline automatizado con GitHub Actions usando Matrix Strategy para pruebas paralelas.
 
 5. Estructura del Proyecto
-Plaintext
+```plaintext
 /
 ├── frontend/             # Interfaz web (Next.js)
 ├── backend/              # Microservicios (Java/Spring Boot)
@@ -48,7 +48,8 @@ Plaintext
 │   ├── ms-publications/
 │   └── ms-ranking/
 └── k8s-all/              # Manifests de Kubernetes (ConfigMaps, Deployments, Services)
-6. Ejecución
+```
+7. Ejecución
 Dependiendo de tus necesidades de desarrollo, puedes levantar Mazanex mediante dos vías:
 
 A. Entorno de Desarrollo Rápido (Docker Compose)
