@@ -1,11 +1,11 @@
 "use client";
 
 import "./globals.css";
-import Navbar from "@/app/components/Navbar";
+import Navbar from "@/app/components/comp_page/Navbar";
 import { useUserStore } from "@/app/store/useUserStore";
 import { AuthProvider } from "@/app/context/AuthContext";
 import { ProfileProvider } from "@/app/context/ProfileContext";
-import { Notification } from "@/app/components/Notification";
+import { Notification } from "@/app/components/comp_page/Notification";
 
 export default function RootLayout({
   children,
