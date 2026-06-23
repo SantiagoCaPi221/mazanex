@@ -5,6 +5,6 @@ resources:
   - deployment.yaml
   - configmap.yaml
   - secret.yaml
-  - mysql-projects.yaml
+  - mysql-profile.yaml
   - hpa.yaml
   - pdb.yaml

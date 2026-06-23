@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Copiamos el pom.xml y descargamos dependencias
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
+RUN mvn dependency:go-offline -B -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true
 
 # Copiamos el código fuente y compilamos
 COPY src ./src

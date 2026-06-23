@@ -1,37 +1,37 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql-projects
+  name: mysql-profile
   namespace: mazanex
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mysql-projects
+      app: mysql-profile
   template:
     metadata:
       labels:
-        app: mysql-projects
+        app: mysql-profile
     spec:
       containers:
-        - name: mysql-projects
+        - name: mysql-profile
           image: mysql:8.0
           env:
             - name: MYSQL_ROOT_PASSWORD
               value: "root"
             - name: MYSQL_DATABASE
-              value: "db_projects"
+              value: "db_profile" # Base de datos dedicada
           ports:
             - containerPort: 3306
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-projects-service
+  name: mysql-profile-service
   namespace: mazanex
 spec:
   selector:
-    app: mysql-projects
+    app: mysql-profile
   ports:
     - protocol: TCP
       port: 3306

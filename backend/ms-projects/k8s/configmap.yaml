@@ -4,6 +4,6 @@ metadata:
   name: mazanex-config
   namespace: mazanex
 data:
-  MYSQLHOST: "mysql-projects-service"
+  MYSQLHOST: "mysql-profile-service" 
   MYSQLPORT: "3306"
-  MYSQLDATABASE: "db_projects"
+  MYSQLDATABASE: "db_profile"
