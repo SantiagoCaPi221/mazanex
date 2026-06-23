@@ -66,15 +66,8 @@ AuthController
 
 ## 7. Seguridad
 - **CORS**: Habilitado para integración con frontend
-- No hay generación ni validación de JsonWebToken
-Las contraseñas se comparan en texto plano, y se valida con una función dentro del código que valida 8 caracteres,  al menos 1 mayuscula, al menos 1 minuscula, almenos 1 número y un simbolo.
-
- **Recomendaciones para mejorar:**
-
-- Implementar BCryptPasswordEncoder para hashear contraseñas
-- Añadir filtro JWT para proteger endpoints sensibles
-- Propagar tokens JWT desde el BFF hacia aquí
-
+- Se genera un par de claves a traves del JWT donde la llave publica es reemplazada por la contraseña haciendo qeu esto otorge mas seguridad a los usuarios
+- , y se valida con una función dentro del código que valida 8 caracteres,  al menos 1 mayuscula, al menos 1 minuscula, almenos 1 número y un simbolo.
 
 ## 8. Base de Datos
 
