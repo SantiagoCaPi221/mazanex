@@ -18,7 +18,15 @@ spec:
         image: mazanex-bff:latest
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 8080 # Puerto estándar de KrakenD
+        - containerPort: 8080
+        # Añadimos límites para asegurar que no consuma todo el clúster
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
         volumeMounts:
         - name: config-volume
           mountPath: /etc/krakend/krakend.json
