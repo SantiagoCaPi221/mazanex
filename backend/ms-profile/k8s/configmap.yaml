@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mazanex-config
+  name: profile-config
   namespace: mazanex
 data:
   MYSQLHOST: "mysql-profile-service" 

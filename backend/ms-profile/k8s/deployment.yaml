@@ -23,7 +23,7 @@ spec:
             - containerPort: 8082
           envFrom:
             - configMapRef:
-                name: mazanex-config
+                name: profile-config
             - secretRef:
                 name: mazanex-secrets
           resources:
