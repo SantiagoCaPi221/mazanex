@@ -1,8 +1,5 @@
 # Readme Contexto/Negocio 
 
-Aquí tienes la versión actualizada y profesional de tu README.md. He reflejado la migración a Kubernetes, la adopción de KrakenD como BFF, y la expansión de tus microservicios.
-
-Mazanex: Plataforma de Microservicios para la Comunidad Gamer
 1. Contexto
 Mazanex es una plataforma integral diseñada bajo una arquitectura de microservicios, enfocada en la gestión de identidad, perfiles sociales, proyectos técnicos y sistemas de ranking competitivos para jugadores.
 
