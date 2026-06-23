@@ -19,7 +19,7 @@ spec:
         - name: MYSQL_DATABASE
           value: db_projects
         - name: MYSQL_ROOT_PASSWORD
-          value: rootpassword
+          value: root
 ---
 apiVersion: v1
 kind: Service
