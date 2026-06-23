@@ -23,7 +23,7 @@ export default function LoginForm() {
 
         <div className="space-y-4">
           <LoginInput
-            label="Usuario o Correo"
+            label="Correo"
             type="text"
             placeholder="Ej: Damian Cotto o correo@mail.com"
             value={credentials.identifier}
