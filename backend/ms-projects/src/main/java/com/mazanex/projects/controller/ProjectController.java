@@ -1,5 +1,6 @@
 package com.mazanex.projects.controller;
 
+import com.mazanex.projects.dto.TaskRequestDto; // <-- No olvides este import
 import com.mazanex.projects.model.Task;
 import com.mazanex.projects.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,8 +22,8 @@ public class ProjectController {
 
     @PostMapping("/{projectId}/tasks")
     @Operation(summary = "Crear nueva tarea", description = "Crea una tarea asociada a un proyecto específico mediante Factory Pattern")
-    public ResponseEntity<Task> addTask(@PathVariable Long projectId, @RequestBody Task taskDetails) {
-        // Ahora pasamos el objeto completo al servicio
+    // Cambiamos @RequestBody Task por TaskRequestDto
+    public ResponseEntity<Task> addTask(@PathVariable Long projectId, @RequestBody TaskRequestDto taskDetails) {
         Task createdTask = taskService.createTask(taskDetails, projectId);
         return ResponseEntity.ok(createdTask);
     }
@@ -33,9 +34,11 @@ public class ProjectController {
         List<Task> tasks = taskService.getTasksByProject(projectId);
         return tasks.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(tasks);
     }
+
     @PutMapping("/{projectId}/tasks/{taskId}")
     @Operation(summary = "Editar tarea", description = "Actualiza el título o estado de una tarea existente")
-    public ResponseEntity<Task> updateTask(@PathVariable Long taskId, @RequestBody Task taskDetails) {
+    // Cambiamos @RequestBody Task por TaskRequestDto
+    public ResponseEntity<Task> updateTask(@PathVariable Long taskId, @RequestBody TaskRequestDto taskDetails) {
         return ResponseEntity.ok(taskService.updateTask(taskId, taskDetails));
     }
 
