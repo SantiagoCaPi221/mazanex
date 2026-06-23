@@ -31,6 +31,8 @@ Service Facade: Centralización de lógica compleja en servicios, exponiendo mé
 
 Strategy Pattern: Implementado en módulos como ms-profile para manejar diferentes tipos de validaciones o procesamientos sin modificar código existente (Open-Closed Principle).
 
+Circuit Breaker: Implementacion de desconexion entre microservicio en caso de que alguno entre en mantenimiento, produciendo que los demas sigan funcionando sin ningun problema
+
 BFF (Backend For Frontend): Comunicación orquestada a través de un Gateway (KrakenD) para unificar la API.
 
 5. Configuración de Producción (MySQL)
