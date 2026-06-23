@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useUserStore } from "@/app/store/useUserStore";
 import { Trophy, Users, Zap, Target, Bot, Star } from "lucide-react";
 import { useState } from "react";
-import Footer from "@/app/components/Footer";
+import Footer from "@/app/components/comp_page/Footer";
 
 export default function Home() {
   const user = useUserStore((state: any) => state.user);

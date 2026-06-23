@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-projects
+  namespace: mazanex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-projects
+  template:
+    metadata:
+      labels:
+        app: ms-projects
+    spec:
+      containers:
+      - name: ms-projects
+        image: ms-projects:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8085
+        envFrom:
+        - configMapRef:
+            name: projects-config
+        - secretRef:
+            name: projects-secrets

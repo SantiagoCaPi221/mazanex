@@ -1,5 +1,6 @@
 package com.mazanex.projects.service;
 
+import com.mazanex.projects.dto.TaskRequestDto; // <-- Importamos el nuevo DTO
 import com.mazanex.projects.model.Task;
 import com.mazanex.projects.repository.TaskRepository;
 import org.junit.jupiter.api.Test;
@@ -29,10 +30,8 @@ public class TaskServiceTest {
         // Arrange
         Long projectId = 100L;
         
-        // Creamos el objeto que ahora espera recibir el método
-        Task inputTask = new Task();
-        inputTask.setTitle("Integrar API K8s");
-        inputTask.setAssignee("Santiago");
+        // Creamos el record TaskRequestDto en lugar de la entidad Task
+        TaskRequestDto inputTask = new TaskRequestDto("Integrar API K8s", "Santiago", "PENDING");
         
         Task mockTask = new Task();
         mockTask.setTitle("Integrar API K8s");
@@ -41,7 +40,7 @@ public class TaskServiceTest {
 
         when(taskRepository.save(any(Task.class))).thenReturn(mockTask);
 
-        // Act - Le pasamos el objeto inputTask en lugar del String
+        // Act - Le pasamos el record
         Task result = taskService.createTask(inputTask, projectId);
 
         // Assert
@@ -73,9 +72,9 @@ public class TaskServiceTest {
         existingTask.setTitle("Diseño inicial");
         existingTask.setStatus("PENDING");
 
-        Task newDetails = new Task();
-        newDetails.setTitle("Diseño Finalizado");
-        newDetails.setStatus("COMPLETED");
+        // Usamos el record para los detalles a actualizar
+        // Asumo que el assignee no se actualiza en este caso, le pasamos null
+        TaskRequestDto newDetails = new TaskRequestDto("Diseño Finalizado", null, "COMPLETED");
 
         when(taskRepository.findById(1L)).thenReturn(Optional.of(existingTask));
         when(taskRepository.save(any(Task.class))).thenReturn(existingTask);
@@ -93,10 +92,11 @@ public class TaskServiceTest {
     void updateTask_ShouldThrowException_WhenTaskNotFound() {
         // Arrange
         when(taskRepository.findById(99L)).thenReturn(Optional.empty());
-        Task newDetails = new Task();
+        
+        // Usamos el record
+        TaskRequestDto newDetails = new TaskRequestDto("Título", "Assignee", "STATUS");
 
         // Act & Assert
-        // Validamos que se lance tu RuntimeException y no se guarde nada
         RuntimeException exception = assertThrows(RuntimeException.class, 
             () -> taskService.updateTask(99L, newDetails));
 

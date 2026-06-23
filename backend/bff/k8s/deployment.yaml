@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bff
+  namespace: mazanex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bff
+  template:
+    metadata:
+      labels:
+        app: bff
+    spec:
+      containers:
+      - name: bff
+        image: bff:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        # Añadimos límites para asegurar que no consuma todo el clúster
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/krakend/krakend.json
+          subPath: krakend.json
+      volumes:
+      - name: config-volume
+        configMap:
+          name: bff-config

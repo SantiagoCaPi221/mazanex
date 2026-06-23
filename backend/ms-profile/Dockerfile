@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Al estar el Root Directory en 'perfil', el pom.xml está en la raíz del contexto
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
+RUN mvn dependency:go-offline -B -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true
 
 # Copiamos la carpeta src (relativa a la carpeta perfil/)
 COPY src ./src
