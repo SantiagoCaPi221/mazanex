@@ -1,33 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql-projects
+  name: mysql-ranking
   namespace: mazanex
 spec:
   selector:
     matchLabels:
-      app: mysql-projects
+      app: mysql-ranking
   template:
     metadata:
       labels:
-        app: mysql-projects
+        app: mysql-ranking
     spec:
       containers:
       - name: mysql
         image: mysql:8.0
         env:
         - name: MYSQL_DATABASE
-          value: db_projects
+          value: db_ranking
         - name: MYSQL_ROOT_PASSWORD
           value: rootpassword
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-projects-service
+  name: mysql-ranking-service
   namespace: mazanex
 spec:
   selector:
-    app: mysql-projects
+    app: mysql-ranking
   ports:
   - port: 3306

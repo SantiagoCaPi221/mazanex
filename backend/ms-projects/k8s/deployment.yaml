@@ -1,49 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ms-profile
+  name: ms-projects
   namespace: mazanex
-  labels:
-    app: ms-profile
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ms-profile
+      app: ms-projects
   template:
     metadata:
       labels:
-        app: ms-profile
+        app: ms-projects
     spec:
       containers:
-        - name: ms-profile
-          image: mazanex-ms-profile:latest
-          imagePullPolicy: IfNotPresent
-          ports:
-            - containerPort: 8082
-          envFrom:
-            - configMapRef:
-                name: mazanex-config
-            - secretRef:
-                name: mazanex-secrets
-          resources:
-            requests:
-              cpu: "100m"
-              memory: "256Mi"
-            limits:
-              cpu: "500m"
-              memory: "512Mi"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: ms-profile-service
-  namespace: mazanex
-spec:
-  selector:
-    app: ms-profile
-  ports:
-    - protocol: TCP
-      port: 8082
-      targetPort: 8082
-  type: ClusterIP
+      - name: ms-projects
+        image: mazanex-ms-projects:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8085
+        envFrom:
+        - configMapRef:
+            name: projects-config
+        - secretRef:
+            name: projects-secrets

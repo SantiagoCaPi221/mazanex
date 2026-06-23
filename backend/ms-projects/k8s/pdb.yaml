@@ -1,10 +1,10 @@
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: ms-profile-pdb
+  name: ms-projects-pdb
   namespace: mazanex
 spec:
   minAvailable: 1
   selector:
     matchLabels:
-      app: ms-profile
+      app: ms-projects

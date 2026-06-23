@@ -1,33 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql-projects
+  name: mysql-publications
   namespace: mazanex
 spec:
   selector:
     matchLabels:
-      app: mysql-projects
+      app: mysql-publications
   template:
     metadata:
       labels:
-        app: mysql-projects
+        app: mysql-publications
     spec:
       containers:
       - name: mysql
         image: mysql:8.0
         env:
         - name: MYSQL_DATABASE
-          value: db_projects
+          value: db_publications
         - name: MYSQL_ROOT_PASSWORD
           value: rootpassword
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-projects-service
+  name: mysql-publications-service
   namespace: mazanex
 spec:
   selector:
-    app: mysql-projects
+    app: mysql-publications
   ports:
   - port: 3306
