@@ -1,223 +1,79 @@
-# Backend General - Innovatech
+1. Descripción
+Backend distribuido de Mazanex, compuesto por microservicios independientes desarrollados en Java 17 con Spring Boot 3.4.5 y Maven. El sistema implementa una arquitectura desacoplada donde cada servicio gestiona su propia lógica de dominio y persistencia.
 
-## 1. Descripción 
+2. Ecosistema de Microservicios
+A diferencia de un monolito, cada servicio opera de forma autónoma:
 
-Backend de Innovatech compuesto por microservicios independientes desarrollados en **Java 17** con **Spring Boot 3.4.5** y **Maven**. Implementa autenticación y gestión de perfiles de usuario con arquitectura limpia y patrones de diseño consolidados.
+ms-auth: Gestión de identidades, registro y seguridad JWT.
 
----
+ms-profile: Gestión de datos de usuario, bio y relaciones sociales.
 
-## 2. Arquitectura
-```
-├── Auth (Puerto 8081)
-│   ├── Autenticación y registro de usuarios
-│   ├── Validación de credenciales
-│   ├── Gestión de roles (USER, CLIENTE, ADMIN)   
-│
-└── Perfil (Puerto 8082)
-    ├── Gestión de perfiles de usuario
-    ├── Actualización de datos
-    
-```
+ms-projects: Seguimiento de proyectos, tareas y gestión de estados.
 
----
+ms-publications: Sistema de feeds, interacciones (likes) y comentarios.
 
-## 3. Microservicios
+ms-ranking: Procesamiento de récords, tablas de posiciones y reportes.
 
-### Auth (Puerto 8081)
-
-| Endpoint | Método | Descripción |
-|----------|--------|-------------|
-| `/api/auth/register` | POST | Registrar usuario |
-| `/api/auth/login` | POST | Validar credenciales |
-| `/api/auth/usuarios` | GET | Listar usuarios |
-| `/api/auth/perfil/{id}` | PUT | Actualizar perfil |
-| `/api/auth/{id}` | DELETE | Eliminar usuario |
-
-### Perfil (Puerto 8082)
-
-| Endpoint | Método | Descripción |
-|----------|--------|-------------|
-| `/api/perfil` | GET | Obtener perfil |
-| `/api/perfil` | PUT | Actualizar perfil |
-| `/api/perfil/{id}` | GET | Obtener por ID |
-
----
-
-## 4. Estructura del Proyecto
-
-```
+3. Estructura del Proyecto (Monorepo)
+Plaintext
 backend/
-├── auth/
-│   ├── src/main/java/com/mazanex/auth/
-│   │   ├── AuthApplication.java
-│   │   ├── controller/    (Enrutamiento HTTP)
-│   │   ├── service/       (Lógica de negocio)
-│   │   ├── repository/    (Acceso a datos)
-│   │   └── model/         (Entidades)
-│   ├── pom.xml
-│   └── dockerfile
-│
-└── perfil/
-    ├── src/main/java/com/mazanex/perfil/
-    │   ├── PerfilApplication.java
-    │   ├── controller/
-    │   ├── service/
-    │   ├── repository/
-    │   └── model/
-    ├── pom.xml
-    └── dockerfile
-```
+├── ms-auth/          # Servicio de Autenticación
+├── ms-profile/       # Servicio de Perfiles
+├── ms-projects/      # Servicio de Proyectos
+├── ms-publications/  # Servicio de Publicaciones
+└── ms-ranking/       # Servicio de Ranking
+4. Patrones de Diseño Aplicados
+Para asegurar la escalabilidad y mantenibilidad, aplicamos:
 
----
+Repository Pattern: Abstracción mediante JpaRepository para separar la lógica de negocio de la capa de persistencia.
 
-## 5. Seguridad
-- **CORS**: Habilitado para integración con frontend
-- No hay generación ni validación de JWT
-Las contraseñas se comparan en texto plano, y se valida con una función dentro del código que valida 8 caracteres,  al menos 1 mayuscula, al menos 1 minuscula, almenos 1 número y un simbolo.
+Service Facade: Centralización de lógica compleja en servicios, exponiendo métodos limpios a los controladores.
 
- **Recomendaciones para mejorar:**
+Strategy Pattern: Implementado en módulos como ms-profile para manejar diferentes tipos de validaciones o procesamientos sin modificar código existente (Open-Closed Principle).
 
-- Implementar BCryptPasswordEncoder para hashear contraseñas
-- Añadir filtro JWT para proteger endpoints sensibles
-- Propagar tokens JWT desde el BFF hacia aquí
+BFF (Backend For Frontend): Comunicación orquestada a través de un Gateway (KrakenD) para unificar la API.
 
----
-## 6. Patrones y Arquitectura Utilizada
-### Repository Pattern
-Se implementa mediante `JpaRepository` , lo que permite abstraer el acceso a datos y separar la lógica de negocio de la persistencia.
+5. Configuración de Producción (MySQL)
+Todos los servicios comparten una lógica de configuración dinámica mediante variables de entorno (optimizada para despliegues en Railway o Kubernetes):
 
-Este patrón facilita las operaciones CRUD, mejora la testabilidad mediante mocks y permite cambiar la base de datos (por ejemplo, de H2 a MySQL) sin afectar la lógica del sistema.
-
-En el proyecto es utilizado en ambos módulos `(auth y perfil)` a través de `UsuarioRepository`, reduciendo duplicación de código y mejorando el desacoplamiento.
-
-### Strategy Pattern
-
-Permite seleccionar algoritmos o estrategias en tiempo de ejecución, promoviendo el principio de "abierto-cerrado" (Open-Closed Principle). En `PerfilService`, se implementa con la interfaz `ProcesamientoStrategy` y la clase `RegistroSimpleStrategy`, lo que permite extender el procesamiento de perfiles sin modificar el código existente (ej. agregar nuevas estrategias para validaciones complejas).
-
-Se aplica únicamente donde existe variabilidad en la lógica, evitando sobreingeniería y manteniendo el sistema flexible y extensible.
-
----
-
-## 7. Tecnologías
-
-| Tecnología | Versión |
-|------------|---------|
-| Java | 17 LTS |
-| Spring Boot | 3.4.5 |
-| Spring Data JPA | Incluida |
-| JWT (JJWT) | 0.9.1 |
-| H2 Database | Latest (dev) |
-| MySQL Connector | Latest (prod) |
-| SpringDoc OpenAPI | 2.1.0 |
-| Lombok | Latest |
-| Maven | 3.8.1+ |
-
----
-
-## 8. Ejecutar Localmente
-
-### Requisitos
-
-```bash
-java -version    # Java 17 o superior
-mvn -version     # Maven 3.8.1 o superior
-GitHub Desktop  # Clonacion de repositorio 
-```
-
-### Compilar
-
-```bash
-git clone https://github.com/makasuim/fullstack-4.git
-cd fullstack-4
-```
-
-### Ejecutar
-
-**Terminal 1 - Auth (8081)**:
-```bash
-cd auth
-mvn spring-boot:run
-```
-
-**Terminal 2 - Perfil (8082)**:
-```bash
-cd perfil
-mvn spring-boot:run
-```
-
-### Verificar
-
-```bash
-# Auth funcionando
-curl http://localhost:8081/api/auth/usuarios
-
-# Perfil funcionando
-curl http://localhost:8082/api/perfil
-
-# Swagger Local
-# Auth: http://localhost:8081/swagger-ui.html
-```
-
----
-
-## 9. Configuración
-
-### Desarrollo (H2 en memoria)
-Configuración automática en memoria.
-Los archivos `application.properties` ya están configurados para H2. No requiere cambios.
-
-### 10. Producción (MySQL) Lo unico que cambia entre microservicios en el aplication.properties es el puerto (Auth 8081- Perfil 8082)
-
-```properties
-# El puerto es dinámico para Railway, local usa 8082
+Properties
+# Puerto dinámico y conexión a base de datos
 server.port=${PORT:8082}
 
-# 1. Conexión a MySQL (Variables de Railway con fallback a Local)
-spring.datasource.url=jdbc:mysql://${MYSQLHOST:localhost}:${MYSQLPORT:3306}/${MYSQLDATABASE:mazanex_db}?createDatabaseIfNotExist=true&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+spring.datasource.url=jdbc:mysql://${MYSQLHOST:localhost}:${MYSQLPORT:3306}/${MYSQLDATABASE:mazanex_db}?...
 spring.datasource.username=${MYSQLUSER:root}
 spring.datasource.password=${MYSQLPASSWORD:root}
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
-# 2. JPA / Hibernate
+# JPA / Hibernate
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
-spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
+6. Seguridad y Resiliencia
+Gestión de Identidad: Implementación de JWT para proteger los endpoints sensibles entre microservicios.
 
-# 3. Límites de carga (Optimizado para Base64)
-spring.servlet.multipart.max-file-size=10MB
-spring.servlet.multipart.max-request-size=10MB
-server.tomcat.max-swallow-size=10MB
-spring.codec.max-in-memory-size=10MB
+Validación de Datos: Uso de DTOs para evitar el sobre-exposición de entidades @Entity.
 
-# 4. Logs de depuración
-logging.level.org.hibernate.SQL=DEBUG
-logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
+Resiliencia: Estructura preparada para integrar Circuit Breaker (Resilience4j) para evitar fallos en cascada entre servicios.
 
-```
----
-### 11. Funcionamiento del sistema 
-1. El cliente realiza una solicitud HTTP desde el frontend o un cliente REST (por ejemplo, `POST /auth/register` o `GET /perfil/usuarios`). Esta petición es recibida por el Controller correspondiente (`AuthController o PerfilController`), el cual valida los datos básicos de entrada y delega el procesamiento al servicio de negocio.
-   
-2. El Service (`AuthService o PerfilService`) contiene la lógica principal del sistema, aplicando reglas de negocio, validaciones y, en el caso del módulo de perfil, utilizando el Strategy Pattern para definir distintos comportamientos de procesamiento.
+7. Despliegue e Integración
+Contenerización: Cada microservicio cuenta con su propio Dockerfile optimizado.
 
-3. Posteriormente, el Repository (`UsuarioRepository`) se encarga del acceso a datos, interactuando con la base de datos mediante `JpaRepository`, lo que permite operaciones CRUD sin implementación manual de SQL.
+Orquestación: Se utiliza Kubernetes para gestionar el ciclo de vida de los pods y la comunicación interna.
 
-4. Finalmente, el Controller retorna una respuesta en formato JSON al cliente, indicando el resultado de la operación (éxito, datos o errores).
+CI/CD: Pipeline automatizado en GitHub Actions con estrategia de matriz (Matrix Strategy) para ejecutar pruebas unitarias (mvn clean test) en paralelo para todos los servicios.
 
----
+8. Guía de Ejecución Local
+Para levantar un servicio específico (ejemplo ms-auth):
 
-### 12. Despliegue de los microservicios en Railway 
-<img width="684" height="528" alt="image" src="https://github.com/user-attachments/assets/34e03659-28b3-4ba7-900c-9bb3892ce538" />
-<img width="1138" height="478" alt="image" src="https://github.com/user-attachments/assets/1bbbbcf2-eb96-4d91-9947-1fccb0c9a036" />
+Bash
+cd backend/ms-auth
+mvn clean install
+mvn spring-boot:run
+Nota: Se recomienda el uso de Docker Compose para levantar el entorno completo con bases de datos: docker compose up --build.
 
-## Navegación
+Navegación
+Volver al Inicio: Contexto de Negocio
 
-* **Volver al Inicio:** [Contexto de Negocio](../README.md)
-* **Ir al Frontend:** [Configuración de Cliente](../frontend/README.md)
-* **Microservicios de este módulo:**
-    * **Autenticación:** [Microservicio Auth](./microservicio_auth/auth/README.md)
-    * **Perfiles:** [Microservicio Perfil](./microservicio_profile/profile/README.md)
+Ir al Frontend: Configuración de Cliente
 
-
-
+Ver Documentación de K8s: Configuración de Infraestructura

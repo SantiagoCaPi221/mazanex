@@ -1,130 +1,93 @@
 # Readme Contexto/Negocio 
 
-## 1. Contexto
+1. Contexto
+Mazanex es una plataforma integral diseñada bajo una arquitectura de microservicios, enfocada en la gestión de identidad, perfiles sociales, proyectos técnicos y sistemas de ranking competitivos para jugadores.
 
-Mazanex es una plataforma que reúne identidad de usuario, perfiles sociales y puntajes de juego en un solo entorno web.
+2. Introducción
+El sistema evoluciona de un entorno local de desarrollo a una infraestructura Cloud-Native orquestada mediante Kubernetes (K8s), permitiendo alta disponibilidad, resiliencia y escalabilidad independiente de los servicios.
 
-## 2. Introducción
+3. Arquitectura del Sistema
+El sistema utiliza el patrón Backend For Frontend (BFF) implementado mediante KrakenD, el cual centraliza el ruteo, la seguridad y la orquestación de peticiones, desacoplando el frontend de la complejidad del backend.
 
-El sistema responde a la necesidad de ofrecer registro, perfil y comunidad para jugadores sin mezclar la lógica de frontend y backend.
+Componentes de la Arquitectura:
+API Gateway (BFF): KrakenD gestiona el tráfico, CORS y ruteo a servicios internos.
 
-## 3. Solución
+Microservicios (Backend):
 
-Mazanex implementa:
-- registro y login de usuarios,
-- edición de perfiles,
-- gestión de comunidad y solicitudes sociales,
-- seguimiento de puntajes y rankings.
+ms-auth: Gestión de identidades, JWT y seguridad.
 
-## 4. Requerimientos funcionales
+ms-profile: Gestión de perfiles y relaciones sociales.
 
-- Crear y autenticar usuarios.
-- Actualizar datos de perfil.
-- Consultar perfiles públicos.
-- Enviar y aceptar solicitudes sociales.
-- Guardar y consultar puntajes de juego.
-- Mostrar notificaciones de actividad.
+ms-projects: Seguimiento de proyectos y tareas técnicas.
 
-## 5. Requerimientos no funcionales
+ms-publications: Sistema de feeds, likes y comentarios.
 
-- Interfaz desarrollada en Next.js y TypeScript.
-- Backend modular con servicios independientes.
-- Persistencia en MySQL.
-- Comunicación REST en JSON.
-- Contenerización con Docker.
+ms-ranking: Sistema de récords y tablas de clasificación.
 
-## 6. Casos de uso
+Persistencia: Instancias independientes de MySQL por cada microservicio, garantizando el desacoplamiento de datos.
 
-- Registro de un nuevo jugador.
-- Inicio de sesión y acceso a perfil.
-- Edición de avatar, bio y banner.
-- Interacción social entre usuarios.
-- Consulta de rankings por juego.
+Orquestación: Despliegue gestionado mediante Kubernetes, utilizando kubectl para la administración de manifiestos y recursos.
 
-## 7. Arquitectura del sistema
+4. Requerimientos no funcionales
+Frontend: Next.js, TypeScript y TailwindCSS.
 
-- Frontend en `frontend/`.
-- Gateway BFF en `frontend/app/api/gateway/[...path]/route.ts`.
-- Auth Service en `backend/microservicio_auth/auth`.
-- Profile Service en `backend/microservicio_profile/profile`.
-- MySQL como base de datos compartida.
+Backend: Java 17, Spring Boot, Spring Cloud.
 
-El gateway BFF recibe las peticiones del frontend y las dirige a Auth o Profile según la ruta.
+Infraestructura: Docker y Kubernetes (K8s).
 
-## 8. Componentes principales
+CI/CD: Pipeline automatizado con GitHub Actions usando Matrix Strategy para pruebas paralelas.
 
-- Frontend: UI y gateway.
-- Auth Service: `/api/auth`.
-- Profile Service: `/api/profile`, `/api/profile/social`, `/api/profile/games`.
-- MySQL: persistencia de datos.
-- Docker Compose: orquestación local.
-
-## 9. Flujo general del sistema
-
-1. El usuario usa la aplicación web.
-2. La UI envía la petición al gateway interno.
-3. El gateway reenvía la petición al servicio correcto.
-4. El servicio procesa la solicitud.
-5. La respuesta regresa en JSON.
-6. La UI muestra el resultado.
-
-## 10. Estructura del proyecto
-
-```text
+5. Estructura del Proyecto
+Plaintext
 /
-├── frontend/
-│   ├── app/
-│   ├── components/
-│   ├── config/
-│   ├── context/
-│   ├── service/
-│   └── store/
-└── backend/
-    ├── docker-compose.yml
-    ├── microservicio_auth/auth/
-    └── microservicio_profile/profile/
-```
+├── frontend/             # Interfaz web (Next.js)
+├── backend/              # Microservicios (Java/Spring Boot)
+│   ├── ms-auth/
+│   ├── ms-profile/
+│   ├── ms-projects/
+│   ├── ms-publications/
+│   └── ms-ranking/
+└── k8s-all/              # Manifests de Kubernetes (ConfigMaps, Deployments, Services)
+6. Ejecución
+Dependiendo de tus necesidades de desarrollo, puedes levantar Mazanex mediante dos vías:
 
-## 11. Ejecución
+A. Entorno de Desarrollo Rápido (Docker Compose)
+Ideal para cambios rápidos en el código y pruebas locales sin la complejidad de K8s.
 
-```bash
-cd frontend
-pnpm install
-pnpm dev
-```
+Bash
+# Levantar todos los servicios definidos en el archivo docker-compose
+docker compose up --build
+B. Entorno de Orquestación (Kubernetes)
+Ideal para validar la resiliencia, escalabilidad y configuración del clúster antes de producción.
 
-```bash
-cd backend
-docker-compose up --build
-```
+Aplicar manifiestos:
 
-## 12. Variables de entorno
+Bash
+kubectl apply -k k8s-all/
+Exponer servicios para acceso local (Port-Forwarding):
 
-- `MYSQLHOST`
-- `MYSQLPORT`
-- `MYSQLDATABASE`
-- `MYSQLUSER`
-- `MYSQLPASSWORD`
-- `PORT`
+Bash
+# BFF (Backend)
+kubectl port-forward svc/bff-service 8080:8080 -n mazanex
 
----
+# Frontend
+kubectl port-forward svc/frontend-service 3000:80 -n mazanex
+7. Flujo de Comunicación
+El usuario interactúa con la UI (Next.js).
 
-## 13. Diagrama de Contenedores (Diseño General)
+Las peticiones son enviadas al BFF (KrakenD) en el puerto 8080.
 
-El siguiente modelo representa la infraestructura completa y la convivencia de los componentes distribuidos de la plataforma:
+El Gateway autentica y rutea la petición al servicio interno correspondiente (ms-auth, ms-ranking, etc.).
 
-> <img width="1919" height="2925" alt="Diagrama de contenedores  (1)" src="https://github.com/user-attachments/assets/82afb61c-b1fd-4fb1-9d3b-dd2d795040c3" />
+Cada servicio consulta su base de datos independiente.
 
----
+La respuesta es devuelta en JSON al frontend.
 
-## 14. Conclusión
+8. Navegación del Proyecto
+Documentación Global: Contexto de Negocio (Este archivo)
 
-Mazanex es un sistema modular para comunidad gamer que separa frontend y backend mediante un gateway BFF. Este README está enfocado en el contexto del negocio, la solución y la arquitectura real del proyecto.
+Frontend: Configuración y Vistas
 
+Backend: Arquitectura de Microservicios
 
-## Navegación del Proyecto
-* **Documentación Global:** [Contexto de Negocio](./README.md) (Este archivo)
-* **Frontend:** [Configuración y Vistas del Cliente](./frontend/README.md)
-* **Backend (General):** [Arquitectura de Microservicios](./backend/README.md)
-    * **Servicio de Autenticación:** [Módulo Auth](./backend/microservicio_auth/auth/README.md)
-    * **Servicio de Perfiles:** [Módulo Perfil](./backend/microservicio_profile/profile/README.md)
+Infraestructura: Configuración Kubernetes
