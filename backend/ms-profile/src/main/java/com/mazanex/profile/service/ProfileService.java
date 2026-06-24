@@ -3,7 +3,6 @@ package com.mazanex.profile.service;
 import com.mazanex.profile.model.User;
 import com.mazanex.profile.repository.UserRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -12,13 +11,18 @@ import java.util.List;
 @Service
 public class ProfileService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final RestTemplate restTemplate;
 
     @Value("${auth.service.url:http://auth-service:8081}/api/auth/sync-profile")
     private String authSyncUrl;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    // Inyección por constructor: Spring inyectará el Repositorio y el RestTemplate reales,
+    // y Mockito inyectará los mocks durante los tests.
+    public ProfileService(UserRepository userRepository, RestTemplate restTemplate) {
+        this.userRepository = userRepository;
+        this.restTemplate = restTemplate;
+    }
 
     public User updateProfile(Long id, User data) {
         return userRepository.findById(id).map(user -> {
