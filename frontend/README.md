@@ -1,30 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Innovatech  - Frontend (Next.js Web Application)
 
-## Getting Started
+Innovatech es una plataforma web interactiva diseñada bajo una arquitectura de microservicios que combina la gestión comunitaria, la personalización de perfiles y la gamificación en tiempo real. La interfaz ofrece una experiencia de usuario dinámica, fluida y completamente adaptativa.
 
-First, run the development server:
+## Características Principales
 
-```bash
-pnpm dev
-```
+El frontend expone los siguientes módulos funcionales accesibles desde el entorno local:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+* **Gestión de Accesos (Autenticación):** Sistema completo de registro de nuevos usuarios e inicio de sesión seguro, conectado directamente con el servicio de autenticación centralizado (`ms-auth`).
+* **Módulo de Comunidad:** Espacio dedicado para la visualización global de todas las publicaciones de la plataforma, actuando como el canal principal de interacción (`ms-publications`).
+* **Gamificación y Tablas de Clasificación (Ranking):** Integración de un videojuego interactivo (*Snake Game*) que cuenta con un panel lateral dinámico en la vista de comunidad para mostrar el ranking de puntuaciones en tiempo real (`ms-ranking`).
+* **Perfiles Altamente Personalizables:** Un apartado privado de perfil donde el usuario autenticado puede gestionar su identidad visual de manera avanzada, permitiendo modificar en tiempo real su foto de perfil, la imagen del banner superior y la imagen de fondo de la interfaz (`ms-profile`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+## Arquitectura de Directorios
 
-To learn more about Next.js, take a look at the following resources:
+El frontend sigue una estructura modular basada en el App Router de Next.js, diseñada para una clara separación de responsabilidades:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```text
+frontend/
+├── app/
+│   ├── clients/       # Clientes HTTP (Axios) para consumo del API Gateway
+│   ├── components/    # Componentes UI reutilizables (Recharts, Modales, etc.)
+│   ├── config/        # Centralización de endpoints y configuración
+│   ├── context/       # Manejo de estados de contexto
+│   ├── pages/         # Vistas: login, registro, comunidad, ranking y perfil
+│   ├── store/         # Estado global (Zustand) para persistencia de sesión
+│   └── layout.tsx     # Layout raíz de la aplicación
+├── k8s/               # Manifiestos para despliegue en Kubernetes
+├── public/            # Archivos estáticos y assets
+├── Dockerfile         # Configuración de imagen (Node.js Alpine)
+└── package.json       # Scripts y dependencias
