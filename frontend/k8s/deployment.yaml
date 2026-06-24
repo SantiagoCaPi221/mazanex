@@ -17,5 +17,5 @@ spec:
       - name: frontend
         image: frontend:latest
         ports:
-        - containerPort: 80 # Nginx suele usar el 80
-        imagePullPolicy: IfNotPresent
+        - containerPort: 3000 
+        imagePullPolicy: Never
