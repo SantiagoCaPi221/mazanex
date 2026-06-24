@@ -12,6 +12,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+
 import java.util.Optional;
 import java.util.List;
 
@@ -20,6 +24,10 @@ public class ProfileServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    // Añadimos el mock para RestTemplate
+    @Mock
+    private RestTemplate restTemplate;
 
     @InjectMocks
     private ProfileService profileService;
@@ -54,6 +62,10 @@ public class ProfileServiceTest {
         when(userRepository.findById(id)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenReturn(existing);
 
+        // Mock de RestTemplate para evitar la llamada real HTTP
+        when(restTemplate.postForEntity(anyString(), any(), any()))
+            .thenReturn(new ResponseEntity<>(HttpStatus.OK));
+
         // Act: Intentamos actualizar el perfil
         profileService.updateProfile(id, updates);
 
@@ -63,17 +75,17 @@ public class ProfileServiceTest {
     
     @Test
     void syncProfile_ShouldCreateNewUser_WhenUserNotFound() {
-    // Arrange: Simulamos que findByEmail devuelve un Optional vacío
-    User data = new User();
-    data.setEmail("nuevo@test.com");
-    when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
-    when(userRepository.save(any(User.class))).thenReturn(data);
+        // Arrange: Simulamos que findByEmail devuelve un Optional vacío
+        User data = new User();
+        data.setEmail("nuevo@test.com");
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+        when(userRepository.save(any(User.class))).thenReturn(data);
 
-    // Act
-    profileService.syncProfile(data);
+        // Act
+        profileService.syncProfile(data);
 
-    // Assert
-    verify(userRepository, times(1)).save(any(User.class));
+        // Assert
+        verify(userRepository, times(1)).save(any(User.class));
     }
 
     @Test
@@ -91,6 +103,10 @@ public class ProfileServiceTest {
         newData.setBackgroundUrl("bg.png");
 
         when(userRepository.save(any(User.class))).thenReturn(existingUser);
+
+        // Mock de RestTemplate para evitar la llamada real HTTP
+        when(restTemplate.postForEntity(anyString(), any(), any()))
+            .thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
         // Act
         User result = profileService.updateProfile(1L, newData);
