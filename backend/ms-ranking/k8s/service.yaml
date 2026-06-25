@@ -8,5 +8,5 @@ spec:
     app: ms-ranking
   ports:
   - protocol: TCP
-    port: 8087
-    targetPort: 8087
+    port: 8084
+    targetPort: 8084

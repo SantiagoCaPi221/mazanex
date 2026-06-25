@@ -101,7 +101,7 @@ spring.datasource.url=jdbc:mysql://${MYSQLHOST}:${MYSQLPORT}/${MYSQLDATABASE}
 spring.datasource.username=${MYSQLUSER}
 spring.datasource.password=${MYSQLPASSWORD}
 spring.jpa.hibernate.ddl-auto=update
-server.port=${PORT:8086}
+server.port=${PORT:8083}
 ```
 
 ## 9. DTOs (Data Transfer Objects)
@@ -161,7 +161,7 @@ Utilizado para recibir datos de nuevos récords desde el frontend.
 - **Dockerfile**: Multi-stage build.
 - **Builder stage**: Maven 3.8.5 + OpenJDK 17.
 - **Runtime stage**: Eclipse Temurin 17 Alpine (imagen ligera).
-- **Puerto dinámico**: La aplicación usa `PORT` con valor por defecto `8086`.
+- **Puerto dinámico**: La aplicación usa `PORT` con valor por defecto `8083`.
 - **Integración en Docker Compose**: El servicio `ranking-service` se orquesta con la base de datos MySQL.
 
 ## 12. Variables de Entorno
@@ -172,7 +172,7 @@ MYSQLPORT           - Puerto de MySQL (ej: 3306)
 MYSQLDATABASE       - Nombre de la base de datos (ej: ranking_db)
 MYSQLUSER           - Usuario de MySQL
 MYSQLPASSWORD       - Contraseña de MySQL
-PORT                - Puerto de la aplicación (default: 8086)
+PORT                - Puerto de la aplicación (default: 8083)
 ```
 
 ## 13. Setup Local
@@ -184,7 +184,7 @@ cd backend/ms-ranking
 ./mvnw spring-boot:run
 ```
 
-El servicio estará disponible en `http://localhost:8086`.
+El servicio estará disponible en `http://localhost:8083`.
 
 ### Con Docker Compose
 
@@ -198,13 +198,13 @@ docker-compose up --build ranking-service
 ### Obtener ranking global
 
 ```bash
-curl -X GET http://localhost:8086/api/ranking/Tetris
+curl -X GET http://localhost:8083/api/ranking/Tetris
 ```
 
 ### Guardar un nuevo récord
 
 ```bash
-curl -X POST http://localhost:8086/api/ranking/save-record \
+curl -X POST http://localhost:8083/api/ranking/save-record \
   -H "Content-Type: application/json" \
   -d '{
     "userId": 1,
@@ -219,13 +219,13 @@ curl -X POST http://localhost:8086/api/ranking/save-record \
 ### Obtener récords de un usuario
 
 ```bash
-curl -X GET http://localhost:8086/api/ranking/user/1
+curl -X GET http://localhost:8083/api/ranking/user/1
 ```
 
 ### Reportar puntuación sospechosa
 
 ```bash
-curl -X POST http://localhost:8086/api/ranking/report/5 \
+curl -X POST http://localhost:8083/api/ranking/report/5 \
   -H "Content-Type: application/json" \
   -d '{"reporterId": 2}'
 ```
@@ -235,7 +235,7 @@ curl -X POST http://localhost:8086/api/ranking/report/5 \
 La API está documentada con **Swagger OpenAPI**:
 
 ```
-http://localhost:8086/swagger-ui.html
+http://localhost:8083/swagger-ui.html
 ```
 
 Aquí puedes probar todos los endpoints de forma interactiva.
