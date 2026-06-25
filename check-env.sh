@@ -3,20 +3,17 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-# Formato: "SERVICIO:NOMBRE_BD"
-SERVICES=("auth-service:auth_db" "profile-service:profile_db" "publications-service:publications_db" "ranking-service:ranking_db" "projects-service:db_projects")
+SERVICES=("auth-service" "profile-service" "publications-service" "ranking-service" "projects-service")
 
-echo "--- 🚀 Iniciando Validación Dinámica Mazanex ---"
+echo "--- 🚀 Iniciando Validación Dinámica Universal ---"
 
-# 1. Verificar conectividad MS -> db
-for ITEM in "${SERVICES[@]}"; do
-    MS="${ITEM%%:*}"
-    echo "🔍 Validando conectividad: $MS -> db (host)..."
-    
-    # Intentar conectar al host 'db' en puerto 3306 hasta 10 veces
+for MS in "${SERVICES[@]}"; do
+    echo "🔍 Validando conectividad: $MS -> db:3306..."
+
     CONNECTED=false
     for i in {1..10}; do
-        if docker compose exec -T "$MS" bash -c "</dev/tcp/db/3306" 2>/dev/null; then
+        # Usamos 'nc' (netcat) que está en casi todos los contenedores
+        if docker compose exec -T "$MS" nc -z db 3306 2>/dev/null; then
             CONNECTED=true
             break
         fi
@@ -28,10 +25,10 @@ for ITEM in "${SERVICES[@]}"; do
         echo -e "${GREEN}✅ Conectividad $MS -> db confirmada.${NC}"
     else
         echo -e "${RED}❌ Error: $MS no pudo conectar a db.${NC}"
-        docker compose logs --tail=10 "$MS"
+        docker compose logs --tail=20 "$MS"
         exit 1
     fi
 done
 
-echo -e "\n--- 🎉 Todo el cluster de Mazanex está funcional. ---"
+echo -e "\n--- 🎉 Todo el cluster está funcional. ---"
 exit 0
