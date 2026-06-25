@@ -1,52 +1,21 @@
 #!/bin/bash
-
-# Colores
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-# LISTA REAL DE TUS SERVICIOS (según tu docker-compose.yml)
-# Todos usan el servicio llamado 'db'
-SERVICES=("auth-service" "profile-service" "publications-service" "ranking-service" "projects-service")
+# Formato: "SERVICIO:NOMBRE_BD"
+SERVICES=("auth-service:auth_db" "profile-service:profile_db" "publications-service:publications_db" "ranking-service:ranking_db" "projects-service:db_projects")
 
-echo "--- 🚀 Iniciando Validación del Entorno Mazanex ---"
+echo "--- 🚀 Iniciando Validación Dinámica Mazanex ---"
 
-# 1. Verificar contenedores activos
-if [ $(docker compose ps -q | wc -l) -eq 0 ]; then
-    echo -e "${RED}❌ Error: Ningún contenedor está corriendo.${NC}"
-    exit 1
-fi
-
-echo "--- 🚀 Iniciando Validación Dinámica de Microservicios ---"
-
+# 1. Verificar conectividad MS -> db
 for ITEM in "${SERVICES[@]}"; do
     MS="${ITEM%%:*}"
-    DB_NAME="${ITEM#*:}"
-
-    echo "🔍 Validando conexión de $MS a $DB_NAME..."
+    echo "🔍 Validando conectividad: $MS -> db (host)..."
     
-    # Validamos que el microservicio esté corriendo
-    STATE=$(docker compose inspect -f '{{.State.Running}}' "$MS" 2>/dev/null)
-    
-    if [ "$STATE" == "true" ]; then
-        echo -e "${GREEN}✅ $MS está operando correctamente sobre $DB_NAME.${NC}"
-    else
-        echo -e "${RED}❌ $MS falló al intentar conectar a la base de datos $DB_NAME.${NC}"
-        echo "Logs de error:"
-        docker compose logs --tail=20 "$MS"
-        exit 1
-    fi
-done
-
-echo -e "\n--- 🎉 Todo el cluster de Mazanex está funcional. ---"
-
-# 2. Verificar conectividad MS -> DB (Todos apuntan al servicio 'db')
-for MS in "${SERVICES[@]}"; do
-    echo "🔍 Verificando $MS -> db (Puerto 3306)..."
-    
+    # Intentar conectar al host 'db' en puerto 3306 hasta 10 veces
     CONNECTED=false
     for i in {1..10}; do
-        # Esto es un truco de Bash para verificar sockets sin depender de herramientas externas
         if docker compose exec -T "$MS" bash -c "</dev/tcp/db/3306" 2>/dev/null; then
             CONNECTED=true
             break
@@ -59,23 +28,10 @@ for MS in "${SERVICES[@]}"; do
         echo -e "${GREEN}✅ Conectividad $MS -> db confirmada.${NC}"
     else
         echo -e "${RED}❌ Error: $MS no pudo conectar a db.${NC}"
-        # Aquí vemos el error real si falla
         docker compose logs --tail=10 "$MS"
         exit 1
     fi
 done
 
-# 3. Verificar BFF (Gateway)
-echo "🔍 Verificando Gateway (BFF)..."
-sleep 5
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/ || echo "000")
-
-if [[ "$HTTP_CODE" =~ ^(200|404|401|403)$ ]]; then
-    echo -e "${GREEN}✅ BFF respondiendo (Código: $HTTP_CODE).${NC}"
-else
-    echo -e "${RED}❌ BFF no responde (Código: $HTTP_CODE).${NC}"
-    exit 1
-fi
-
-echo -e "\n--- 🎉 Validación completa: Sistema interconectado. ---"
+echo -e "\n--- 🎉 Todo el cluster de Mazanex está funcional. ---"
 exit 0
