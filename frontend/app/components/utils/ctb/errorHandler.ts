@@ -1,26 +1,24 @@
-// @/app/components/utils/errorHandler.ts
-import { AUTH_MESSAGES } from "@/app/components/utils/message/loginMessage";
-
-export const handleAuthError = (error: any): string => {
-  // 1. Acceso seguro a la respuesta del servidor
+// frontend/app/components/utils/ctb/errorHandler.ts
+export const handleApiError = (error: any, fallback = "Ocurrió un error inesperado."): string => {
   const status = error?.response?.status;
 
   if (status) {
-    // Usamos un objeto para mapear estados, es más limpio que un switch
     const errorMap: Record<number, string> = {
-      400: AUTH_MESSAGES.errors.requiredFields,
-      401: AUTH_MESSAGES.errors.invalidCredentials,
-      // Puedes añadir más estados aquí según tu API (ej. 404, 500)
+      400: "Revisa los datos enviados.",
+      401: "No tienes permisos para realizar esta acción.",
+      403: "No tienes permiso para esta acción.",
+      404: "No se encontró el recurso solicitado.",
+      409: "Ya existe un registro con esos datos.",
+      422: "Los datos enviados no son válidos.",
+      500: "Hubo un problema en el servidor. Intenta más tarde.",
     };
 
-    return errorMap[status] || AUTH_MESSAGES.errors.unexpected;
-  }
-  
-  // 2. Errores de red
-  if (error?.message === "Network Error") {
-    return AUTH_MESSAGES.errors.networkError;
+    return errorMap[status] || fallback;
   }
 
-  // 3. Fallback final
-  return AUTH_MESSAGES.errors.unexpected;
+  if (error?.message === "Network Error" || error?.code === "ERR_NETWORK") {
+    return "No se pudo conectar con el servidor. Revisa tu conexión.";
+  }
+
+  return fallback;
 };
