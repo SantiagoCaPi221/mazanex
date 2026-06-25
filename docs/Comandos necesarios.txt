@@ -1,0 +1,17 @@
+Generar cobertura 
+
+.\mvnw.cmd clean test
+cd backend/ms-
+
+
+Kubernetes
+
+kubectl create namespace mazanex
+
+kubectl delete -k k8s-all/
+kubectl get pods -n mazanex 
+kubectl apply -k k8s-all/
+
+
+kubectl port-forward svc/frontend-service 3000:80 -n mazanex
+kubectl port-forward svc/bff-service 8080:8080 -n mazanex
