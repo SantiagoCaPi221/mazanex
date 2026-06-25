@@ -1,15 +1,42 @@
-name: CI - Infraestructura
-on: [push]
+name: CI - Mazanex Infrastructure
+
+on:
+  push:
+    branches: [ main, develop, desarrollo ]
+  pull_request:
+    branches: [ main, develop, desarrollo ]
+
 jobs:
-  docker-check:
+  docker-validation:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Build & Up
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Iniciar servicios
         run: docker compose up -d
-      - name: Wait for services
-        run: sleep 30 # Tiempo para asegurar el healthcheck de la BD
-      - name: Check Environment
+
+      - name: Esperar a que la DB esté realmente saludable
+        run: |
+          echo "Esperando a que la base de datos esté lista..."
+          # Esto espera hasta 60 segundos a que el contenedor DB pase su propio healthcheck
+          for i in {1..12}; do
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' mazanex-db)
+            if [ "$STATUS" == "healthy" ]; then
+              echo "DB saludable!"
+              exit 0
+            fi
+            echo "Aún no está lista... esperando 5s"
+            sleep 5
+          done
+          echo "La base de datos no inició a tiempo"
+          exit 1
+
+      - name: Ejecutar script de validación
         run: |
           chmod +x check-env.sh
           ./check-env.sh
+
+      - name: Mostrar logs en caso de fallo
+        if: failure()
+        run: docker compose logs
