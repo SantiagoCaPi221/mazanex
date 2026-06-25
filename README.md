@@ -73,6 +73,7 @@ kubectl port-forward svc/bff-service 8080:8080 -n mazanex
 
 # Frontend
 kubectl port-forward svc/frontend-service 3000:80 -n mazanex
+
 7. Flujo de Comunicación
 El usuario interactúa con la UI (Next.js).
 
