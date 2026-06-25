@@ -17,14 +17,37 @@ if [ $(docker compose ps -q | wc -l) -eq 0 ]; then
     exit 1
 fi
 
+echo "--- 🚀 Iniciando Validación Dinámica de Microservicios ---"
+
+for ITEM in "${SERVICES[@]}"; do
+    MS="${ITEM%%:*}"
+    DB_NAME="${ITEM#*:}"
+
+    echo "🔍 Validando conexión de $MS a $DB_NAME..."
+    
+    # Validamos que el microservicio esté corriendo
+    STATE=$(docker compose inspect -f '{{.State.Running}}' "$MS" 2>/dev/null)
+    
+    if [ "$STATE" == "true" ]; then
+        echo -e "${GREEN}✅ $MS está operando correctamente sobre $DB_NAME.${NC}"
+    else
+        echo -e "${RED}❌ $MS falló al intentar conectar a la base de datos $DB_NAME.${NC}"
+        echo "Logs de error:"
+        docker compose logs --tail=20 "$MS"
+        exit 1
+    fi
+done
+
+echo -e "\n--- 🎉 Todo el cluster de Mazanex está funcional. ---"
+
 # 2. Verificar conectividad MS -> DB (Todos apuntan al servicio 'db')
 for MS in "${SERVICES[@]}"; do
     echo "🔍 Verificando $MS -> db (Puerto 3306)..."
     
     CONNECTED=false
-    # Usamos un bucle de reintento esperando que el puerto 3306 de 'db' esté abierto
     for i in {1..10}; do
-        if docker compose exec -T "$MS" sh -c "nc -z db 3306" > /dev/null 2>&1; then
+        # Esto es un truco de Bash para verificar sockets sin depender de herramientas externas
+        if docker compose exec -T "$MS" bash -c "</dev/tcp/db/3306" 2>/dev/null; then
             CONNECTED=true
             break
         fi
@@ -36,6 +59,7 @@ for MS in "${SERVICES[@]}"; do
         echo -e "${GREEN}✅ Conectividad $MS -> db confirmada.${NC}"
     else
         echo -e "${RED}❌ Error: $MS no pudo conectar a db.${NC}"
+        # Aquí vemos el error real si falla
         docker compose logs --tail=10 "$MS"
         exit 1
     fi
