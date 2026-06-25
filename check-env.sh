@@ -22,9 +22,9 @@ for MS in "${SERVICES[@]}"; do
     echo "🔍 Verificando $MS -> db (Puerto 3306)..."
     
     CONNECTED=false
-    # Usamos un bucle de reintento esperando que el puerto 3306 de 'db' esté abierto
     for i in {1..10}; do
-        if docker compose exec -T "$MS" sh -c "nc -z db 3306" > /dev/null 2>&1; then
+        # Esto es un truco de Bash para verificar sockets sin depender de herramientas externas
+        if docker compose exec -T "$MS" bash -c "</dev/tcp/db/3306" 2>/dev/null; then
             CONNECTED=true
             break
         fi
@@ -36,6 +36,7 @@ for MS in "${SERVICES[@]}"; do
         echo -e "${GREEN}✅ Conectividad $MS -> db confirmada.${NC}"
     else
         echo -e "${RED}❌ Error: $MS no pudo conectar a db.${NC}"
+        # Aquí vemos el error real si falla
         docker compose logs --tail=10 "$MS"
         exit 1
     fi
