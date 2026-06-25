@@ -1,52 +1,55 @@
 #!/bin/bash
 
-# Colores para mejor legibilidad
 GREEN='\033[0;32m'
 RED='\033[0;31m'
-NC='\033[0m' # Sin color
+NC='\033[0m'
 
 echo "--- 🚀 Iniciando Validación del Entorno Mazanex ---"
 
-# 1. Verificar si los contenedores están corriendo
-CONTAINERS_COUNT=$(docker compose ps -q | wc -l)
-if [ "$CONTAINERS_COUNT" -eq 0 ]; then
-    echo -e "${RED}❌ Error: No hay contenedores corriendo. Ejecuta 'make up' primero.${NC}"
+# 1. Verificar contenedores
+if [ $(docker compose ps -q | wc -l) -eq 0 ]; then
+    echo -e "${RED}❌ Error: No hay contenedores corriendo.${NC}"
     exit 1
 fi
-echo -e "${GREEN}✅ Contenedores detectados.${NC}"
 
-# 2. Verificar Healthcheck de la Base de Datos
+# 2. Verificar DB (Healthcheck)
 echo "🔍 Comprobando Base de Datos..."
-# Espera hasta 30 segundos si es necesario
 DB_STATUS=$(docker inspect --format='{{.State.Health.Status}}' mazanex-db 2>/dev/null)
-
 if [ "$DB_STATUS" != "healthy" ]; then
-    echo -e "${RED}❌ DB no está saludable. Estado: $DB_STATUS${NC}"
-    echo "Logs de la DB:"
-    docker compose logs db --tail=10
+    echo -e "${RED}❌ DB no saludable. Estado: $DB_STATUS${NC}"
     exit 1
 fi
-echo -e "${GREEN}✅ Base de datos (MySQL) está saludable.${NC}"
+echo -e "${GREEN}✅ DB Saludable.${NC}"
 
-# 3. Verificar conectividad de red entre Auth y DB
-echo "🔍 Verificando red interna (Auth -> DB)..."
-docker compose exec -T auth-service ping -c 1 db > /dev/null 2>&1
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✅ Red configurada: auth-service puede ver a db.${NC}"
+# 3. Verificación robusta: Esperar conexión a puerto (sin depender de 'ping')
+echo "🔍 Verificando conexión Auth -> DB (Puerto 3306)..."
+# Intentamos conectar hasta 10 veces antes de fallar
+RETRIES=10
+CONNECTED=false
+for i in $(seq 1 $RETRIES); do
+    if docker compose exec -T auth-service sh -c "nc -z db 3306" > /dev/null 2>&1; then
+        CONNECTED=true
+        break
+    fi
+    echo "   ...esperando a DB ($i/$RETRIES)..."
+    sleep 3
+done
+
+if [ "$CONNECTED" = true ]; then
+    echo -e "${GREEN}✅ Conectividad Auth -> DB confirmada.${NC}"
 else
-    echo -e "${RED}❌ Error de red: auth-service no alcanza a db.${NC}"
+    echo -e "${RED}❌ Error: Tiempo de espera agotado, no hay conexión a DB.${NC}"
     exit 1
 fi
 
-# 4. Verificar disponibilidad del Gateway (BFF)
-echo "🔍 Verificando Gateway (BFF en puerto 8080)..."
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/)
-if [ "$HTTP_CODE" == "000" ] || [ "$HTTP_CODE" == "" ]; then
-    echo -e "${RED}❌ El BFF (KrakenD) no responde en el puerto 8080.${NC}"
-    exit 1
+# 4. Verificar BFF
+echo "🔍 Verificando Gateway (BFF)..."
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/ || echo "000")
+if [ "$HTTP_CODE" == "200" ]; then
+    echo -e "${GREEN}✅ BFF respondiendo correctamente.${NC}"
 else
-    echo -e "${GREEN}✅ BFF respondiendo correctamente (Código HTTP: $HTTP_CODE).${NC}"
+    echo -e "${RED}❌ BFF no responde (Código: $HTTP_CODE).${NC}"
+    exit 1
 fi
 
-echo -e "\n--- 🎉 Validación completada exitosamente. El sistema está listo. ---"
-exit 0
+echo -e "\n--- 🎉 Validación exitosa! ---"
