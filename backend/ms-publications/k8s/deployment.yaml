@@ -18,7 +18,7 @@ spec:
         image: ms-publications:latest
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 8086
+        - containerPort: 8083
         envFrom:
         - configMapRef:
             name: publications-config
