@@ -48,10 +48,16 @@ public class AuthService {
 
     @CircuitBreaker(name = "authService", fallbackMethod = "fallbackSync")
     public void syncWithProfile(User user) {
-        restTemplate.postForEntity(profileSyncUrl, user, User.class);
+        try {
+            // Al registrar un usuario, aún no hay token. Esta ruta en ms-profile debe ser pública.
+            restTemplate.postForEntity(profileSyncUrl, user, User.class);
+        } catch (Exception e) {
+            // El escudo: Si ms-profile falla, el error se atrapa aquí y NO destruye el registro.
+            System.err.println("ADVERTENCIA: El usuario se registró en auth, pero falló la sincronización con ms-profile. Error: " + e.getMessage());
+        }
     }
 
-    public void fallbackSync(User user, Exception e) {
+    public void fallbackSync(User user, Throwable e) {
         System.err.println("Circuit Breaker activo: No se pudo sincronizar con ms-profile. " + e.getMessage());
     }
 
