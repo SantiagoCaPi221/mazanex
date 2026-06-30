@@ -4,6 +4,8 @@
     <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
 
     <appender name="Sentry" class="io.sentry.logback.SentryAppender">
+        <dsn>http://432a67bc64714dbfb3dfbd65bf4e3188@localhost:8000/1</dsn> 
+        
         <minimumBreadcrumbLevel>INFO</minimumBreadcrumbLevel>
         <minimumEventLevel>WARN</minimumEventLevel>
     </appender>
