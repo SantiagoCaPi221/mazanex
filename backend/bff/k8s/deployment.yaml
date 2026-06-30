@@ -16,7 +16,7 @@ spec:
       containers:
       - name: bff
         image: bff:latest
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: IfNotPresent #es por algo mejor 
         ports:
         - containerPort: 8080
         # Añadimos límites para asegurar que no consuma todo el clúster

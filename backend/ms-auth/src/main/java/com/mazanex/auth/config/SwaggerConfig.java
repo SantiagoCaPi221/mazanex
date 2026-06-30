@@ -8,14 +8,16 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SwaggerConfig {
-
     @Bean
     public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Mazanex Auth API")
-                        .version("1.0")
-                        .description("Microservicio encargado de la autenticación y registro de usuarios.")
-                        .license(new License().name("Apache 2.0").url("http://springdoc.org")));
+        License apiLicense = new License()
+                .name("Apache 2.0")
+                .url("http://springdoc.org/"); // <-- Corregido aquí
+        Info apiInfo = new Info()
+                .title("Mazanex Auth API")
+                .version("1.0")
+                .description("Microservicio encargado de la autenticación y emisión de tokens.")
+                .license(apiLicense);
+        return new OpenAPI().info(apiInfo);
     }
 }

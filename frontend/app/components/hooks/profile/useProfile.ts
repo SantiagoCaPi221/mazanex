@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useUserStore } from "@/app/store/useUserStore";
 import { profileService } from "@/app/clients/profileService";
+import { handleApiError } from "@/app/components/utils/ctb/errorHandler";
 
 export const useProfile = () => {
   const { user, setUser, showNotification } = useUserStore();
@@ -76,7 +77,10 @@ export const useProfile = () => {
       showNotification("Perfil actualizado", "success");
     } catch (err) {
       console.error(err);
-      showNotification("Error inesperado", "error");
+      showNotification(
+        handleApiError(err, "Error inesperado al actualizar el perfil."),
+        "error"
+      );
     } finally {
       setLoading(false);
     }
