@@ -20,27 +20,20 @@ public class ProfileController {
     private ProfileService profileService;
 
     @PutMapping("/{id}")
-    @Operation(
-        summary = "Actualizar perfil", 
-        description = "Modifica los datos de un usuario existente."
-    )
-    public ResponseEntity<User> update(
-            @Parameter(description = "ID del usuario") @PathVariable Long id, 
-            @RequestBody User data) {
+    @Operation(summary = "Actualizar perfil", description = "Modifica o crea el perfil si no existe.")
+    public ResponseEntity<User> update(@PathVariable Long id, @RequestBody User data) {
         
-        System.out.println("DEBUG: Recibida petición PUT en /api/profile/" + id);
-        
+        // 1. Intentamos actualizar
         User updated = profileService.updateProfile(id, data);
         
-        // Si el usuario no existe en profile_db, intentamos un registro rápido
+        // 2. Si es null, es porque no existe. ¡Lo creamos en ese momento!
         if (updated == null) {
-            System.out.println("DEBUG: Usuario no encontrado, iniciando sincronización...");
-            data.setId(id);
-            profileService.syncProfile(data);
-            updated = profileService.updateProfile(id, data);
+            System.out.println("DEBUG: Usuario con ID " + id + " no existe. Creando registro...");
+            data.setId(id); // Forzamos el ID
+            updated = profileService.syncProfile(data); // Esto lo guarda en la DB de perfiles
         }
         
-        return (updated != null) ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
+        return (updated != null) ? ResponseEntity.ok(updated) : ResponseEntity.internalServerError().build();
     }
 
     @PostMapping("/sync")
@@ -70,4 +63,9 @@ public class ProfileController {
         profileService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/test-list")
+    public ResponseEntity<?> testList() {
+    return ResponseEntity.ok(profileService.listAll());
+}
 }
