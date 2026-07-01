@@ -15,10 +15,10 @@ spec:
     spec:
       containers:
       - name: ms-publications
-        image: ms-publications:latest
+        image: mazanex-ms-publications:latest
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 8083
+        - containerPort: 8086
         envFrom:
         - configMapRef:
             name: publications-config

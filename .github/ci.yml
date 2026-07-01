@@ -1,0 +1,126 @@
+name: CI - Mazanex
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - desarrollo
+
+  pull_request:
+    branches:
+      - main
+      - develop
+      - desarrollo
+
+jobs:
+
+  auth:
+    name: Auth Service
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./backend/ms-auth
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Ejecutar pruebas Auth
+        run: mvn clean test
+
+  profile:
+    name: Profile Service
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./backend/ms-profile
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Ejecutar pruebas Profile
+        run: mvn clean test
+
+  projects:
+    name: Projects Service
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./backend/ms-projects
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Ejecutar pruebas Projects
+        run: mvn clean test
+
+  publications:
+    name: Publications Service
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./backend/ms-publications
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Ejecutar pruebas Publications
+        run: mvn clean test
+
+  ranking:
+    name: Ranking Service
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./backend/ms-ranking
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Ejecutar pruebas Ranking
+        run: mvn clean test

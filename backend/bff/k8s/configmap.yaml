@@ -10,7 +10,7 @@ data:
       "port": 8080,
       "extra_config": {
         "security/cors": {
-          "allow_origins": ["http://localhost:3000", "http://127.0.0.1:3000"],
+          "allow_origins": ["http://localhost:3000"],
           "allow_methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
           "allow_headers": ["Origin", "Authorization", "authorization", "Content-Type", "Accept"],
           "expose_headers": ["Content-Length", "Authorization"],
@@ -27,7 +27,7 @@ data:
             {
               "url_pattern": "/api/auth/register",
               "encoding": "no-op",
-              "host": ["http://auth-service:8081"],
+              "host": ["http://ms-auth-service:8081"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -48,7 +48,7 @@ data:
             {
               "url_pattern": "/api/auth/login",
               "encoding": "no-op",
-              "host": ["http://auth-service:8081"],
+              "host": ["http://ms-auth-service:8081"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -69,7 +69,7 @@ data:
             {
               "url_pattern": "/api/auth/users",
               "encoding": "no-op",
-              "host": ["http://auth-service:8081"],
+              "host": ["http://ms-auth-service:8081"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -90,7 +90,7 @@ data:
             {
               "url_pattern": "/api/auth/{id}/password",
               "encoding": "no-op",
-              "host": ["http://auth-service:8081"],
+              "host": ["http://ms-auth-service:8081"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -111,7 +111,7 @@ data:
             {
               "url_pattern": "/api/auth/profile/{id}",
               "encoding": "no-op",
-              "host": ["http://auth-service:8081"],
+              "host": ["http://ms-auth-service:8081"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -132,7 +132,7 @@ data:
             {
               "url_pattern": "/api/auth/{id}",
               "encoding": "no-op",
-              "host": ["http://auth-service:8081"],
+              "host": ["http://ms-auth-service:8081"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -153,7 +153,7 @@ data:
             {
               "url_pattern": "/api/profile/list",
               "encoding": "no-op",
-              "host": ["http://profile-service:8082"],
+              "host": ["http://ms-profile-service:8082"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -174,7 +174,7 @@ data:
             {
               "url_pattern": "/api/profile/sync",
               "encoding": "no-op",
-              "host": ["http://profile-service:8082"],
+              "host": ["http://ms-profile-service:8082"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -195,7 +195,7 @@ data:
             {
               "url_pattern": "/api/profile/{id}",
               "encoding": "no-op",
-              "host": ["http://profile-service:8082"],
+              "host": ["http://ms-profile-service:8082"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -216,7 +216,7 @@ data:
             {
               "url_pattern": "/api/profile/{id}",
               "encoding": "no-op",
-              "host": ["http://profile-service:8082"],
+              "host": ["http://ms-profile-service:8082"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -237,7 +237,7 @@ data:
             {
               "url_pattern": "/api/profile/social/public/{id}",
               "encoding": "no-op",
-              "host": ["http://profile-service:8082"],
+              "host": ["http://ms-profile-service:8082"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -258,7 +258,7 @@ data:
             {
               "url_pattern": "/api/profile/social/following/{id}",
               "encoding": "no-op",
-              "host": ["http://profile-service:8082"],
+              "host": ["http://ms-profile-service:8082"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -279,7 +279,7 @@ data:
             {
               "url_pattern": "/api/profile/social/notifications/{userId}",
               "encoding": "no-op",
-              "host": ["http://profile-service:8082"],
+              "host": ["http://ms-profile-service:8082"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -300,7 +300,7 @@ data:
             {
               "url_pattern": "/api/profile/social/notifications/{userId}/read",
               "encoding": "no-op",
-              "host": ["http://profile-service:8082"],
+              "host": ["http://ms-profile-service:8082"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -321,7 +321,7 @@ data:
             {
               "url_pattern": "/api/profile/social/status/{idA}/{idB}",
               "encoding": "no-op",
-              "host": ["http://profile-service:8082"],
+              "host": ["http://ms-profile-service:8082"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -342,7 +342,7 @@ data:
             {
               "url_pattern": "/api/profile/social/send-request/{senderId}/{receiverId}",
               "encoding": "no-op",
-              "host": ["http://profile-service:8082"],
+              "host": ["http://ms-profile-service:8082"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -363,7 +363,7 @@ data:
             {
               "url_pattern": "/api/profile/social/accept-request/{senderId}/{receiverId}",
               "encoding": "no-op",
-              "host": ["http://profile-service:8082"],
+              "host": ["http://ms-profile-service:8082"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -384,7 +384,7 @@ data:
             {
               "url_pattern": "/api/profile/social/cancel-request/{senderId}/{receiverId}",
               "encoding": "no-op",
-              "host": ["http://profile-service:8082"],
+              "host": ["http://ms-profile-service:8082"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -405,28 +405,7 @@ data:
             {
               "url_pattern": "/api/profile/social/remove-friend/{userId}/{friendId}",
               "encoding": "no-op",
-              "host": ["http://profile-service:8082"],
-              "extra_config": {
-                "qos/circuit-breaker": {
-                  "interval": 60,
-                  "timeout": 10,
-                  "max_errors": 5,
-                  "log_status_change": true
-                }
-              }
-            }
-          ]
-        },
-        {
-          "endpoint": "/api/publications",
-          "method": "GET",
-          "output_encoding": "no-op",
-          "input_headers": ["Authorization", "authorization", "Content-Type"],
-          "backend": [
-            {
-              "url_pattern": "/api/publications",
-              "encoding": "no-op",
-              "host": ["http://publications-service:8083"],
+              "host": ["http://ms-profile-service:8082"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -447,7 +426,7 @@ data:
             {
               "url_pattern": "/api/publications",
               "encoding": "no-op",
-              "host": ["http://publications-service:8083"],
+              "host": ["http://ms-publications-service:8086"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -468,7 +447,7 @@ data:
             {
               "url_pattern": "/api/publications/feed",
               "encoding": "no-op",
-              "host": ["http://publications-service:8083"],
+              "host": ["http://ms-publications-service:8086"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -489,7 +468,7 @@ data:
             {
               "url_pattern": "/api/publications/user/{userId}",
               "encoding": "no-op",
-              "host": ["http://publications-service:8083"],
+              "host": ["http://ms-publications-service:8086"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -510,7 +489,7 @@ data:
             {
               "url_pattern": "/api/publications/{id}/like",
               "encoding": "no-op",
-              "host": ["http://publications-service:8083"],
+              "host": ["http://ms-publications-service:8086"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -531,7 +510,7 @@ data:
             {
               "url_pattern": "/api/publications/{id}/comment",
               "encoding": "no-op",
-              "host": ["http://publications-service:8083"],
+              "host": ["http://ms-publications-service:8086"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -552,7 +531,7 @@ data:
             {
               "url_pattern": "/api/publications/{id}/{userId}",
               "encoding": "no-op",
-              "host": ["http://publications-service:8083"],
+              "host": ["http://ms-publications-service:8086"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -573,7 +552,7 @@ data:
             {
               "url_pattern": "/api/ranking/save-record",
               "encoding": "no-op",
-              "host": ["http://ranking-service:8084"],
+              "host": ["http://ms-ranking-service:8087"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -594,7 +573,7 @@ data:
             {
               "url_pattern": "/api/ranking/report/{id}",
               "encoding": "no-op",
-              "host": ["http://ranking-service:8084"],
+              "host": ["http://ms-ranking-service:8087"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -615,7 +594,7 @@ data:
             {
               "url_pattern": "/api/ranking/user/{userId}",
               "encoding": "no-op",
-              "host": ["http://ranking-service:8084"],
+              "host": ["http://ms-ranking-service:8087"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -636,7 +615,7 @@ data:
             {
               "url_pattern": "/api/ranking/{game}",
               "encoding": "no-op",
-              "host": ["http://ranking-service:8084"],
+              "host": ["http://ms-ranking-service:8087"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -657,7 +636,7 @@ data:
             {
               "url_pattern": "/api/projects/{projectId}/tasks",
               "encoding": "no-op",
-              "host": ["http://projects-service:8085"],
+              "host": ["http://ms-projects-service:8085"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -678,7 +657,7 @@ data:
             {
               "url_pattern": "/api/projects/{projectId}/tasks",
               "encoding": "no-op",
-              "host": ["http://projects-service:8085"],
+              "host": ["http://ms-projects-service:8085"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -699,7 +678,7 @@ data:
             {
               "url_pattern": "/api/projects/{projectId}/tasks/{taskId}",
               "encoding": "no-op",
-              "host": ["http://projects-service:8085"],
+              "host": ["http://ms-projects-service:8085"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -720,7 +699,7 @@ data:
             {
               "url_pattern": "/api/projects/{projectId}/tasks/{taskId}",
               "encoding": "no-op",
-              "host": ["http://projects-service:8085"],
+              "host": ["http://ms-projects-service:8085"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,

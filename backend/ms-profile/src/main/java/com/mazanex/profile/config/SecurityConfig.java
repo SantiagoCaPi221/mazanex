@@ -33,16 +33,16 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
-                .requestMatchers(HttpMethod.GET, "/api/profile/list").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/profile/social/public/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/profile/sync").permitAll() 
-                
-                // 🔥 LA CLAVE: Dejamos pasar la ruta de errores para ver el problema real
-                .requestMatchers("/error").permitAll() 
-                
-                .anyRequest().authenticated()
-            )
+        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
+        .requestMatchers(HttpMethod.GET, "/api/profile/list").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/profile/test-list").permitAll() // 🔥 Agrega esto para probar
+        .requestMatchers(HttpMethod.GET, "/api/profile/{id}").permitAll()      // 🔥 AGREGA ESTO: Esto permitirá cargar el perfil
+        .requestMatchers(HttpMethod.GET, "/api/profile/social/public/**").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/profile/sync").permitAll() 
+        .requestMatchers("/error").permitAll() 
+        
+        .anyRequest().authenticated()
+    )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

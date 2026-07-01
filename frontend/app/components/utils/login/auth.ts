@@ -4,8 +4,6 @@ import {
   RegisterFormData,
 } from "@/app/components/types/auth";
 
-import { AUTH_MESSAGES } from "@/app/components/utils/message/loginMessage";
-
 /* =========================
    LOGIN
 ========================= */
@@ -33,11 +31,21 @@ export const validateLoginForm = (
 ========================= */
 
 export const validatePassword = (password: string): string | null => {
-  if (password.length < 8) return AUTH_MESSAGES.validation.shortPassword;
-  if (!/[A-Z]/.test(password)) return AUTH_MESSAGES.validation.missingUpper;
-  if (!/[a-z]/.test(password)) return AUTH_MESSAGES.validation.missingLower;
-  if (!/[0-9]/.test(password)) return AUTH_MESSAGES.validation.missingNumber;
-  if (!/[!@#$%^&*.,_+\-=?]/.test(password)) return AUTH_MESSAGES.validation.missingSpecial;
+  if (password.length < 8)
+    return "La contraseña debe tener al menos 8 caracteres.";
+
+  if (!/[A-Z]/.test(password))
+    return "La contraseña debe incluir al menos una letra mayúscula.";
+
+  if (!/[a-z]/.test(password))
+    return "La contraseña debe incluir al menos una letra minúscula.";
+
+  if (!/[0-9]/.test(password))
+    return "La contraseña debe incluir al menos un número.";
+
+  if (!/[!@#$%^&*.,_+\-=?]/.test(password))
+    return "La contraseña debe incluir un carácter especial.";
+
   return null;
 };
 

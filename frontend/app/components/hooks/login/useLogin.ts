@@ -11,8 +11,6 @@ import {
   buildLoginPayload,
   validateLoginForm,
 } from "@/app/components/utils/login/auth";
-import { handleApiError } from "@/app/components/utils/ctb/errorHandler";
-
 export const useLogin = () => {
   const router = useRouter();
   const { login, showNotification } = useUserStore();
@@ -57,7 +55,7 @@ export const useLogin = () => {
       showNotification("¡Sesión iniciada con éxito!", "success");
       router.push("/");
     } catch (error) {
-      setError(handleApiError(error, "Error inesperado al iniciar sesión."));
+      setError("Error inesperado al iniciar sesión.");
     } finally {
       setIsLoading(false);
     }

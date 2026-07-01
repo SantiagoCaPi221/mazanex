@@ -8,7 +8,6 @@ import { useUserStore } from "@/app/store/useUserStore";
 
 import { RegisterFormData } from "@/app/components/types/auth";
 import { validateRegisterForm } from "@/app/components/utils/login/auth";
-import { handleApiError } from "@/app/components/utils/ctb/errorHandler";
 
 export const useRegister = () => {
   const router = useRouter();
@@ -59,7 +58,7 @@ export const useRegister = () => {
 
       router.push("/pages/login");
     } catch (err) {
-      setError(handleApiError(err, "Error inesperado al registrar usuario."));
+      setError("Error inesperado al registrar usuario.");
     } finally {
       setIsLoading(false);
     }

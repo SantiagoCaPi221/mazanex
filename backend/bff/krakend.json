@@ -181,6 +181,27 @@
     },
     {
       "endpoint": "/api/profile/{id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "authorization", "Content-Type"],
+      "backend": [
+        {
+          "url_pattern": "/api/profile/{id}",
+          "encoding": "no-op",
+          "host": ["http://profile-service:8082"],
+          "extra_config": {
+            "qos/circuit-breaker": {
+              "interval": 60,
+              "timeout": 10,
+              "max_errors": 5,
+              "log_status_change": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/profile/{id}",
       "method": "PUT",
       "output_encoding": "no-op",
       "input_headers": ["Authorization", "authorization", "Content-Type"],
