@@ -19,6 +19,8 @@ public class ProfileController {
     @Autowired
     private ProfileService profileService;
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileController.class);
+
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar perfil", description = "Modifica o crea el perfil si no existe.")
     public ResponseEntity<User> update(@PathVariable Long id, @RequestBody User data) {
@@ -67,5 +69,16 @@ public class ProfileController {
     @GetMapping("/test-list")
     public ResponseEntity<?> testList() {
     return ResponseEntity.ok(profileService.listAll());
-}
+    }
+
+   @GetMapping("/test-glitchtip")
+    public String test() {
+        try {
+            throw new RuntimeException("¡Gatillo manual desde el controlador! Probando comunicación activa.");
+        } catch (Exception e) {
+            // Este log.error ES EL QUE SENTRY CAPTURA OBLIGATORIAMENTE
+            logger.error("Excepción manual capturada en el endpoint: ", e);
+        }
+        return "Petición procesada. Revisa GlitchTip.";
+    }
 }
