@@ -37,6 +37,7 @@ public class SecurityConfig {
                 
                 // 🔥 LA CLAVE: Dejar pasar los errores internos para que no se disfracen de 403
                 .requestMatchers("/error").permitAll() 
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 
                 .anyRequest().authenticated()
             )
