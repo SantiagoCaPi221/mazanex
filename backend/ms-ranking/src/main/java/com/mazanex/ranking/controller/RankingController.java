@@ -38,20 +38,19 @@ public class RankingController {
     }
 
     @PostMapping("/save-record")
-    @Operation(summary = "Guardar nuevo récord")
-    public ResponseEntity<?> saveRecord(@RequestBody ScoreRequestDto req) {
-        log.info("DEBUG: Objeto recibido: {}", req);
+@Operation(summary = "Guardar nuevo récord")
+public ResponseEntity<?> saveRecord(@RequestBody ScoreRequestDto req) {
+    log.info("DEBUG: Objeto recibido: {}", req);
 
-        // Adaptado para usar los métodos de acceso nativos del Record
-        return ResponseEntity.ok(rankingService.saveRecord(
-            req.userId(), 
-            req.playerName(), 
-            req.game(), 
-            req.mode(), 
-            req.highScore(), 
-            req.screenshotUrl()
-        ));
-    }
+    return ResponseEntity.ok(rankingService.saveRecord(
+        req.userId(),          // Acceso al record
+        req.playerName(),      // Acceso al record
+        req.game(),            // Acceso al record
+        req.mode(),            // Acceso al record
+        req.highScore(),       // Acceso al record
+        req.screenshotUrl()    // Acceso al record
+    ));
+}
 
     @PostMapping("/report/{id}")
     @Operation(summary = "Reportar puntuación sospechosa")

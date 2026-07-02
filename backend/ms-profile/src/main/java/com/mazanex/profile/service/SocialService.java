@@ -41,13 +41,13 @@ public class SocialService {
         return requestRepository.findBySenderIdAndReceiverId(senderId, receiverId).map(req -> {
             req.setStatus("ACCEPTED");
             requestRepository.save(req);
-
+            
             User s = req.getSender();
             User r = req.getReceiver();
-
+            
             if (!followerRepository.existsByFollowerAndFollowed(s, r)) followerRepository.save(new Follower(s, r));
             if (!followerRepository.existsByFollowerAndFollowed(r, s)) followerRepository.save(new Follower(r, s));
-
+            
             notificationRepository.save(new Notification(s, "FRIEND_ACCEPT", r.getName() + " aceptó tu amistad.", receiverId));
             return Map.of("status", "ACCEPTED");
         }).orElse(Map.of("status", "ERROR"));
@@ -111,10 +111,6 @@ public class SocialService {
     }
 
     public List<Long> getFollowingIds(Long id) {
-        return userRepository.findById(id).map(u -> 
-            followerRepository.findByFollower(u).stream()
-                .map(f -> f.getFollowed().getId())
-                .toList()
-        ).orElse(Collections.emptyList());
+        return userRepository.findById(id).map(u -> followerRepository.findByFollower(u).stream().map(f -> f.getFollowed().getId()).toList()).orElse(Collections.emptyList());
     }
 }

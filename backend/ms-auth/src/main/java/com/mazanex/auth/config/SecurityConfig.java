@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // JWT es stateless
             )
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/actuator/**").permitAll()
                 // 2. Permitimos las peticiones pre-flight de CORS (fundamentales para el navegador)
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // 3. Abrimos las puertas explícitamente para registro y login (con y sin /api)

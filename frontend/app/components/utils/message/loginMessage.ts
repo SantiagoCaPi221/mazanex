@@ -8,8 +8,8 @@ export const AUTH_MESSAGES = {
   noAccount: "¿No tienes una cuenta?",
   registerFree: "Regístrate gratis",
 
-  identifierLabel: "Usuario o Correo",
-  identifierPlaceholder: "Ej: Damian Cotto o correo@mail.com",
+  identifierLabel: "Correo",
+  identifierPlaceholder: "Ej: correo@email.com",
   passwordLabel: "Contraseña",
 
   loginError: "Correo o contraseña incorrectos",

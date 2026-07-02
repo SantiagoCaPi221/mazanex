@@ -1,9 +1,11 @@
 package com.mazanex.publications.dto;
+import lombok.Data;
 
-public record PublicationDto(
-    Long authorId,
-    String authorName,
-    String authorAvatarUrl,
-    String content,
-    String mediaUrl
-) {}
+@Data
+public class PublicationDto {
+    private Long authorId;
+    private String authorName;
+    private String authorAvatarUrl;
+    private String content;
+    private String mediaUrl;
+}

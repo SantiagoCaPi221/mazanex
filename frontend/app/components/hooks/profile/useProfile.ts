@@ -3,77 +3,72 @@
 import { useEffect, useState } from "react";
 import { useUserStore } from "@/app/store/useUserStore";
 import { profileService } from "@/app/clients/profileService";
-import { User } from "@/app/components/types/user";
 
 export const useProfile = () => {
   const { user, setUser, showNotification } = useUserStore();
 
   const [isEditing, setIsEditing] = useState(false);
-
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
-
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Sincroniza store → inputs locales
+  const realUser = user?.user || user;
+
   useEffect(() => {
-    if (user) {
-      // 🔥 Ajuste clave: Buscamos el usuario real por si viene anidado con el token
-      const realUser = user.user || user;
-      
-      setName(realUser.name || "");
-      setBio((realUser as any).bio || ""); // si bio no está en User aún
-    }
-  }, [user]);
+    if (!realUser) return;
+    setName(realUser.name || "");
+    setBio((realUser as any).bio || "");
+  }, [realUser]);
 
   const handleSave = async () => {
-    console.log("1. Botón clickeado. Datos actuales:", { name, bio });
-    console.log("2. Objeto user completo:", user);
-
-    // 🔥 Buscamos el ID en la raíz o dentro del objeto anidado
-    const realUserId = user?.id || user?.user?.id;
-
-    if (!realUserId) {
-      console.error("🚨 ERROR SILENCIOSO: user.id no existe o es undefined.");
-      showNotification("Error interno: Usuario sin ID", "error");
-      return; 
+    if (!realUser?.id) {
+      if (showNotification) showNotification("Usuario sin ID", "error");
+      return;
     }
 
     setLoading(true);
-    console.log("3. Pasó la validación. Iniciando petición con ID:", realUserId);
 
     try {
-      // Extraemos los datos reales del usuario evitando enviar el token en el body
-      const realUserObject = user?.user || user;
-
-      const updatedUser = {
-        ...realUserObject,
-        name,
-        bio, 
-      } as User;
-
-      // 🔥 Rescatamos el token de Zustand
-      const token = user?.token;
+      // 🔥 LÓGICA INTELIGENTE: Si hay archivos, usamos FormData (multipart/form-data).
+      // Si solo hay texto, enviamos JSON puro para evitar el error 415.
+      let payload: any;
       
-      console.log("🛠️ Token listo para enviar:", token ? "¡Token encontrado!" : "No hay token");
+      if (avatarFile || bannerFile) {
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("bio", bio);
+        if (avatarFile) formData.append("avatar", avatarFile);
+        if (bannerFile) formData.append("banner", bannerFile);
+        payload = formData;
+      } else {
+        payload = { name, bio };
+      }
 
-      // 🔥 ¡AQUÍ ESTABA LA TRAMPA! Ahora pasamos el token como 3er parámetro
-      const result = await profileService.updateProfile(realUserId, updatedUser, token);
-      console.log("4. Respuesta del backend:", result);
+      const result = await profileService.updateProfile(realUser.id, payload);
 
       if (!result) {
-        showNotification("Error al actualizar el perfil", "error");
+        if (showNotification) showNotification("Error al actualizar perfil", "error");
         return;
       }
 
-      // Actualizamos el store manteniendo la estructura anidada si existe
-      setUser(user?.token ? { ...user, user: result } : result);
+      // Merge correcto en el estado global
+      const isNested = !!user?.user;
+      setUser(
+        isNested
+          ? { ...user, user: { ...realUser, ...result } }
+          : { ...realUser, ...result }
+      );
+
+      setAvatarFile(null);
+      setBannerFile(null);
       setIsEditing(false);
 
-      showNotification("Perfil actualizado correctamente", "success");
-    } catch (error) {
-      console.error("5. Cayó en el catch:", error);
-      showNotification("Error inesperado al actualizar", "error");
+      if (showNotification) showNotification("Perfil actualizado con éxito", "success");
+    } catch (err) {
+      console.error(err);
+      if (showNotification) showNotification("Error inesperado al guardar", "error");
     } finally {
       setLoading(false);
     }
@@ -88,6 +83,8 @@ export const useProfile = () => {
     setName,
     setBio,
     setIsEditing,
+    setAvatarFile,
+    setBannerFile,
     handleSave,
   };
 };

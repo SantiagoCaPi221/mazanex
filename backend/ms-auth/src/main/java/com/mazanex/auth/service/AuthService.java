@@ -5,6 +5,7 @@ import com.mazanex.auth.dto.UserRequestDto;
 import com.mazanex.auth.dto.UserResponseDto;
 import com.mazanex.auth.model.User;
 import com.mazanex.auth.repository.UserRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -13,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class AuthService {
@@ -30,92 +30,74 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    // --- Helper Method para mapear de User a UserResponseDto ---
-    private UserResponseDto mapToDto(User u) {
-        return new UserResponseDto(
-                u.getId(), u.getName(), u.getEmail(), u.getRole(),
-                u.getAvatarUrl(), u.getBannerUrl(), u.getBio(), u.getBackgroundUrl()
-        ); // Nota: ¡Sin contraseña!
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
-    public List<UserResponseDto> getAllUsers() {
-        return userRepository.findAll()
-                .stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
-    }
-
-    public UserResponseDto registerUser(User user) {
+    public User registerUser(User user) {
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new RuntimeException("El email ya está registrado");
+        }
         if (user.getRole() == null || user.getRole().isEmpty()) {
             user.setRole("USER");
         }
-        
         User savedUser = userRepository.save(user);
         syncWithProfile(savedUser);
-
-        return mapToDto(savedUser);
+        return savedUser;
     }
 
-    private void syncWithProfile(User user) {
+    @CircuitBreaker(name = "authService", fallbackMethod = "fallbackSync")
+    public void syncWithProfile(User user) {
         try {
-            System.out.println("Enviando usuario ID " + user.getId() + " a ms-profile...");
+            // Al registrar un usuario, aún no hay token. Esta ruta en ms-profile debe ser pública.
             restTemplate.postForEntity(profileSyncUrl, user, User.class);
-            System.out.println("Usuario sincronizado exitosamente con ms-profile.");
         } catch (Exception e) {
-            System.err.println("Error al avisarle a ms-profile: " + e.getMessage());
+            // El escudo: Si ms-profile falla, el error se atrapa aquí y NO destruye el registro.
+            System.err.println("ADVERTENCIA: El usuario se registró en auth, pero falló la sincronización con ms-profile. Error: " + e.getMessage());
         }
+    }
+
+    public void fallbackSync(User user, Throwable e) {
+        System.err.println("Circuit Breaker activo: No se pudo sincronizar con ms-profile. " + e.getMessage());
     }
 
     public Map<String, Object> login(UserRequestDto userDto) {
-        // En los records, accedemos a las variables directamente por su nombre
-        String identifier = userDto.email();
-        String password = userDto.password();
+        Optional<User> optUser = userRepository.findByEmail(userDto.email())
+                .or(() -> userRepository.findByName(userDto.email()));
 
-        Optional<User> optUser = userRepository.findByEmail(identifier)
-                .or(() -> userRepository.findByName(identifier));
-
-        if (optUser.isPresent() && optUser.get().getPassword().equals(password)) {
+        if (optUser.isPresent() && optUser.get().getPassword().equals(userDto.password())) {
             User u = optUser.get();
-            
-            UserResponseDto userResponse = mapToDto(u);
             String token = jwtService.generateToken(u.getEmail());
-
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
-            response.put("user", userResponse);
-
+            response.put("user", u);
             return response;
         }
-        
         return null;
     }
 
-    public UserResponseDto updateProfile(Long id, User data) {
-        return userRepository.findById(id).map(existingUser -> {
-            if (data.getName() != null) existingUser.setName(data.getName());
-            if (data.getEmail() != null) existingUser.setEmail(data.getEmail());
-            if (data.getRole() != null) existingUser.setRole(data.getRole());
-            if (data.getAvatarUrl() != null) existingUser.setAvatarUrl(data.getAvatarUrl());
-            if (data.getBannerUrl() != null) existingUser.setBannerUrl(data.getBannerUrl());
-            if (data.getBio() != null) existingUser.setBio(data.getBio());
-            if (data.getBackgroundUrl() != null) existingUser.setBackgroundUrl(data.getBackgroundUrl());
-            
-            User updatedUser = userRepository.save(existingUser);
-            return mapToDto(updatedUser);
+    public User updateProfile(Long id, User data) {
+        return userRepository.findById(id).map(u -> {
+            if (data.getName() != null) u.setName(data.getName());
+            if (data.getEmail() != null) u.setEmail(data.getEmail());
+            if (data.getRole() != null) u.setRole(data.getRole());
+            if (data.getAvatarUrl() != null) u.setAvatarUrl(data.getAvatarUrl());
+            if (data.getBannerUrl() != null) u.setBannerUrl(data.getBannerUrl());
+            if (data.getBio() != null) u.setBio(data.getBio());
+            if (data.getBackgroundUrl() != null) u.setBackgroundUrl(data.getBackgroundUrl());
+            if (data.getPassword() != null) u.setPassword(data.getPassword());
+            return userRepository.save(u);
         }).orElse(null);
     }
 
-    public UserResponseDto updatePassword(Long userId, String currentPassword, String newPassword) {
+    public User updatePassword(Long userId, String currentPassword, String newPassword) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
         if (!user.getPassword().equals(currentPassword)) {
-            throw new IllegalArgumentException("La contraseña actual es incorrecta");
+            throw new IllegalArgumentException("Contraseña actual incorrecta");
         }
-
         user.setPassword(newPassword);
-        User updatedUser = userRepository.save(user);
-        return mapToDto(updatedUser);
+        return userRepository.save(user);
     }
 
     public boolean deleteUser(Long id) {

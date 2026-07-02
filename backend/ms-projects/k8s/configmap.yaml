@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: projects-config
+  namespace: mazanex
+data:
+  SPRING_DATASOURCE_URL: jdbc:mysql://mysql-projects-service:3306/db_projects
+  SPRING_JPA_HIBERNATE_DDL_AUTO: update

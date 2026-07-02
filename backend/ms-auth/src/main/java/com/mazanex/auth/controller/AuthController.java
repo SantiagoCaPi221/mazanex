@@ -2,13 +2,13 @@ package com.mazanex.auth.controller;
 
 import com.mazanex.auth.dto.PasswordUpdateDTO;
 import com.mazanex.auth.dto.UserRequestDto;
-import com.mazanex.auth.dto.UserResponseDto;
 import com.mazanex.auth.model.User;
 import com.mazanex.auth.service.AuthService;
 
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,12 +23,12 @@ public class AuthController {
 
     private final AuthService authService;
 
-    public AuthController(AuthService authService) {
+    AuthController(AuthService authService) {
         this.authService = authService;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDto> register(@RequestBody User user) {
+    public ResponseEntity<User> register(@RequestBody User user) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(user));
     }
 
@@ -38,6 +38,8 @@ public class AuthController {
         @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid credentials")
     })
     public ResponseEntity<?> login(@RequestBody UserRequestDto user) {
+        // El controlador ahora es un simple intermediario. 
+        // Toda la magia del JWT y el empaquetado ocurre en AuthService.
         Map<String, Object> authResponse = authService.login(user);
         
         if (authResponse != null) {
@@ -47,13 +49,13 @@ public class AuthController {
     }
 
     @GetMapping("/users")
-    public List<UserResponseDto> list() {
+    public List<User> list() {
         return authService.getAllUsers();
     }
 
     @PutMapping("/profile/{id}")
-    public ResponseEntity<UserResponseDto> updateProfile(@PathVariable Long id, @RequestBody User data) {
-        UserResponseDto updated = authService.updateProfile(id, data);
+    public ResponseEntity<User> updateProfile(@PathVariable Long id, @RequestBody User data) {
+        User updated = authService.updateProfile(id, data);
         if (updated == null) {
             return ResponseEntity.notFound().build();
         }
@@ -63,8 +65,7 @@ public class AuthController {
     @PutMapping("/{id}/password")
     public ResponseEntity<?> updatePassword(@PathVariable Long id, @RequestBody PasswordUpdateDTO request) {
         try {
-            // Se usan .currentPassword() y .newPassword() porque es un record
-            UserResponseDto updatedUser = authService.updatePassword(id, request.currentPassword(), request.newPassword());
+            User updatedUser = authService.updatePassword(id, request.getCurrentPassword(), request.getNewPassword());
             return ResponseEntity.ok(updatedUser);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

@@ -1,15 +1,13 @@
 package com.mazanex.profile.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "followers")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 public class Follower {
     @Id

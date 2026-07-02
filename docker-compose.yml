@@ -127,6 +127,27 @@ services:
     networks:
       - mazanex-network
 
+  projects-service:
+    build:
+      context: ./backend/ms-projects
+      dockerfile: Dockerfile
+    container_name: mazanex-projects
+    ports:
+      - "8085:8085"
+    environment:
+      - MYSQLHOST=db
+      - MYSQLPORT=3306
+      - MYSQLDATABASE=db_projects
+      - MYSQLUSER=root
+      - MYSQLPASSWORD=root
+      - PORT=8085
+      - JWT_SECRET=f8a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - mazanex-network
+
   # ==========================================
   # 4. FRONTEND (Next.js)
   # ==========================================

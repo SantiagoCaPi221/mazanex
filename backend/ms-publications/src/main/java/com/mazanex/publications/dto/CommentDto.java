@@ -1,8 +1,10 @@
 package com.mazanex.publications.dto;
+import lombok.Data;
 
-public record CommentDto(
-    Long authorId,
-    String authorName,
-    String authorAvatarUrl,
-    String content
-) {}
+@Data
+public class CommentDto {
+    private Long authorId;
+    private String authorName;
+    private String authorAvatarUrl;
+    private String content;
+}

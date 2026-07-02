@@ -36,15 +36,25 @@ public class SocialController {
         return ResponseEntity.ok(socialService.acceptRequest(senderId, receiverId));
     }
 
-    @GetMapping("/relationship-status/{idA}/{idB}")
-    @Operation(summary = "Obtener estado de relación", description = "Verifica el estado de amistad o solicitud entre dos usuarios.")
-    public ResponseEntity<Map<String, Object>> getStatus(@PathVariable Long idA, @PathVariable Long idB) {
+    @GetMapping("/status/{idA}/{idB}")
+    @Operation(summary = "Consultar estado de relación", description = "Verifica si dos usuarios son amigos o tienen una solicitud pendiente.")
+    public ResponseEntity<Map<String, Object>> getStatus(
+            @PathVariable Long idA, 
+            @PathVariable Long idB) {
         return ResponseEntity.ok(socialService.getRelationshipStatus(idA, idB));
     }
 
+    @GetMapping("/following/{id}")
+    @Operation(summary = "Listar amigos", description = "Obtiene la lista de IDs de los usuarios que esta persona sigue o de los que es amigo.")
+    public ResponseEntity<List<Long>> getFollowing(
+            @Parameter(description = "ID del usuario") @PathVariable Long id) {
+        return ResponseEntity.ok(socialService.getFollowingIds(id));
+    }
+
     @GetMapping("/notifications/{userId}")
-    @Operation(summary = "Listar notificaciones", description = "Obtiene las notificaciones de un usuario ordenadas por fecha descendente.")
-    public ResponseEntity<List<Notification>> getNotifications(@PathVariable Long userId) {
+    @Operation(summary = "Obtener notificaciones", description = "Devuelve la lista de notificaciones activas de un usuario.")
+    public ResponseEntity<List<Notification>> getNotifications(
+            @PathVariable Long userId) {
         return ResponseEntity.ok(socialService.getNotifications(userId));
     }
 
@@ -77,11 +87,5 @@ public class SocialController {
     @Operation(summary = "Obtener perfil público", description = "Devuelve los datos públicos de un usuario para ser mostrados a otros.")
     public ResponseEntity<Map<String, Object>> getPublic(@PathVariable Long id) {
         return ResponseEntity.ok(socialService.getPublicProfile(id));
-    }
-
-    @GetMapping("/following-ids/{id}")
-    @Operation(summary = "Obtener IDs de seguidos", description = "Devuelve una lista de IDs de los usuarios a los que sigue el usuario dado.")
-    public ResponseEntity<List<Long>> getFollowingIds(@PathVariable Long id) {
-        return ResponseEntity.ok(socialService.getFollowingIds(id));
     }
 }

@@ -12,9 +12,12 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // No ponemos objeto Publication entero para evitar loops infinitos en el JSON
-    @Column(name = "publication_id", insertable = false, updatable = false)
-    private Long publicationId;
+    // Borra el Long publicationId y pon esto:
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "publication_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonBackReference // 👈 ¡ESTO EVITA EL LOOP INFINITO EN EL JSON!
+    private Publication publication;
 
     @Column(nullable = false)
     private Long authorId;

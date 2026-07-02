@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mazanex-config
+  name: publications-config
   namespace: mazanex
 data:
-  MYSQLHOST: mysql
-  MYSQLPORT: "3306"
+  SPRING_DATASOURCE_URL: jdbc:mysql://mysql-publications-service:3306/db_publications
+  SPRING_JPA_HIBERNATE_DDL_AUTO: update

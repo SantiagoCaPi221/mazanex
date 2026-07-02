@@ -11,7 +11,7 @@ export function useRanking() {
 
   const [selectedGame, setSelectedGame] = useState<GameType>("SNAKE");
 
-  const availableGames: GameType[] = ["SNAKE", "KOF"];
+  const availableGames: GameType[] = ["SNAKE"];
 
   const fetchRanking = async () => {
     setLoading(true);
