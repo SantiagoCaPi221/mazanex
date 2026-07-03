@@ -79,8 +79,6 @@ services:
       - MYSQLPASSWORD=root
       - PORT=8082
       - JWT_SECRET=f8a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2
-      # Cambia "TU_ID" por el número que te dé GlitchTip al crear el proyecto
-      - SENTRY_DSN=http://llave_publica_aqui@mazanex-glitchtip-web:8000/TU_ID
     depends_on:
       db:
         condition: service_healthy
@@ -164,74 +162,13 @@ services:
       - NEXT_PUBLIC_GATEWAY_URL=http://localhost:8080
       - WATCHPACK_POLLING=true
       - CHOKIDAR_USEPOLLING=true
-      - NEXT_TELEMETRY_DISABLED=1
-      - NODE_OPTIONS=--max-old-space-size=2048
     depends_on:
       - bff
     networks:
       - mazanex-network
-    
-    #volumes:
-    
-    #  - ./frontend:/app
-     # - /app/node_modules
-
-  # ==========================================
-  # 5. GLITCHTIP LOCAL
-  # ==========================================
-  postgres-glitchtip:
-    image: postgres:15-alpine
-    container_name: mazanex-glitchtip-db
-    environment:
-      POSTGRES_DB: glitchtip
-      POSTGRES_USER: glitchtip
-      POSTGRES_PASSWORD: password_seguro
-    networks:
-      - mazanex-network
     volumes:
-      - glitchtip_pg_data:/var/lib/postgresql/data
-    restart: unless-stopped
-
-  redis-glitchtip:
-    image: redis:alpine
-    container_name: mazanex-glitchtip-redis
-    networks:
-      - mazanex-network
-    restart: unless-stopped
-
-  glitchtip-web:
-    image: glitchtip/glitchtip
-    container_name: mazanex-glitchtip-web
-    depends_on:
-      - postgres-glitchtip
-      - redis-glitchtip
-    ports:
-      - "8000:8000"
-    environment:
-      DATABASE_URL: postgres://glitchtip:password_seguro@postgres-glitchtip:5432/glitchtip
-      REDIS_URL: redis://mazanex-glitchtip-redis:6379
-      SECRET_KEY: clave_secreta_mazanex_muy_larga
-      PORT: 8000
-      GLITCHTIP_DOMAIN: http://localhost:8000
-      ENABLE_USER_REGISTRATION: "True"
-    networks:
-      - mazanex-network
-    restart: unless-stopped
-
-  glitchtip-worker:
-    image: glitchtip/glitchtip
-    container_name: mazanex-glitchtip-worker
-    command: ./bin/run-celery-with-beat.sh
-    depends_on:
-      - postgres-glitchtip
-      - redis-glitchtip
-    environment:
-      DATABASE_URL: postgres://glitchtip:password_seguro@postgres-glitchtip:5432/glitchtip
-      REDIS_URL: redis://mazanex-glitchtip-redis:6379
-      SECRET_KEY: clave_secreta_mazanex_muy_larga
-    networks:
-      - mazanex-network
-    restart: unless-stopped
+      - ./frontend:/app
+      - /app/node_modules
 
 networks:
   mazanex-network:
@@ -239,4 +176,3 @@ networks:
 
 volumes:
   db_data:
-  glitchtip_pg_data:
