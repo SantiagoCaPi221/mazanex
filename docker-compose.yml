@@ -170,9 +170,50 @@ services:
       - ./frontend:/app
       - /app/node_modules
 
+# ==========================================
+  # CONTENEDORES DE INFRAESTRUCTURA GLITCHTIP
+  # ==========================================
+  glitchtip:
+    image: glitchtip/glitchtip:latest
+    container_name: mazanex-glitchtip
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - glitchtip-db
+      - glitchtip-redis
+    environment:
+      - DATABASE_URL=postgres://glitchtip:password@glitchtip-db:5432/glitchtip
+      - GLITCHTIP_DOMAIN=http://localhost:8000
+      - GLITCHTIP_EMBED_WORKER=true          # Obligatorio en minúsculas para activar el worker
+      - SERVER_ROLE=all_in_one               
+      - GLITCHTIP_ENABLE_LOGS=True         
+      - REDIS_URL=redis://glitchtip-redis:6379/0
+      - VALKEY_URL=redis://glitchtip-redis:6379/0
+      - SECRET_KEY=una-key-muy-segura-y-secreta-123
+      - DEFAULT_FROM_EMAIL=tu-email@dominio.com
+    networks:
+      - mazanex-network # Asegúrate de que use el mismo nombre de red que tus otros servicios
+
+  glitchtip-db:
+    image: postgres:17-alpine
+    container_name: mazanex-glitchtip-db
+    environment:
+      - POSTGRES_USER=glitchtip
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=glitchtip
+    networks:
+      - mazanex-network
+
+  glitchtip-redis:
+    image: redis:7-alpine
+    container_name: mazanex-glitchtip-redis
+    networks:
+      - mazanex-network
+
 networks:
   mazanex-network:
     driver: bridge
 
 volumes:
-  db_data:
+  db_data: {}
