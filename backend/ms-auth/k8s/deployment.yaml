@@ -18,7 +18,7 @@ spec:
       containers:
         - name: ms-auth
           image: mazanex-ms-auth:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Never
           ports:
             - containerPort: 8081
           envFrom:
@@ -34,16 +34,3 @@ spec:
               cpu: "500m"
               memory: "512Mi"
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: ms-auth-service
-  namespace: mazanex
-spec:
-  selector:
-    app: ms-auth
-  ports:
-    - protocol: TCP
-      port: 8081
-      targetPort: 8081
-  type: ClusterIP
