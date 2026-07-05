@@ -41,9 +41,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // 3. Abrimos las puertas explícitamente para registro y login (con y sin /api)
                 .requestMatchers("/auth/register", "/auth/login", "/api/auth/register", "/api/auth/login").permitAll()
-                
-                // 🔥 RUTAS DE SWAGGER LIBERADAS 🔥
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/api/auth/test-glitchtip/**", "/error").permitAll()
                 
                 // 4. Todo el resto de la aplicación requiere token
                 .anyRequest().authenticated()
