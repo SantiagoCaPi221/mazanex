@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: ms-projects
-        image: mazanex-ms-projects:latest
+        image: mazanex-projects-service:latest
         imagePullPolicy: Never
         ports:
         - containerPort: 8085
