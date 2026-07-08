@@ -15,6 +15,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Servicio encargado de la lógica de autenticación y administración básica de usuarios.
+ * Coordina la persistencia, autenticación y sincronización con otros microservicios.
+ */
 @Service
 public class AuthService {
 
@@ -30,10 +34,22 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
+    /**
+     * Obtiene todos los usuarios registrados en la base de datos.
+     *
+     * @return lista de usuarios
+     */
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
+    /**
+     * Registra un nuevo usuario si el correo no existe previamente.
+     *
+     * @param user datos del usuario a crear
+     * @return usuario guardado
+     * @throws RuntimeException si el correo ya está registrado
+     */
     public User registerUser(User user) {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new RuntimeException("El email ya está registrado");
@@ -46,6 +62,11 @@ public class AuthService {
         return savedUser;
     }
 
+    /**
+     * Sincroniza el usuario creado con el servicio de perfiles.
+     *
+     * @param user usuario recientemente registrado
+     */
     @CircuitBreaker(name = "authService", fallbackMethod = "fallbackSync")
     public void syncWithProfile(User user) {
         try {
@@ -57,10 +78,22 @@ public class AuthService {
         }
     }
 
+    /**
+     * Método de respaldo utilizado por el circuit breaker cuando falla la sincronización.
+     *
+     * @param user usuario involucrado
+     * @param e error capturado
+     */
     public void fallbackSync(User user, Throwable e) {
         System.err.println("Circuit Breaker activo: No se pudo sincronizar con ms-profile. " + e.getMessage());
     }
 
+    /**
+     * Autentica a un usuario y genera un token JWT si las credenciales son válidas.
+     *
+     * @param userDto credenciales recibidas desde el cliente
+     * @return mapa con token y datos del usuario, o null si falla la autenticación
+     */
     public Map<String, Object> login(UserRequestDto userDto) {
         Optional<User> optUser = userRepository.findByEmail(userDto.email())
                 .or(() -> userRepository.findByName(userDto.email()));
@@ -76,6 +109,13 @@ public class AuthService {
         return null;
     }
 
+    /**
+     * Actualiza los datos de perfil de un usuario existente.
+     *
+     * @param id identificador del usuario
+     * @param data nuevos datos del usuario
+     * @return usuario actualizado, o null si no existe
+     */
     public User updateProfile(Long id, User data) {
         return userRepository.findById(id).map(u -> {
             if (data.getName() != null) u.setName(data.getName());
@@ -90,6 +130,15 @@ public class AuthService {
         }).orElse(null);
     }
 
+    /**
+     * Cambia la contraseña de un usuario después de validar la actual.
+     *
+     * @param userId identificador del usuario
+     * @param currentPassword contraseña actual
+     * @param newPassword nueva contraseña
+     * @return usuario actualizado
+     * @throws IllegalArgumentException si la contraseña actual no coincide
+     */
     public User updatePassword(Long userId, String currentPassword, String newPassword) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -100,6 +149,12 @@ public class AuthService {
         return userRepository.save(user);
     }
 
+    /**
+     * Elimina un usuario si existe.
+     *
+     * @param id identificador del usuario
+     * @return true si se eliminó, false si no existía
+     */
     public boolean deleteUser(Long id) {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);

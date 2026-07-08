@@ -1,11 +1,12 @@
 import { User, Mail, AlignLeft } from "lucide-react";
+import type { ProfileUser } from "@/app/components/types/user";
 
 import SectionHeader from "./SectionHeader";
 import InputField from "./InputField";
 import TextareaField from "./TextareaField";
 
 interface Props {
-  user: any;
+  user: ProfileUser;
 
   name: string;
   setName: (value: string) => void;

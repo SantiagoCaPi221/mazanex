@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controlador de prueba para verificar el reporte de eventos y errores del servicio de proyectos.
+ */
 @RestController
 @RequestMapping("/api/projects/test-glitchtip")
 public class TestGlitchTipController {

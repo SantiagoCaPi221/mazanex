@@ -8,6 +8,7 @@ import { useRanking } from "./useRanking";
 import { useSocialActions } from "./useSocialActions";
 
 import { filterUsers } from "@/app/components/utils/community/filters";
+import type { RankingEntry } from "@/app/components/types/community";
 
 export function useCommunity() {
   // 1. Obtenemos el usuario en bruto y aseguramos la estructura correcta
@@ -52,8 +53,8 @@ export function useCommunity() {
     availableGames: rankingHook.availableGames,
 
     fetchLeaderboard:
-      (rankingHook as any).fetchLeaderboard ||
-      (rankingHook as any).fetchRanking,
+      ((rankingHook as { fetchLeaderboard?: () => Promise<void> }).fetchLeaderboard ||
+      (rankingHook as { fetchRanking?: () => Promise<void> }).fetchRanking),
 
     // 🔥 MODO PRO: Inyectamos el ID automáticamente. 
     // La UI solo necesita pasar a quién se le envía (targetId)

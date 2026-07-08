@@ -16,6 +16,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controlador REST responsable de la autenticación y gestión básica de usuarios.
+ * Expone endpoints para registro, login, consulta y actualización de credenciales.
+ */
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "Authentication")
@@ -27,11 +31,23 @@ public class AuthController {
         this.authService = authService;
     }
 
+    /**
+     * Registra un nuevo usuario en el sistema.
+     *
+     * @param user datos del usuario a registrar
+     * @return respuesta HTTP con el usuario creado
+     */
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody User user) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(user));
     }
 
+    /**
+     * Autentica a un usuario mediante email y contraseña.
+     *
+     * @param user datos de acceso enviados por el cliente
+     * @return respuesta con token y datos del usuario si las credenciales son válidas
+     */
     @PostMapping("/login")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Login successful"),
@@ -48,11 +64,23 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
+    /**
+     * Devuelve la lista completa de usuarios registrados.
+     *
+     * @return listado de usuarios
+     */
     @GetMapping("/users")
     public List<User> list() {
         return authService.getAllUsers();
     }
 
+    /**
+     * Actualiza los datos del perfil de un usuario existente.
+     *
+     * @param id identificador del usuario
+     * @param data datos nuevos a persistir
+     * @return usuario actualizado o 404 si no existe
+     */
     @PutMapping("/profile/{id}")
     public ResponseEntity<User> updateProfile(@PathVariable Long id, @RequestBody User data) {
         User updated = authService.updateProfile(id, data);
@@ -62,6 +90,13 @@ public class AuthController {
         return ResponseEntity.ok(updated);
     }
 
+    /**
+     * Actualiza la contraseña de un usuario autenticado.
+     *
+     * @param id identificador del usuario
+     * @param request datos con la contraseña actual y la nueva
+     * @return respuesta HTTP con el resultado de la operación
+     */
     @PutMapping("/{id}/password")
     public ResponseEntity<?> updatePassword(@PathVariable Long id, @RequestBody PasswordUpdateDTO request) {
         try {
@@ -74,6 +109,12 @@ public class AuthController {
         }
     }
 
+    /**
+     * Elimina un usuario por su identificador.
+     *
+     * @param id identificador del usuario a eliminar
+     * @return 204 si se eliminó correctamente, 404 si no existía
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         return authService.deleteUser(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();

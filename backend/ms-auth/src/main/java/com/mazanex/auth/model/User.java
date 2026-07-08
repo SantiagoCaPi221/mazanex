@@ -2,6 +2,10 @@ package com.mazanex.auth.model;
 
 import jakarta.persistence.*;
 
+/**
+ * Entidad de usuario utilizada por el microservicio de autenticación.
+ * Almacena datos básicos del perfil y credenciales del usuario.
+ */
 @Entity
 @Table(name = "users")
 public class User {

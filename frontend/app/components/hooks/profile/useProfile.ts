@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useUserStore } from "@/app/store/useUserStore";
 import { profileService } from "@/app/clients/profileService";
+import type { ProfileUser, UpdateProfilePayload } from "@/app/components/types/user";
 
 export const useProfile = () => {
   const { user, setUser, showNotification } = useUserStore();
@@ -19,7 +20,7 @@ export const useProfile = () => {
   useEffect(() => {
     if (!realUser) return;
     setName(realUser.name || "");
-    setBio((realUser as any).bio || "");
+    setBio(realUser?.bio || "");
   }, [realUser]);
 
   const handleSave = async () => {
@@ -33,7 +34,7 @@ export const useProfile = () => {
     try {
       // 🔥 LÓGICA INTELIGENTE: Si hay archivos, usamos FormData (multipart/form-data).
       // Si solo hay texto, enviamos JSON puro para evitar el error 415.
-      let payload: any;
+      let payload: UpdateProfilePayload | FormData;
       
       if (avatarFile || bannerFile) {
         const formData = new FormData();

@@ -16,6 +16,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Pruebas unitarias del servicio de gestión de tareas.
+ */
 @ExtendWith(MockitoExtension.class)
 public class TaskServiceTest {
 

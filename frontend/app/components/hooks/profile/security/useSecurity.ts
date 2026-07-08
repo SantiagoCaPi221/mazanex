@@ -5,6 +5,7 @@ import { useState } from "react";
 import { authService } from "@/app/clients/authService";
 
 import { AUTH_MESSAGES } from "@/app/components/utils/message/authMessage";
+import type { SecurityMessage } from "@/app/components/types/security";
 
 export function useSecurity(userId: number) {
   const [pass, setPass] = useState({
@@ -12,14 +13,11 @@ export function useSecurity(userId: number) {
     new: "",
   });
 
-  const [msg, setMsg] = useState<{
-    text: string;
-    type: "success" | "error";
-  } | null>(null);
+  const [msg, setMsg] = useState<SecurityMessage | null>(null);
 
   const [loading, setLoading] = useState(false);
 
-  const update = async (e: any) => {
+  const update = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (pass.new === pass.current) {

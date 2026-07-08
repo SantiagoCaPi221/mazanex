@@ -1,13 +1,14 @@
 import { BACKEND_URLS } from "@/app/config/endpoints";
+import type { UpdateProfilePayload } from "@/app/components/types/user";
 
 // Funcion auxiliar para obtener los headers con el token
 const getAuthHeaders = () => {
-  let token = null;
+  let token: string | null = null;
   if (typeof window !== "undefined") {
     token = localStorage.getItem("token");
   }
 
-  const headers: any = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
 
@@ -45,7 +46,7 @@ export const profileService = {
   },
 
   // Actualiza los datos de un perfil
-  async updateProfile(id: number, profileData: any) {
+  async updateProfile(id: number, profileData: UpdateProfilePayload | FormData) {
     const headers = getAuthHeaders();
     const url = `${BACKEND_URLS.PROFILE}/${id}`;
     

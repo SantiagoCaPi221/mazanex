@@ -1,14 +1,15 @@
 import { BACKEND_URLS } from "@/app/config/endpoints";
+import type { Relationship } from "@/app/components/types/community";
 
 const BASE_SOCIAL = `${BACKEND_URLS.PROFILE}/social`;
 
 const getAuthHeaders = () => {
-  let token = null;
+  let token: string | null = null;
   if (typeof window !== "undefined") {
     token = localStorage.getItem("token");
   }
 
-  const headers: any = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
 
@@ -94,7 +95,7 @@ export const socialService = {
     }
   },
   
-  async getRelationshipStatus(idA: number, idB: number) {
+  async getRelationshipStatus(idA: number, idB: number): Promise<Relationship> {
     try {
       const response = await fetch(`${BASE_SOCIAL}/status/${idA}/${idB}`, {
         headers: getAuthHeaders() 

@@ -1,11 +1,13 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { authService } from "@/app/clients/authService";
+import type { ProfileUser } from "@/app/components/types/user";
+import type { LoginCredentials, RegisterFormData } from "@/app/components/types/auth";
 
 interface AuthContextType {
-  user: any;
-  login: (credentials: any) => Promise<boolean>;
-  register: (userData: any) => Promise<boolean>;
+  user: ProfileUser | null;
+  login: (credentials: LoginCredentials) => Promise<boolean>;
+  register: (userData: RegisterFormData) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -13,7 +15,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<ProfileUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Al cargar la app, revisamos si había un usuario guardado
@@ -23,7 +25,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsLoading(false);
   }, []);
 
-  const login = async (credentials: any) => {
+  const login = async (credentials: LoginCredentials) => {
     const data = await authService.login(credentials);
     if (data) {
       setUser(data);
@@ -33,7 +35,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return false;
   };
 
-  const register = async (userData: any) => {
+  const register = async (userData: RegisterFormData) => {
     const data = await authService.register(userData);
     if (data) {
       setUser(data);

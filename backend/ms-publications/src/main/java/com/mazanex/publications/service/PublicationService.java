@@ -12,20 +12,40 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Servicio de negocio para gestionar publicaciones, likes y comentarios del muro comunitario.
+ */
 @Service
 public class PublicationService {
 
     @Autowired
     private PublicationRepository publicationRepository;
 
+    /**
+     * Devuelve el feed de publicaciones ordenado por fecha de creación descendente.
+     *
+     * @return lista de publicaciones
+     */
     public List<Publication> getFeed() {
         return publicationRepository.findAllByOrderByCreatedAtDesc();
     }
 
+    /**
+     * Obtiene las publicaciones asociadas a un autor concreto.
+     *
+     * @param authorId identificador del autor
+     * @return publicaciones del usuario
+     */
     public List<Publication> getUserPublications(Long authorId) {
         return publicationRepository.findByAuthorIdOrderByCreatedAtDesc(authorId);
     }
 
+    /**
+     * Crea una nueva publicación en base a los datos recibidos.
+     *
+     * @param dto datos de la publicación
+     * @return publicación creada
+     */
     public Publication createPublication(PublicationDto dto) {
         Publication pub = new Publication();
         pub.setAuthorId(dto.getAuthorId());
@@ -36,6 +56,13 @@ public class PublicationService {
         return publicationRepository.save(pub);
     }
 
+    /**
+     * Añade o quita un like de una publicación para un usuario concreto.
+     *
+     * @param publicationId identificador de la publicación
+     * @param userId identificador del usuario que interactúa
+     * @return mapa con el resultado del toggle y el total de likes
+     */
     public Map<String, Object> toggleLike(Long publicationId, Long userId) {
         Publication pub = publicationRepository.findById(publicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Publicación no encontrada"));
@@ -49,6 +76,13 @@ public class PublicationService {
         return response;
     }
 
+    /**
+     * Añade un comentario a una publicación existente.
+     *
+     * @param publicationId identificador de la publicación
+     * @param dto datos del comentario
+     * @return publicación actualizada
+     */
     public Publication addComment(Long publicationId, CommentDto dto) {
         Publication pub = publicationRepository.findById(publicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Publicación no encontrada"));
@@ -65,6 +99,12 @@ public class PublicationService {
         return publicationRepository.save(pub); // JPA guarda el comentario automáticamente
     }
     
+    /**
+     * Elimina una publicación si el usuario solicitante es el autor.
+     *
+     * @param publicationId identificador de la publicación
+     * @param userId identificador del usuario solicitante
+     */
     public void deletePublication(Long publicationId, Long userId) {
         Publication pub = publicationRepository.findById(publicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Publicación no encontrada"));

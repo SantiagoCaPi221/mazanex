@@ -1,8 +1,15 @@
 "use client";
 import { useState } from "react";
-import { Camera, Upload, X, ShieldAlert } from "lucide-react";
+import { Camera, Upload, X } from "lucide-react";
 
-export const EvidenceModal = ({ score, game, onSave, onClose }: any) => {
+interface EvidenceModalProps {
+  score: number;
+  game: string;
+  onSave: (url: string) => void;
+  onClose: () => void;
+}
+
+export const EvidenceModal = ({ score, game, onSave, onClose }: EvidenceModalProps) => {
   const [url, setUrl] = useState("");
 
   const handleConfirm = () => {

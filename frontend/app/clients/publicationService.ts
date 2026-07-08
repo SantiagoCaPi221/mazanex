@@ -1,13 +1,14 @@
 import { BACKEND_URLS } from "@/app/config/endpoints";
+import type { CommunityCommentPayload, CommunityPublicationPayload } from "@/app/components/types/community";
 
 const getAuthHeaders = () => {
-  let token = null;
+  let token: string | null = null;
 
   if (typeof window !== "undefined") {
     token = localStorage.getItem("token");
   }
 
-  const headers: any = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
 
@@ -62,7 +63,7 @@ export const publicationService = {
     }
   },
 
-  async createPublication(publicationData: any) {
+  async createPublication(publicationData: CommunityPublicationPayload) {
     const headers = getAuthHeaders();
 
     console.log(
@@ -107,7 +108,7 @@ export const publicationService = {
     }
   },
 
-  async addComment(publicationId: number, commentData: any) {
+  async addComment(publicationId: number, commentData: CommunityCommentPayload) {
     const headers = getAuthHeaders();
 
     try {

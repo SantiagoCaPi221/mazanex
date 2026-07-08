@@ -6,6 +6,9 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
+/**
+ * Entidad que representa una notificación enviada a un usuario.
+ */
 @Entity
 @Table(name = "notifications")
 @Getter

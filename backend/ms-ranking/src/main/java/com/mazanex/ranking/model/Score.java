@@ -8,6 +8,9 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Entidad que representa una puntuación registrada por un usuario en un juego.
+ */
 @Entity
 @Table(name = "scores")
 @Data

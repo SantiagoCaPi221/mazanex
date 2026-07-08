@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
+/**
+ * Servicio de negocio para gestionar relaciones sociales, solicitudes de amistad y notificaciones.
+ */
 @Service
 public class SocialService {
 
@@ -15,6 +18,13 @@ public class SocialService {
     @Autowired private NotificationRepository notificationRepository;
     @Autowired private FriendRequestRepository requestRepository;
 
+    /**
+     * Envía una solicitud de amistad entre dos usuarios si no son el mismo usuario y no existe una previa.
+     *
+     * @param senderId identificador del remitente
+     * @param receiverId identificador del receptor
+     * @return mapa con el estado de la operación
+     */
     @Transactional
     public Map<String, String> sendRequest(Long senderId, Long receiverId) {
         if (senderId.equals(receiverId)) return Map.of("status", "SELF_ERROR");
@@ -36,6 +46,13 @@ public class SocialService {
         return Map.of("status", "PENDING");
     }
 
+    /**
+     * Acepta una solicitud de amistad existente y crea la relación de seguimiento mutua.
+     *
+     * @param senderId identificador del solicitante original
+     * @param receiverId identificador del usuario que acepta
+     * @return mapa con el estado de la operación
+     */
     @Transactional
     public Map<String, String> acceptRequest(Long senderId, Long receiverId) {
         return requestRepository.findBySenderIdAndReceiverId(senderId, receiverId).map(req -> {
@@ -53,6 +70,13 @@ public class SocialService {
         }).orElse(Map.of("status", "ERROR"));
     }
 
+    /**
+     * Consulta el estado de relación entre dos usuarios.
+     *
+     * @param idA identificador del primer usuario
+     * @param idB identificador del segundo usuario
+     * @return mapa con el estado y el sentido de la solicitud si existe
+     */
     public Map<String, Object> getRelationshipStatus(Long idA, Long idB) {
         Map<String, Object> resp = new HashMap<>();
         requestRepository.findBySenderIdAndReceiverId(idA, idB).ifPresent(s -> {
@@ -71,10 +95,22 @@ public class SocialService {
         return resp;
     }
 
+    /**
+     * Cancela una solicitud de amistad pendiente.
+     *
+     * @param s identificador del remitente
+     * @param r identificador del receptor
+     */
     @Transactional public void cancelRequest(Long s, Long r) {
         requestRepository.findBySenderIdAndReceiverId(s, r).ifPresent(requestRepository::delete);
     }
 
+    /**
+     * Elimina una relación de amistad entre dos usuarios y limpia los registros de seguimiento asociados.
+     *
+     * @param uId identificador del primer usuario
+     * @param fId identificador del segundo usuario
+     */
     @Transactional public void removeFriend(Long uId, Long fId) {
         requestRepository.findBySenderIdAndReceiverId(uId, fId).ifPresent(requestRepository::delete);
         requestRepository.findBySenderIdAndReceiverId(fId, uId).ifPresent(requestRepository::delete);
@@ -86,12 +122,23 @@ public class SocialService {
         }
     }
 
+    /**
+     * Devuelve las notificaciones más recientes para un usuario.
+     *
+     * @param uId identificador del usuario destinatario
+     * @return lista de notificaciones ordenadas por fecha descendente
+     */
     public List<Notification> getNotifications(Long uId) {
         return userRepository.findById(uId)
                 .map(notificationRepository::findByTargetUserOrderByDateDesc)
                 .orElse(Collections.emptyList());
     }
 
+    /**
+     * Marca todas las notificaciones de un usuario como leídas.
+     *
+     * @param uId identificador del usuario destinatario
+     */
     @Transactional public void markAsRead(Long uId) {
         userRepository.findById(uId).ifPresent(u -> {
             List<Notification> n = notificationRepository.findByTargetUserOrderByDateDesc(u);
@@ -100,6 +147,12 @@ public class SocialService {
         });
     }
 
+    /**
+     * Obtiene la información pública de un perfil de usuario.
+     *
+     * @param id identificador del usuario
+     * @return mapa con los datos públicos del perfil
+     */
     public Map<String, Object> getPublicProfile(Long id) {
         return userRepository.findById(id).map(u -> {
             Map<String, Object> p = new HashMap<>();
@@ -110,6 +163,12 @@ public class SocialService {
         }).orElse(Collections.emptyMap());
     }
 
+    /**
+     * Devuelve los identificadores de usuarios que sigue un usuario concreto.
+     *
+     * @param id identificador del usuario
+     * @return lista de IDs de usuarios seguidos
+     */
     public List<Long> getFollowingIds(Long id) {
         return userRepository.findById(id).map(u -> followerRepository.findByFollower(u).stream().map(f -> f.getFollowed().getId()).toList()).orElse(Collections.emptyList());
     }

@@ -1,6 +1,6 @@
 interface Props {
   label: string;
-  icon: any;
+  icon: React.ElementType;
   value: string;
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   disabled?: boolean;

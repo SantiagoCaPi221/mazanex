@@ -17,6 +17,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Pruebas unitarias del servicio de autenticación.
+ */
 @ExtendWith(MockitoExtension.class)
 public class AuthServiceTest {
 

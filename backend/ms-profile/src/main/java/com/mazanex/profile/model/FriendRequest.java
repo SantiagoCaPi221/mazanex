@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Entidad que representa una solicitud de amistad pendiente o aceptada.
+ */
 @Entity
 @Table(name = "friend_requests")
 @Data

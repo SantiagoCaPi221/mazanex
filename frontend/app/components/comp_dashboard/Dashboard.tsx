@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { CheckCircle, Clock, AlertCircle, Users, Check, Edit2, Trash2, X, AlertTriangle } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import type { ProfileUser } from '@/app/components/types/user';
 
 interface Task {
     id: number;
@@ -16,7 +17,7 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [filter, setFilter] = useState('ALL');
-    const [currentUser, setCurrentUser] = useState<any>(null);
+    const [currentUser, setCurrentUser] = useState<ProfileUser | null>(null);
 
     // Estados para Modales
     const [isModalOpen, setIsModalOpen] = useState(false);

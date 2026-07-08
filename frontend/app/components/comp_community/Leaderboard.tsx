@@ -22,7 +22,7 @@ export function Leaderboard({ data, game, onSelectEvidence }: Props) {
 
   return (
     <div className="space-y-3">
-      {data.map((score: any, index: number) => {
+      {data.map((score: RankingEntry, index: number) => {
         const isGold = index === 0;
         const isSilver = index === 1;
         const isBronze = index === 2;

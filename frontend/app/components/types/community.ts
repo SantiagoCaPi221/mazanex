@@ -18,6 +18,39 @@ export type UsersFilterType = "ALL" | "FRIENDS";
 
 export type GameType = "SNAKE";
 
+export interface CommunityComment {
+  authorName: string;
+  content: string;
+}
+
+export interface CommunityPost {
+  id: number;
+  authorId: number;
+  authorName: string;
+  content: string;
+  createdAt?: string;
+  mediaUrl?: string | null;
+  authorAvatar?: string | null;
+  likes?: number;
+  isLiked?: boolean;
+  comments?: CommunityComment[];
+  likedBy?: number[];
+}
+
+export interface CommunityPublicationPayload {
+  authorId: number;
+  content: string;
+  authorName?: string;
+  mediaUrl?: string | null;
+  authorAvatar?: string | null;
+}
+
+export interface CommunityCommentPayload {
+  authorId: number;
+  authorName: string;
+  content: string;
+}
+
 export type RankingEntry = {
   id: number;
   user?: {
@@ -30,6 +63,7 @@ export type RankingEntry = {
   mode?: string;
   modo?: string;
   screenshotUrl?: string;
+  game?: string;
 };
 
 export type Evidence = {

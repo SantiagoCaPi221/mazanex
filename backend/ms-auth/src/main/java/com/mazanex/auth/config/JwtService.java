@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * Servicio de utilidades para crear, validar y extraer claims de tokens JWT.
+ */
 @Service
 public class JwtService {
 

@@ -15,6 +15,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.List;
 
+/**
+ * Pruebas unitarias del servicio de perfiles.
+ */
 @ExtendWith(MockitoExtension.class)
 public class ProfileServiceTest {
 

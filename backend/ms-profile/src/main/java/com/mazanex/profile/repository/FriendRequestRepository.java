@@ -6,6 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
+/**
+ * Repositorio para gestionar las solicitudes de amistad entre usuarios.
+ */
 @Repository
 public interface FriendRequestRepository extends JpaRepository<FriendRequest, Long> {
     

@@ -1,7 +1,9 @@
 import { BACKEND_URLS } from "@/app/config/endpoints";
+import type { AuthResponse, RegisterFormData } from "@/app/components/types/auth";
+import type { ProfileUser } from "@/app/components/types/user";
 
 export const authService = {
-  async register(userData: any) {
+  async register(userData: RegisterFormData): Promise<ProfileUser | null> {
     const adaptedData = {
       name: userData.nombre || userData.name,
       email: userData.email,
@@ -38,7 +40,7 @@ export const authService = {
     return newUser;
   },
 
-  async login(credentials: any) {
+  async login(credentials: { email: string; password: string }) {
     const response = await fetch(`${BACKEND_URLS.AUTH}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

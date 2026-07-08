@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useUserStore } from "@/app/store/useUserStore";
 import { publicationService } from "@/app/clients/publicationService";
 import { Heart, MessageSquare, Send, Image as ImageIcon, Smile, Trash2, AlertTriangle, X } from "lucide-react";
+import type { CommunityComment, CommunityPost } from "@/app/components/types/community";
 
 // Componente helper para manejar avatares uniformemente
 const Avatar = ({ url, name, className = "w-12 h-12" }: { url?: string, name?: string, className?: string }) => {
@@ -20,7 +21,7 @@ export function Feed() {
   const { user: rawUser, showNotification } = useUserStore();
   const currentUser = rawUser?.user || rawUser;
 
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<CommunityPost[]>([]);
   const [newPostContent, setNewPostContent] = useState("");
   const [loading, setLoading] = useState(true);
   const [showEmojis, setShowEmojis] = useState(false);
@@ -73,7 +74,7 @@ export function Feed() {
     setLoading(true);
     const data = await publicationService.getFeed();
     
-    const adaptedPosts = (data || []).map((post: any) => {
+    const adaptedPosts = (data || []).map((post: CommunityPost) => {
       const likedByList = Array.isArray(post.likedBy) ? post.likedBy : [];
       return {
         ...post,
@@ -331,7 +332,7 @@ export function Feed() {
 
                 {expandedPostId === post.id && (
                   <div className="mt-4 pt-4 border-t border-white/5 space-y-4">
-                    {post.comments?.map((comment: any, idx: number) => (
+                    {post.comments?.map((comment: CommunityComment, idx: number) => (
                       <div key={idx} className="bg-white/5 rounded-xl p-3 flex gap-3 text-sm">
                         <Avatar url={undefined} name={comment.authorName} className="w-8 h-8" />
                         <div>

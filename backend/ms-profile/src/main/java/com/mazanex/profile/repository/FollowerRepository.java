@@ -7,6 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Repositorio para gestionar las relaciones de seguimiento entre usuarios.
+ */
 @Repository
 public interface FollowerRepository extends JpaRepository<Follower, Long> {
 

@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.function.Function;
 
+/**
+ * Servicio de utilidades para trabajar con JWT en el microservicio de proyectos.
+ */
 @Service
 public class JwtService {
     @Value("${jwt.secret}")

@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controlador REST para gestionar puntuaciones, rankings y reportes de partidas.
+ */
 @RestController
 @RequestMapping("/api/ranking")
 @Tag(name = "1. Ranking y Puntuaciones", description = "Endpoints para gestionar las tablas de clasificación, récords y reportes de los juegos")
@@ -25,18 +28,36 @@ public class RankingController {
     @Autowired
     private RankingService rankingService;
 
+    /**
+     * Obtiene los récords asociados a un usuario concreto.
+     *
+     * @param userId identificador del usuario
+     * @return listado de puntuaciones del usuario
+     */
     @GetMapping("/user/{userId}")
     @Operation(summary = "Obtener récords de un usuario")
     public ResponseEntity<List<Score>> getScoresByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(rankingService.getScoresByUserId(userId));
     }
 
+    /**
+     * Obtiene el ranking global para un juego concreto.
+     *
+     * @param game nombre del juego
+     * @return listado ordenado de puntuaciones del juego
+     */
     @GetMapping("/{game}")
     @Operation(summary = "Obtener ranking global por juego")
     public ResponseEntity<List<Score>> getRanking(@PathVariable String game) {
         return ResponseEntity.ok(rankingService.getGameRanking(game));
     }
 
+    /**
+     * Guarda o actualiza un récord de un usuario para un juego y modo específicos.
+     *
+     * @param req datos del nuevo récord
+     * @return resultado de la operación
+     */
     @PostMapping("/save-record")
 @Operation(summary = "Guardar nuevo récord")
 public ResponseEntity<?> saveRecord(@RequestBody ScoreRequestDto req) {
@@ -52,6 +73,13 @@ public ResponseEntity<?> saveRecord(@RequestBody ScoreRequestDto req) {
     ));
 }
 
+    /**
+     * Reporta una puntuación como sospechosa para revisión.
+     *
+     * @param id identificador de la puntuación
+     * @param body cuerpo con el identificador del reportador
+     * @return resultado del reporte
+     */
     @PostMapping("/report/{id}")
     @Operation(summary = "Reportar puntuación sospechosa")
     public ResponseEntity<?> report(@PathVariable Long id, @RequestBody Map<String, Long> body) {

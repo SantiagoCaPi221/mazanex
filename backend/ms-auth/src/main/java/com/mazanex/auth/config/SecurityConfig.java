@@ -16,6 +16,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
+/**
+ * Configuración de seguridad del microservicio de autenticación.
+ * Define filtros JWT, CORS y reglas de autorización para los endpoints.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {

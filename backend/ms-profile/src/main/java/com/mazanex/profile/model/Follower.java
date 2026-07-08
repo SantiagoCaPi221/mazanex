@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
+/**
+ * Entidad que representa la relación de seguimiento entre dos usuarios.
+ */
 @Entity
 @Table(name = "followers")
 @Data
