@@ -16,7 +16,7 @@ spec:
       containers:
       - name: ms-ranking
         image: mazanex-ms-ranking:latest
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Never
         ports:
         - containerPort: 8087
         envFrom:

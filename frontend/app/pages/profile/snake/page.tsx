@@ -16,7 +16,7 @@ export default function Page() {
 
     const payload = {
       userId: currentUser.id,
-      player_name: currentUser.name || "JugadorAnonimo",
+      playerName: currentUser.name || "JugadorAnonimo", 
       game: "SNAKE",
       highScore: puntos,
       screenshotUrl: "SISTEMA_VERIFICADO",

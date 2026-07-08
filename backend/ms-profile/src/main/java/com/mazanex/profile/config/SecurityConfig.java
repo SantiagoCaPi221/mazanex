@@ -39,6 +39,8 @@ public class SecurityConfig {
         .requestMatchers(HttpMethod.GET, "/api/profile/{id}").permitAll()      // 🔥 AGREGA ESTO: Esto permitirá cargar el perfil
         .requestMatchers(HttpMethod.GET, "/api/profile/social/public/**").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/profile/sync").permitAll() 
+        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+        .requestMatchers("/api/profile/test-glitchtip/**", "/error").permitAll()
         .requestMatchers("/error").permitAll() 
         
         .anyRequest().authenticated()
