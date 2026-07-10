@@ -219,5 +219,18 @@ logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
     * **Autenticación:** [Microservicio Auth](./microservicio_auth/auth/README.md)
     * **Perfiles:** [Microservicio Perfil](./microservicio_profile/profile/README.md)
 
+## Documentación y seguimiento de errores
+
+- **Javadocs:** Cada microservicio Java puede generar Javadocs con `mvn javadoc:javadoc`. Los artefactos se generan en `target/site/apidocs`. Es recomendable integrar la generación y publicación de Javadocs en el pipeline de CI (por ejemplo, publicar en GitHub Pages o en el servidor de documentación del equipo) para facilitar la consulta de la API y del código.
+
+- **GlitchTip (gestión de errores):** Recomendamos centralizar trazas y errores en GlitchTip (compatible con Sentry). Configure la DSN del proyecto en una variable de entorno (`SENTRY_DSN` o `GLITCHTIP_DSN`) y utilice un cliente Sentry compatible (`io.sentry:sentry-spring-boot-starter` o integraciones de logging) para enviar eventos. Ejemplo mínimo de configuración en `application.properties`:
+
+```
+sentry.dsn=${SENTRY_DSN:}
+sentry.environment=${ENV:local}
+```
+
+Defina políticas de envío (qué excepciones reportar, niveles de severidad y muestreo) y asegure que las credenciales/DSN se gestionen de forma segura mediante variables de entorno o secret manager.
+
 
 

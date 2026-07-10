@@ -139,3 +139,16 @@ docker-compose up --build
 * **Raíz del Backend:** [Arquitectura General](../../README.md)
 * * Ir al Frontend:** [Configuración de Cliente](../../../frontend/README.md)
 * **Auth:** [Microservicio Auth](../../microservicio_auth/auth/README.md)
+
+## 14. Documentación y seguimiento de errores
+
+- **Javadocs:** Generar con Maven: `mvn javadoc:javadoc`. Los Javadocs se crean en `target/site/apidocs`. Integrar la generación en el pipeline de CI para publicar la documentación del API.
+
+- **GlitchTip (errores):** Integrar GlitchTip (compatible con Sentry) para centralizar trazas y excepciones. Configure la DSN del proyecto en la variable de entorno `SENTRY_DSN` (o `GLITCHTIP_DSN`) y use un cliente compatible (`io.sentry:sentry-spring-boot-starter` o similar). Ejemplo mínimo en `application.properties`:
+
+```
+sentry.dsn=${SENTRY_DSN:}
+sentry.environment=${ENV:local}
+```
+
+Indicar al equipo cómo obtener la DSN y qué tipos de eventos reportar (errores no controlados, excepciones críticas, etc.).

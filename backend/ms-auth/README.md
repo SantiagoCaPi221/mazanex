@@ -116,3 +116,17 @@ Link swagger: https://fullstack4-auth-production-7c66.up.railway.app/swagger-ui/
 * **Raíz del Backend:** [Arquitectura General](../../README.md)
 * **Ir al Frontend:** [Configuración de Cliente](../../../frontend/README.md)
 * **Perfil:** [Microservicio Perfil](../../microservicio_profile/profile/README.md)
+
+## 14. Documentación y seguimiento de errores
+
+- **Javadocs:** Generar la documentación de la API Java con Maven usando `mvn javadoc:javadoc`. Los archivos resultantes se generan en `target/site/apidocs`. Se recomienda añadir un paso en el CI que publique los Javadocs (por ejemplo, en GitHub Pages o en el servidor de artefactos usado por el equipo).
+
+- **GlitchTip (gestión de errores):** Se puede integrar GlitchTip (compatible con Sentry) para capturar excepciones y trazas en tiempo de ejecución. Configure la DSN del proyecto en la variable de entorno `SENTRY_DSN` (o `GLITCHTIP_DSN` según su despliegue) y utilice un cliente compatible (por ejemplo `io.sentry:sentry-spring-boot-starter`) para enviar errores. En `application.properties` puede añadirse la configuración básica:
+
+```
+# Ejemplo mínimo
+sentry.dsn=${SENTRY_DSN:}
+sentry.environment=${ENV:local}
+```
+
+Documentar en el equipo cómo obtener la DSN del proyecto GlitchTip y qué eventos deben enviarse (errores no manejados, errores 5xx, etc.).
