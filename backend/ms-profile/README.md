@@ -135,10 +135,10 @@ docker-compose up --build
 - El frontend consume este servicio a través del gateway en `frontend/app/api/gateway/[...path]/route.ts`.
 - `ProfileService` puede sincronizar con un endpoint de Auth vía RestTemplate.
 
-* * Volver al Inicio:** [Contexto de Negocio](../../../README.md)
-* **Raíz del Backend:** [Arquitectura General](../../README.md)
-* * Ir al Frontend:** [Configuración de Cliente](../../../frontend/README.md)
-* **Auth:** [Microservicio Auth](../../microservicio_auth/auth/README.md)
+- **Volver al Inicio:** [Contexto de Negocio](../../README.md)
+- **Raíz del Backend:** [Arquitectura General](../README.md)
+- **Ir al Frontend:** [Configuración de Cliente](../../frontend/README.md)
+- **Auth:** [Microservicio Auth](../ms-auth/README.md)
 
 ## 14. Documentación y seguimiento de errores
 

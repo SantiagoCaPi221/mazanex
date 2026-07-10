@@ -112,10 +112,10 @@ Link swagger: https://fullstack4-auth-production-7c66.up.railway.app/swagger-ui/
 
 ## 13. Navegación
 
-* **Volver al Inicio:** [Contexto de Negocio](../../../README.md)
-* **Raíz del Backend:** [Arquitectura General](../../README.md)
-* **Ir al Frontend:** [Configuración de Cliente](../../../frontend/README.md)
-* **Perfil:** [Microservicio Perfil](../../microservicio_profile/profile/README.md)
+- **Volver al Inicio:** [Contexto de Negocio](../../README.md)
+- **Raíz del Backend:** [Arquitectura General](../README.md)
+- **Ir al Frontend:** [Configuración de Cliente](../../frontend/README.md)
+- **Perfil:** [Microservicio Perfil](../ms-profile/README.md)
 
 ## 14. Documentación y seguimiento de errores
 
