@@ -26,6 +26,9 @@ spec:
                 name: profile-config
             - secretRef:
                 name: profile-secrets
+          env:
+            - name: SENTRY_DSN
+              value: ""
           resources:
             requests:
               cpu: "100m"
