@@ -18,7 +18,7 @@ spec:
       containers:
         - name: ms-auth
           image: mazanex-auth-service:latest
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8081
           envFrom:
@@ -26,6 +26,9 @@ spec:
                 name: mazanex-config
             - secretRef:
                 name: auth-secrets
+          env:
+            - name: SENTRY_DSN
+              value: ""
           resources:
             requests:
               cpu: "100m"

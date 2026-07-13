@@ -18,7 +18,7 @@ spec:
       containers:
         - name: ms-profile
           image: mazanex-profile-service:latest
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8082
           envFrom:
@@ -26,6 +26,9 @@ spec:
                 name: profile-config
             - secretRef:
                 name: profile-secrets
+          env:
+            - name: SENTRY_DSN
+              value: ""
           resources:
             requests:
               cpu: "100m"

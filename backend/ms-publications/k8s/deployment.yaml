@@ -16,11 +16,14 @@ spec:
       containers:
       - name: ms-publications
         image: mazanex-publications-service:latest
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 8086
+        - containerPort: 8083
         envFrom:
         - configMapRef:
             name: publications-config
         - secretRef:
             name: publications-secrets
+        env:
+        - name: SENTRY_DSN
+          value: ""
