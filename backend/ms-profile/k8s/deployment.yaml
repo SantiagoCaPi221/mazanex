@@ -18,7 +18,7 @@ spec:
       containers:
         - name: ms-profile
           image: mazanex-profile-service:latest
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8082
           envFrom:
