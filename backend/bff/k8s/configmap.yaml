@@ -426,7 +426,7 @@ data:
             {
               "url_pattern": "/api/publications",
               "encoding": "no-op",
-              "host": ["http://publications-service:8086"],
+              "host": ["http://publications-service:8083"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -447,7 +447,7 @@ data:
             {
               "url_pattern": "/api/publications/feed",
               "encoding": "no-op",
-              "host": ["http://publications-service:8086"],
+              "host": ["http://publications-service:8083"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -468,7 +468,7 @@ data:
             {
               "url_pattern": "/api/publications/user/{userId}",
               "encoding": "no-op",
-              "host": ["http://publications-service:8086"],
+              "host": ["http://publications-service:8083"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -489,7 +489,7 @@ data:
             {
               "url_pattern": "/api/publications/{id}/like",
               "encoding": "no-op",
-              "host": ["http://publications-service:8086"],
+              "host": ["http://publications-service:8083"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -510,7 +510,7 @@ data:
             {
               "url_pattern": "/api/publications/{id}/comment",
               "encoding": "no-op",
-              "host": ["http://publications-service:8086"],
+              "host": ["http://publications-service:8083"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -531,7 +531,7 @@ data:
             {
               "url_pattern": "/api/publications/{id}/{userId}",
               "encoding": "no-op",
-              "host": ["http://publications-service:8086"],
+              "host": ["http://publications-service:8083"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -552,7 +552,7 @@ data:
             {
               "url_pattern": "/api/ranking/save-record",
               "encoding": "no-op",
-              "host": ["http://ranking-service:8087"],
+              "host": ["http://ranking-service:8084"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -573,7 +573,7 @@ data:
             {
               "url_pattern": "/api/ranking/report/{id}",
               "encoding": "no-op",
-              "host": ["http://ranking-service:8087"],
+              "host": ["http://ranking-service:8084"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -594,7 +594,7 @@ data:
             {
               "url_pattern": "/api/ranking/user/{userId}",
               "encoding": "no-op",
-              "host": ["http://ranking-service:8087"],
+              "host": ["http://ranking-service:8084"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,
@@ -615,7 +615,7 @@ data:
             {
               "url_pattern": "/api/ranking/{game}",
               "encoding": "no-op",
-              "host": ["http://ranking-service:8087"],
+              "host": ["http://ranking-service:8084"],
               "extra_config": {
                 "qos/circuit-breaker": {
                   "interval": 60,

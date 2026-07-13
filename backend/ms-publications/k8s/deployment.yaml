@@ -18,7 +18,7 @@ spec:
         image: mazanex-publications-service:latest
         imagePullPolicy: Never
         ports:
-        - containerPort: 8086
+        - containerPort: 8083
         envFrom:
         - configMapRef:
             name: publications-config

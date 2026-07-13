@@ -18,7 +18,7 @@ spec:
         image: mazanex-ranking-service:latest
         imagePullPolicy: Never
         ports:
-        - containerPort: 8087
+        - containerPort: 8084
         envFrom:
         - configMapRef:
             name: ranking-config
