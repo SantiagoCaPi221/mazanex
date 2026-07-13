@@ -11,7 +11,7 @@ spec:
   template:
     metadata:
       labels:
-        app: ms-projects
+        app: ms-projectss
     spec:
       containers:
       - name: ms-projects
