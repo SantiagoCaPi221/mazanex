@@ -24,3 +24,6 @@ spec:
             name: ranking-config
         - secretRef:
             name: ranking-secrets
+        env:
+        - name: SENTRY_DSN
+          value: ""

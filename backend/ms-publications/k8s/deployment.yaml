@@ -24,3 +24,6 @@ spec:
             name: publications-config
         - secretRef:
             name: publications-secrets
+        env:
+        - name: SENTRY_DSN
+          value: ""
