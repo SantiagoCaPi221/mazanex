@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
       - name: ms-projects
-        image: mazanex-ms-projects:latest
-        imagePullPolicy: IfNotPresent
+        image: mazanex-projects-service:latest
+        imagePullPolicy: Never
         ports:
         - containerPort: 8085
         envFrom:

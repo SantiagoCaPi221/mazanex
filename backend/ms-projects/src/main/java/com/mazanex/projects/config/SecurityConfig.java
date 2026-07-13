@@ -25,7 +25,14 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // 1. PRIMERO las rutas específicas liberadas (con el ** incluido)
+                .requestMatchers("/api/projects/test-glitchtip/**", "/error").permitAll()
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                
+                // 2. LUEGO la regla general que bloquea el resto de los endpoints de la API
                 .requestMatchers("/api/projects/**").authenticated()
+                
+                // 3. Finalmente cualquier otra cosa la dejamos pasar (o denegar, según prefieras)
                 .anyRequest().permitAll()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
