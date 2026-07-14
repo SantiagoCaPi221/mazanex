@@ -8,6 +8,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Entidad que representa una publicación del feed comunitario.
+ * Incluye contenido, media, likes y comentarios asociados.
+ */
 @Entity
 @Table(name = "publications")
 @Data

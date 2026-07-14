@@ -4,9 +4,10 @@ import { useUserStore } from "@/app/store/useUserStore";
 import { Trophy, Users, Zap, Target, Bot, Star } from "lucide-react";
 import { useState } from "react";
 import Footer from "@/app/components/comp_page/Footer";
+import type { ProfileUser } from "@/app/components/types/user";
 
 export default function Home() {
-  const user = useUserStore((state: any) => state.user);
+  const user = useUserStore((state: { user: ProfileUser | null }) => state.user);
   const [avatarError, setAvatarError] = useState(false);
 
   // Fallback para el avatar si falla (Cambiado user.nombre a user.name)
@@ -146,7 +147,7 @@ export default function Home() {
   );
 }
 
-function GamerCard({ icon, title, desc }: any) {
+function GamerCard({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
   return (
     <div className="p-8 border-white/5 md:border-r last:border-0 hover:bg-white/[0.03] transition-all duration-700 group flex flex-col items-center text-center lg:items-start lg:text-left">
       <div className="mb-6 transform group-hover:scale-110 transition-transform duration-500 p-3 rounded-2xl bg-white/[0.03] border border-white/10">

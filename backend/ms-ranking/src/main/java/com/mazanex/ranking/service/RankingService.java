@@ -9,21 +9,47 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Optional;
 
+/**
+ * Servicio de negocio para almacenar récords y gestionar reportes de puntuaciones.
+ */
 @Service
 public class RankingService {
 
     @Autowired
     private ScoreRepository scoreRepository;
 
+    /**
+     * Recupera todas las puntuaciones registradas por un usuario.
+     *
+     * @param userId identificador del usuario
+     * @return lista de scores del usuario
+     */
     public List<Score> getScoresByUserId(Long userId) {
         return scoreRepository.findByUserId(userId);
     }
 
+    /**
+     * Obtiene el ranking de un juego ordenado por puntuación descendente.
+     *
+     * @param game nombre del juego
+     * @return lista de puntuaciones ordenada
+     */
     public List<Score> getGameRanking(String game) {
         return scoreRepository.findByGameOrderByHighScoreDesc(game);
     }
 
-        public Object saveRecord(Long userId, String playerName, String game, String mode, Integer highScore, String screenshotUrl) {
+    /**
+     * Guarda un nuevo récord o actualiza uno existente si la nueva puntuación es mayor.
+     *
+     * @param userId identificador del usuario
+     * @param playerName nombre del jugador
+     * @param game juego al que pertenece la puntuación
+     * @param mode modo de juego
+     * @param highScore puntuación conseguida
+     * @param screenshotUrl URL de la captura asociada
+     * @return récord guardado o resultado de no actualizar
+     */
+    public Object saveRecord(Long userId, String playerName, String game, String mode, Integer highScore, String screenshotUrl) {
 
             // Se eliminó la validación (if playerName == null)
             if (playerName == null || playerName.trim().isEmpty()) {
@@ -53,6 +79,13 @@ public class RankingService {
         }
 
     // LÓGICA PURA: Cero HTTP aquí.
+    /**
+     * Reporta una puntuación como sospechosa y la elimina si supera los reportes permitidos.
+     *
+     * @param id identificador de la puntuación
+     * @param reporterId identificador del usuario que reporta
+     * @return mapa con el estado del reporte
+     */
     public Map<String, Object> reportScore(Long id, Long reporterId) {
         Score score = scoreRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("NOT_FOUND"));

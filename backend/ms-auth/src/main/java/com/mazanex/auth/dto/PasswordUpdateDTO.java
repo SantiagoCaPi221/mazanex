@@ -1,4 +1,8 @@
 package com.mazanex.auth.dto; 
+
+/**
+ * DTO utilizado para solicitar el cambio de contraseña de un usuario.
+ */
 public class PasswordUpdateDTO {
     private String currentPassword;
     private String newPassword;

@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { socialService } from "@/app/clients/socialService";
 import { gameService } from "@/app/clients/gameService";
 import { useUserStore } from "@/app/store/useUserStore";
+import type { ProfileUser } from "@/app/components/types/user";
+import type { RankingEntry } from "@/app/components/types/community";
 import {
   Trophy,
   ArrowLeft,
@@ -49,9 +51,9 @@ export default function UserPublicProfilePage() {
   const { user: rawUser, showNotification } = useUserStore();
   const currentUser = rawUser?.user || rawUser;
 
-  const [profile, setProfile] = useState<any>(null);
-  const [scores, setScores] = useState<any[]>([]);
-  const [relationship, setRelationship] = useState<any>({ status: "NONE" });
+  const [profile, setProfile] = useState<ProfileUser | null>(null);
+  const [scores, setScores] = useState<RankingEntry[]>([]);
+  const [relationship, setRelationship] = useState<{ status: string; isSender?: boolean }>({ status: "NONE" });
   const [isLoading, setIsLoading] = useState(true);
   const [showCard, setShowCard] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -109,7 +111,7 @@ export default function UserPublicProfilePage() {
 
   const handleSocialAction = async () => {
     if (!currentUser?.id || !profile?.id) return;
-    let res = null;
+    let res: boolean | null = null;
 
     if (relationship.status === "NONE") {
       res = await socialService.sendRequest(currentUser.id, profile.id);
@@ -314,7 +316,7 @@ export default function UserPublicProfilePage() {
                       No hay registros verificados.
                     </div>
                   ) : (
-                    scores.map((score: any) => {
+                    scores.map((score: RankingEntry) => {
                       const isSnake = score.game === "SNAKE";
                       return (
                         <div

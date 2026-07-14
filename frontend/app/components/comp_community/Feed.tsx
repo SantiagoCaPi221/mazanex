@@ -4,12 +4,24 @@ import { useState, useEffect, useRef } from "react";
 import { useUserStore } from "@/app/store/useUserStore";
 import { publicationService } from "@/app/clients/publicationService";
 import { Heart, MessageSquare, Send, Image as ImageIcon, Smile, Trash2, AlertTriangle, X } from "lucide-react";
+import type { CommunityComment, CommunityPost } from "@/app/components/types/community";
+
+// Componente helper para manejar avatares uniformemente
+const Avatar = ({ url, name, className = "w-12 h-12" }: { url?: string, name?: string, className?: string }) => {
+  return url ? (
+    <img src={url} className={`${className} rounded-full object-cover border border-slate-700`} alt={name} />
+  ) : (
+    <div className={`${className} rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-300 text-sm`}>
+      {name?.substring(0, 2).toUpperCase() || "??"}
+    </div>
+  );
+};
 
 export function Feed() {
   const { user: rawUser, showNotification } = useUserStore();
   const currentUser = rawUser?.user || rawUser;
 
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<CommunityPost[]>([]);
   const [newPostContent, setNewPostContent] = useState("");
   const [loading, setLoading] = useState(true);
   const [showEmojis, setShowEmojis] = useState(false);
@@ -17,6 +29,8 @@ export function Feed() {
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const emojiMenuRef = useRef<HTMLDivElement>(null);
+  const emojiButtonRef = useRef<HTMLButtonElement>(null);
   
   const [expandedPostId, setExpandedPostId] = useState<number | null>(null);
   const [commentContent, setCommentContent] = useState("");
@@ -34,11 +48,33 @@ export function Feed() {
     "🔥", "💥", "💯", "🎵", "🎶", "🎧", "💻", "🖥️", "📱", "⚔️", "🛡️", "🗡️", "💣", "🧨", "🔫", "🩸", "🍔", "🍕", "🍟", "🍺"
   ];
 
+  // 🔥 NUEVO: Lógica para cerrar emojis al clickear afuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Si el click no es dentro del menú de emojis NI en el botón que lo abre
+      if (
+        emojiMenuRef.current && 
+        !emojiMenuRef.current.contains(event.target as Node) &&
+        emojiButtonRef.current &&
+        !emojiButtonRef.current.contains(event.target as Node)
+      ) {
+        setShowEmojis(false);
+      }
+    };
+
+    if (showEmojis) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showEmojis]);
+
   const loadFeed = async () => {
     setLoading(true);
     const data = await publicationService.getFeed();
     
-    const adaptedPosts = (data || []).map((post: any) => {
+    const adaptedPosts = (data || []).map((post: CommunityPost) => {
       const likedByList = Array.isArray(post.likedBy) ? post.likedBy : [];
       return {
         ...post,
@@ -135,7 +171,6 @@ export function Feed() {
   const handleAddComment = async (postId: number) => {
     if (!commentContent.trim() || !currentUser?.id) return;
 
-    // 🔥 CORREGIDO: Eliminado authorAvatar para evitar error 500
     const result = await publicationService.addComment(postId, {
       authorId: currentUser.id,
       authorName: currentUser.name || "Usuario",
@@ -199,13 +234,7 @@ export function Feed() {
       {/* Caja de Nueva Publicación */}
       <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-6 backdrop-blur-sm relative z-20">
         <div className="flex gap-4">
-          {currentUser?.avatarUrl ? (
-            <img src={currentUser.avatarUrl} alt="Mi Avatar" className="w-12 h-12 rounded-full object-cover border border-indigo-500/30 shadow-md shrink-0" />
-          ) : (
-            <div className="w-12 h-12 bg-indigo-500/20 rounded-full border border-indigo-500/30 flex items-center justify-center font-bold text-indigo-300 shrink-0">
-              {currentUser?.name?.substring(0, 2).toUpperCase() || "ME"}
-            </div>
-          )}
+          <Avatar url={currentUser?.avatarUrl} name={currentUser?.name} />
 
           <div className="flex-1 space-y-4">
             <textarea
@@ -215,9 +244,23 @@ export function Feed() {
               className="w-full bg-transparent border-none outline-none resize-none text-white placeholder-slate-500 font-medium"
               rows={3}
             />
+            
+            {/* 🔥 CONTENEDOR RELATIVO PARA EMOJIS */}
+            <div className="relative">
+              {showEmojis && (
+                <div 
+                  ref={emojiMenuRef}
+                  className="absolute top-0 left-0 w-full sm:w-96 bg-slate-900 border border-indigo-500/30 rounded-xl p-2 grid grid-cols-8 gap-1 z-[60] shadow-2xl max-h-60 overflow-y-auto"
+                >
+                  {quickEmojis.map(e => (
+                    <button key={e} onClick={() => addEmoji(e)} className="hover:bg-indigo-500/20 p-1 rounded text-lg">{e}</button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {selectedImage && (
-              <div className="relative w-fit">
+              <div className="relative w-fit mt-2">
                 <img src={selectedImage} alt="Preview" className="h-32 rounded-xl object-cover border border-white/10" />
                 <button onClick={() => setSelectedImage(null)} className="absolute -top-2 -right-2 bg-rose-500 text-white p-1 rounded-full hover:bg-rose-600 shadow-lg">
                   <X className="w-4 h-4" />
@@ -231,7 +274,11 @@ export function Feed() {
                 <button onClick={() => fileInputRef.current?.click()} className="text-slate-500 hover:text-indigo-400 transition-colors p-2 rounded-full hover:bg-white/5">
                   <ImageIcon className="w-5 h-5" />
                 </button>
-                <button onClick={() => setShowEmojis(!showEmojis)} className={`transition-colors p-2 rounded-full ${showEmojis ? 'text-indigo-400 bg-white/5' : 'text-slate-500 hover:text-indigo-400 hover:bg-white/5'}`}>
+                <button 
+                  ref={emojiButtonRef}
+                  onClick={() => setShowEmojis(!showEmojis)} 
+                  className={`transition-colors p-2 rounded-full ${showEmojis ? 'text-indigo-400 bg-white/5' : 'text-slate-500 hover:text-indigo-400 hover:bg-white/5'}`}
+                >
                   <Smile className="w-5 h-5" />
                 </button>
               </div>
@@ -253,17 +300,10 @@ export function Feed() {
         {posts.map((post) => (
           <div key={post.id} className="bg-white/[0.02] border border-white/5 rounded-3xl p-6 backdrop-blur-sm group relative z-10">
             <div className="flex gap-4">
-              {(post.authorId === currentUser?.id && currentUser?.avatarUrl) || post.authorAvatar ? (
-                <img 
-                  src={post.authorId === currentUser?.id ? currentUser.avatarUrl : post.authorAvatar} 
-                  alt="Avatar" 
-                  className="w-12 h-12 rounded-full object-cover border border-slate-700 shadow-md shrink-0"
-                />
-              ) : (
-                <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center font-bold text-slate-300 shrink-0 border border-slate-700 shadow-md">
-                  {post.authorName?.substring(0, 2).toUpperCase() || "??"}
-                </div>
-              )}
+              <Avatar 
+                url={post.authorId === currentUser?.id ? currentUser?.avatarUrl : post.authorAvatar} 
+                name={post.authorName} 
+              />
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between mb-2">
@@ -292,11 +332,9 @@ export function Feed() {
 
                 {expandedPostId === post.id && (
                   <div className="mt-4 pt-4 border-t border-white/5 space-y-4">
-                    {post.comments?.map((comment: any, idx: number) => (
+                    {post.comments?.map((comment: CommunityComment, idx: number) => (
                       <div key={idx} className="bg-white/5 rounded-xl p-3 flex gap-3 text-sm">
-                        <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center font-bold text-xs text-slate-300 shrink-0">
-                          {comment.authorName?.substring(0, 2).toUpperCase()}
-                        </div>
+                        <Avatar url={undefined} name={comment.authorName} className="w-8 h-8" />
                         <div>
                           <span className="font-bold text-white block">{comment.authorName}</span>
                           <p className="text-slate-300">{comment.content}</p>

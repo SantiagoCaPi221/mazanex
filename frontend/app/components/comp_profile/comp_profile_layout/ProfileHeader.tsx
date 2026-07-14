@@ -2,11 +2,11 @@
 
 import { CheckCircle2 } from "lucide-react";
 import {
-  getInitials,
   getUsername,
 } from "@/app/components/utils/profile_layout/profileUtils";
+import type { ProfileUser } from "@/app/components/types/user";
 
-export default function ProfileHeader({ user }: { user: any }) {
+export default function ProfileHeader({ user }: { user: ProfileUser }) {
   return (
     <div>
       <h1 className="text-3xl font-black text-slate-900 flex items-center gap-2">

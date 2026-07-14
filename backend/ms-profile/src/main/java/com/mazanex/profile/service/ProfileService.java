@@ -4,10 +4,18 @@ import com.mazanex.profile.model.User;
 import com.mazanex.profile.repository.UserRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import java.util.List;
 
+/**
+ * Servicio encargado de la persistencia y sincronización de perfiles de usuario.
+ * Gestiona la creación, actualización y eliminación de datos de perfil.
+ */
 @Service
 public class ProfileService {
 
@@ -24,6 +32,13 @@ public class ProfileService {
         this.restTemplate = restTemplate;
     }
 
+    /**
+     * Actualiza un perfil existente si existe en la base de datos.
+     *
+     * @param id identificador del usuario
+     * @param data datos parciales o completos del perfil
+     * @return perfil actualizado o null si no existe
+     */
     public User updateProfile(Long id, User data) {
         return userRepository.findById(id).map(user -> {
             if (data.getName() != null && !data.getName().isEmpty()) 
@@ -47,6 +62,12 @@ public class ProfileService {
         }).orElse(null);
     }
 
+    /**
+     * Sincroniza un perfil creando uno nuevo o actualizando uno existente por email.
+     *
+     * @param data datos del perfil a sincronizar
+     * @return perfil persistido
+     */
     public User syncProfile(User data) {
         return userRepository.findByEmail(data.getEmail())
             .map(existing -> {
@@ -71,17 +92,54 @@ public class ProfileService {
             });
     }
 
-    // APLICACIÓN DEL CIRCUIT BREAKER
+    // APLICACIÓN DEL CIRCUIT BREAKER Y JWT CON BLINDAJE
+    /**
+     * Envía una sincronización del perfil al microservicio de autenticación.
+     *
+     * @param user perfil actualizado
+     */
     @CircuitBreaker(name = "authClient", fallbackMethod = "fallbackSyncWithAuth")
     private void syncWithAuth(User user) {
-        restTemplate.postForEntity(authSyncUrl, user, User.class);
+        try {
+            // 1. Extraer el token JWT
+            String currentToken = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+            
+            // 2. Preparar cabeceras
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.setBearerAuth(currentToken);
+            
+            // 3. Empaquetar y enviar (Fíjate que aquí usamos authSyncUrl)
+            org.springframework.http.HttpEntity<User> requestEntity = new org.springframework.http.HttpEntity<>(user, headers);
+            restTemplate.exchange(authSyncUrl, org.springframework.http.HttpMethod.POST, requestEntity, User.class);
+            
+        } catch (Exception e) {
+            // El escudo: Si ms-auth falla, el error se atrapa aquí y NO destruye el guardado.
+            System.err.println("ADVERTENCIA: El perfil se guardó, pero falló la sincronización con ms-auth. Error: " + e.getMessage());
+        }
     }
 
-    // MÉTODO FALLBACK
-    public void fallbackSyncWithAuth(User user, Exception e) {
-        System.err.println("Circuit Breaker activo. ms-auth no responde para sincronizar el perfil: " + e.getMessage());
+    // MÉTODO FALLBACK (Cambiar Exception a Throwable)
+    /**
+     * Método de respaldo para la sincronización con auth cuando el circuito está abierto.
+     *
+     * @param user perfil afectado
+     * @param e error capturado
+     */
+    public void fallbackSyncWithAuth(User user, Throwable e) {
+        System.err.println("Circuit Breaker activo: No se pudo sincronizar con ms-auth. " + e.getMessage());
     }
 
+    /**
+     * Devuelve todos los perfiles almacenados.
+     *
+     * @return lista de perfiles
+     */
     public List<User> listAll() { return userRepository.findAll(); }
+
+    /**
+     * Elimina un perfil por identificador.
+     *
+     * @param id identificador del perfil a eliminar
+     */
     public void delete(Long id) { userRepository.deleteById(id); }
 }

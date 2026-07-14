@@ -7,4 +7,4 @@ data:
   MYSQLHOST: "mysql-service" # Nombre del servicio de la BD en K8s
   MYSQLPORT: "3306"
   MYSQLDATABASE: "db_auth"
-  PROFILE_SERVICE_URL: "http://profile.mazanex:8082"
+  PROFILE_SERVICE_URL: "http://ms-profile-service:8082"

@@ -66,8 +66,15 @@ AuthController
 
 ## 7. Seguridad
 - **CORS**: Habilitado para integración con frontend
-- Se genera un par de claves a traves del JWT donde la llave publica es reemplazada por la contraseña haciendo qeu esto otorge mas seguridad a los usuarios
-- , y se valida con una función dentro del código que valida 8 caracteres,  al menos 1 mayuscula, al menos 1 minuscula, almenos 1 número y un simbolo.
+- No hay generación ni validación de JsonWebToken
+Las contraseñas se comparan en texto plano, y se valida con una función dentro del código que valida 8 caracteres,  al menos 1 mayuscula, al menos 1 minuscula, almenos 1 número y un simbolo.
+
+ **Recomendaciones para mejorar:**
+
+- Implementar BCryptPasswordEncoder para hashear contraseñas
+- Añadir filtro JWT para proteger endpoints sensibles
+- Propagar tokens JWT desde el BFF hacia aquí
+
 
 ## 8. Base de Datos
 
@@ -105,7 +112,21 @@ Link swagger: https://fullstack4-auth-production-7c66.up.railway.app/swagger-ui/
 
 ## 13. Navegación
 
-* **Volver al Inicio:** [Contexto de Negocio](../../../README.md)
-* **Raíz del Backend:** [Arquitectura General](../../README.md)
-* **Ir al Frontend:** [Configuración de Cliente](../../../frontend/README.md)
-* **Perfil:** [Microservicio Perfil](../../microservicio_profile/profile/README.md)
+- **Volver al Inicio:** [Contexto de Negocio](../../README.md)
+- **Raíz del Backend:** [Arquitectura General](../README.md)
+- **Ir al Frontend:** [Configuración de Cliente](../../frontend/README.md)
+- **Perfil:** [Microservicio Perfil](../ms-profile/README.md)
+
+## 14. Documentación y seguimiento de errores
+
+- **Javadocs:** Generar la documentación de la API Java con Maven usando `mvn javadoc:javadoc`. Los archivos resultantes se generan en `target/site/apidocs`. Se recomienda añadir un paso en el CI que publique los Javadocs (por ejemplo, en GitHub Pages o en el servidor de artefactos usado por el equipo).
+
+- **GlitchTip (gestión de errores):** Se puede integrar GlitchTip (compatible con Sentry) para capturar excepciones y trazas en tiempo de ejecución. Configure la DSN del proyecto en la variable de entorno `SENTRY_DSN` (o `GLITCHTIP_DSN` según su despliegue) y utilice un cliente compatible (por ejemplo `io.sentry:sentry-spring-boot-starter`) para enviar errores. En `application.properties` puede añadirse la configuración básica:
+
+```
+# Ejemplo mínimo
+sentry.dsn=${SENTRY_DSN:}
+sentry.environment=${ENV:local}
+```
+
+Documentar en el equipo cómo obtener la DSN del proyecto GlitchTip y qué eventos deben enviarse (errores no manejados, errores 5xx, etc.).

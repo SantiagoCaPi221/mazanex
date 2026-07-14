@@ -6,6 +6,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Repositorio para consultar y persistir puntuaciones de ranking.
+ */
 @Repository
 public interface ScoreRepository extends JpaRepository<Score, Long> {
     // Cambiamos findByUser por findByUserId

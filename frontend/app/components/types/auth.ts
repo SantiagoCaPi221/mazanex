@@ -1,3 +1,5 @@
+import type { ProfileUser } from "./user";
+
 export interface LoginCredentials {
   identifier: string;
   password: string;
@@ -12,4 +14,12 @@ export interface RegisterFormData {
   name: string;
   email: string;
   password: string;
+}
+
+export interface AuthResponse {
+  user?: ProfileUser;
+  token?: string;
+  id?: number;
+  email?: string;
+  name?: string;
 }

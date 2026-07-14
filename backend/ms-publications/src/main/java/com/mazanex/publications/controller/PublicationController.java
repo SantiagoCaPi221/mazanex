@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controlador REST para la gestión del muro de publicaciones de la comunidad.
+ * Maneja feed, creación de posts, likes y comentarios.
+ */
 @RestController
 @RequestMapping("/api/publications")
 @Tag(
@@ -25,6 +29,11 @@ public class PublicationController {
     @Autowired
     private PublicationService publicationService;
 
+    /**
+     * Devuelve el feed global de publicaciones ordenado por fecha descendente.
+     *
+     * @return lista de publicaciones para mostrar en el muro
+     */
     @GetMapping("/feed")
     @Operation(
             summary = "Obtener el Feed (Muro)",
@@ -34,6 +43,12 @@ public class PublicationController {
         return ResponseEntity.ok(publicationService.getFeed());
     }
 
+    /**
+     * Obtiene todas las publicaciones creadas por un usuario concreto.
+     *
+     * @param userId identificador del autor
+     * @return listado de publicaciones del usuario
+     */
     @GetMapping("/user/{userId}")
     @Operation(
             summary = "Obtener publicaciones por usuario",
@@ -48,6 +63,12 @@ public class PublicationController {
         );
     }
 
+    /**
+     * Crea una nueva publicación en el muro.
+     *
+     * @param dto datos de la publicación a crear
+     * @return publicación creada
+     */
     @PostMapping
     @Operation(
             summary = "Crear publicación",
@@ -61,6 +82,13 @@ public class PublicationController {
         );
     }
 
+    /**
+     * Alterna el estado de like de una publicación para un usuario.
+     *
+     * @param id identificador de la publicación
+     * @param body cuerpo con el identificador del usuario
+     * @return resultado del toggle de likes
+     */
     @PostMapping("/{id}/like")
     @Operation(
             summary = "Dar o quitar Like",
@@ -85,6 +113,13 @@ public class PublicationController {
         }
     }
 
+    /**
+     * Añade un comentario a una publicación existente.
+     *
+     * @param id identificador de la publicación
+     * @param dto datos del comentario
+     * @return publicación actualizada con el comentario
+     */
     @PostMapping("/{id}/comment")
     @Operation(
             summary = "Agregar comentario",
@@ -106,6 +141,13 @@ public class PublicationController {
         }
     }
 
+    /**
+     * Elimina una publicación si el usuario que la solicita es su autor.
+     *
+     * @param id identificador de la publicación
+     * @param userId identificador del usuario solicitante
+     * @return respuesta con el estado de eliminación
+     */
     @DeleteMapping("/{id}/{userId}")
     @Operation(
             summary = "Eliminar publicación",

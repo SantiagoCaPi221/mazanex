@@ -11,11 +11,11 @@ spec:
   template:
     metadata:
       labels:
-        app: ms-projects
+        app: ms-projectss
     spec:
       containers:
       - name: ms-projects
-        image: ms-projects:latest
+        image: mazanex-projects-service:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8085
@@ -24,3 +24,6 @@ spec:
             name: projects-config
         - secretRef:
             name: projects-secrets
+        env:
+        - name: SENTRY_DSN
+          value: ""

@@ -1,17 +1,13 @@
-import { User } from "./user";
-import { Notification } from "./notification";
+import type { ProfileUser, StoreUser } from "./user";
+import type { Notification } from "./notification";
 
 export interface UserState {
-  user: User | null;
-
-  setUser: (user: User | null) => void;
-  login: (user: User) => void;
+  user: StoreUser;
+  setUser: (user: StoreUser) => void;
+  login: (user: StoreUser) => void;
   logout: () => void;
-
-  updateUser: (data: Partial<User>) => void;
-
+  updateUser: (data: Partial<ProfileUser>) => void;
   notification: Notification | null;
-
   showNotification: (message: string, type?: "success" | "error") => void;
   hideNotification: () => void;
 }

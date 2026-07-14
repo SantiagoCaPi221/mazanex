@@ -3,6 +3,9 @@ package com.mazanex.projects.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+/**
+ * Entidad que representa un proyecto del sistema.
+ */
 @Entity
 @Table(name = "projects")
 @Data

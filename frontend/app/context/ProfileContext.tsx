@@ -1,10 +1,11 @@
 "use client";
 import React, { createContext, useContext, useState } from "react";
 import { profileService } from "@/app/clients/profileService";
+import type { ProfileUser, UpdateProfilePayload } from "@/app/components/types/user";
 
 interface ProfileContextType {
-  profile: any;
-  syncProfile: (userData: any) => Promise<void>;
+  profile: ProfileUser | null;
+  syncProfile: (userData: UpdateProfilePayload) => Promise<void>;
 }
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
@@ -14,9 +15,9 @@ export const ProfileProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<ProfileUser | null>(null);
 
-  const syncProfile = async (userData: any) => {
+  const syncProfile = async (userData: UpdateProfilePayload) => {
     if (data) {
       setProfile(data);
     }

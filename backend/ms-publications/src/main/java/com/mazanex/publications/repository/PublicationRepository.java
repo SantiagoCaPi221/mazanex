@@ -5,6 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
+/**
+ * Repositorio para consultar publicaciones del feed y del perfil de usuario.
+ */
 @Repository
 public interface PublicationRepository extends JpaRepository<Publication, Long> {
     // Esto es para el Feed de Instagram: trae todo ordenado de más nuevo a más viejo

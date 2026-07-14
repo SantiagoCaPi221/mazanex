@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Entidad de usuario utilizada por el microservicio de perfiles.
+ */
 @Entity
 @Table(name = "users")
 @Data

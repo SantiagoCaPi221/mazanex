@@ -3,6 +3,9 @@ package com.mazanex.projects.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+/**
+ * Entidad que representa una tarea asignada a un proyecto.
+ */
 @Entity
 @Table(name = "tasks")
 @Data

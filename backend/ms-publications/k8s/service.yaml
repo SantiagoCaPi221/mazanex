@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ms-publications-service
+  name: publications-service
   namespace: mazanex
 spec:
   selector:

@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: frontend:latest
+        image: mazanex-frontend:latest
         ports:
-        - containerPort: 3000 
+        - containerPort: 80 # Nginx suele usar el 80
         imagePullPolicy: IfNotPresent

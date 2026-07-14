@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controlador REST para gestionar solicitudes de amistad, seguimiento y notificaciones sociales.
+ */
 @RestController
 @RequestMapping("/api/profile/social")
 @Tag(name = "2. Interacciones Sociales", description = "Endpoints para manejar amistades, notificaciones y relaciones")
@@ -20,6 +23,13 @@ public class SocialController {
     @Autowired
     private SocialService socialService;
 
+    /**
+     * Envía una solicitud de amistad entre dos usuarios.
+     *
+     * @param senderId identificador del remitente
+     * @param receiverId identificador del destinatario
+     * @return respuesta HTTP con el estado de la solicitud
+     */
     @PostMapping("/send-request/{senderId}/{receiverId}")
     @Operation(summary = "Enviar solicitud de amistad")
     public ResponseEntity<Map<String, String>> sendRequest(
@@ -28,6 +38,13 @@ public class SocialController {
         return ResponseEntity.ok(socialService.sendRequest(senderId, receiverId));
     }
 
+    /**
+     * Acepta una solicitud de amistad previamente enviada.
+     *
+     * @param senderId identificador del solicitante
+     * @param receiverId identificador del usuario que acepta
+     * @return respuesta HTTP con el resultado del proceso
+     */
     @PostMapping("/accept-request/{senderId}/{receiverId}")
     @Operation(summary = "Aceptar solicitud de amistad")
     public ResponseEntity<Map<String, String>> acceptRequest(
@@ -36,6 +53,13 @@ public class SocialController {
         return ResponseEntity.ok(socialService.acceptRequest(senderId, receiverId));
     }
 
+    /**
+     * Consulta el estado de relación entre dos usuarios.
+     *
+     * @param idA identificador del primer usuario
+     * @param idB identificador del segundo usuario
+     * @return mapa con el estado y si uno de ellos es el remitente
+     */
     @GetMapping("/status/{idA}/{idB}")
     @Operation(summary = "Consultar estado de relación", description = "Verifica si dos usuarios son amigos o tienen una solicitud pendiente.")
     public ResponseEntity<Map<String, Object>> getStatus(

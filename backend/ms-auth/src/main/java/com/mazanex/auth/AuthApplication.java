@@ -5,6 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * Clase principal de arranque del microservicio de autenticación.
+ */
 @SpringBootApplication(scanBasePackages = "com.mazanex.auth")
 public class AuthApplication {
 

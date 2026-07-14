@@ -2,6 +2,9 @@ package com.mazanex.auth.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+/**
+ * DTO utilizado para devolver la información pública de un usuario autenticado.
+ */
 public record UserResponseDto(
     @Schema(description = "ID del usuario", example = "1")
     Long id,

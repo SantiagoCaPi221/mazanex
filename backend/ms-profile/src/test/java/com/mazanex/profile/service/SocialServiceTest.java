@@ -17,6 +17,9 @@ import java.util.Optional;
 import com.mazanex.profile.model.Notification;
 import java.util.List;
 
+/**
+ * Pruebas unitarias del servicio social y de relaciones entre usuarios.
+ */
 @ExtendWith(MockitoExtension.class)
 public class SocialServiceTest {
 

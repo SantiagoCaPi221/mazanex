@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: ms-auth
-          image: ms-auth:latest
+          image: mazanex-auth-service:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8081
@@ -26,6 +26,9 @@ spec:
                 name: mazanex-config
             - secretRef:
                 name: auth-secrets
+          env:
+            - name: SENTRY_DSN
+              value: ""
           resources:
             requests:
               cpu: "100m"
@@ -34,16 +37,3 @@ spec:
               cpu: "500m"
               memory: "512Mi"
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: ms-auth-service
-  namespace: mazanex
-spec:
-  selector:
-    app: ms-auth
-  ports:
-    - protocol: TCP
-      port: 8081
-      targetPort: 8081
-  type: ClusterIP

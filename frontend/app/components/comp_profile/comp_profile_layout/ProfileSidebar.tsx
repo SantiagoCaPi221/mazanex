@@ -1,5 +1,17 @@
 import Link from "next/link";
 import { Settings2, Gamepad2, ChevronDown } from "lucide-react";
+import type { ProfileMenuItem } from "@/app/components/types/user";
+
+interface ProfileSidebarProps {
+  username?: string;
+  formattedUsername?: string;
+  bio?: string | null;
+  menu: ProfileMenuItem[];
+  pathname: string;
+  unreadCount: number;
+  isGamesOpen: boolean;
+  setIsGamesOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
 export default function ProfileSidebar({
   username,
@@ -10,7 +22,7 @@ export default function ProfileSidebar({
   unreadCount,
   isGamesOpen,
   setIsGamesOpen,
-}: any) {
+}: ProfileSidebarProps) {
   return (
     <aside className="space-y-8">
       <div className="flex flex-col items-center md:items-start text-center md:text-left pt-14 md:pt-4 px-2">
@@ -37,10 +49,10 @@ export default function ProfileSidebar({
         </h3>
 
         <nav className="flex flex-col gap-2">
-          {menu.map((item: any) => {
+          {menu.map((item: ProfileMenuItem) => {
             if (item.isDropdown) {
               const isActive = item.subItems?.some(
-                (sub: any) => pathname === sub.href
+                (sub) => pathname === sub.href
               );
 
               return (
@@ -68,7 +80,7 @@ export default function ProfileSidebar({
 
                   {isGamesOpen && (
                     <div className="ml-4 pl-3 border-l-2 border-indigo-100/50 flex flex-col gap-1 mt-1">
-                      {item.subItems?.map((sub: any) => (
+                      {item.subItems?.map((sub) => (
                         <Link key={sub.href} href={sub.href}>
                           <button
                             className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${

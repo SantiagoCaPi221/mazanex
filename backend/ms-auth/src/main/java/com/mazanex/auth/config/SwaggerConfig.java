@@ -6,18 +6,19 @@ import io.swagger.v3.oas.models.info.License;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configuración de Swagger para documentar la API de autenticación.
+ */
 @Configuration
 public class SwaggerConfig {
+
     @Bean
     public OpenAPI customOpenAPI() {
-        License apiLicense = new License()
-                .name("Apache 2.0")
-                .url("http://springdoc.org/"); // <-- Corregido aquí
-        Info apiInfo = new Info()
-                .title("Mazanex Auth API")
-                .version("1.0")
-                .description("Microservicio encargado de la autenticación y emisión de tokens.")
-                .license(apiLicense);
-        return new OpenAPI().info(apiInfo);
+        return new OpenAPI()
+                .info(new Info()
+                        .title("Mazanex Auth API")
+                        .version("1.0")
+                        .description("Microservicio encargado de la autenticación y registro de usuarios.")
+                        .license(new License().name("Apache 2.0").url("http://springdoc.org")));
     }
 }

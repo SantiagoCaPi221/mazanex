@@ -6,10 +6,12 @@ import { useRouter } from "next/navigation";
 import { Bell, LayoutDashboard } from "lucide-react"; // Añadimos LayoutDashboard
 import { useEffect, useState } from "react";
 import { socialService } from "@/app/clients/socialService";
+import type { ProfileUser } from "@/app/components/types/user";
+import type { Notification } from "@/app/components/types/notification";
 
 export default function Navbar() {
-  const rawUser = useUserStore((state: any) => state.user);
-  const logout = useUserStore((state: any) => state.logout);
+  const rawUser = useUserStore((state: { user: ProfileUser | null }) => state.user);
+  const logout = useUserStore((state: { logout: () => void }) => state.logout);
   const router = useRouter();
 
   const user = rawUser?.user || rawUser;
@@ -29,7 +31,7 @@ export default function Navbar() {
     const fetchUnreadCount = async () => {
       try {
         const notis = await socialService.getNotifications(user.id);
-        const unread = notis.filter((n: any) => !(n.isRead || n.read)).length;
+        const unread = notis.filter((n: Notification) => !(n.isRead || n.read)).length;
         setUnreadCount(unread);
       } catch (error) {
         console.error("Error cargando contador", error);

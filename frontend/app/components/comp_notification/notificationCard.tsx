@@ -1,11 +1,17 @@
 import Link from "next/link";
 
 import { UserPlus, Check, ArrowRight } from "lucide-react";
+import type { Notification } from "@/app/components/types/notification";
+
+interface NotificationCardProps {
+  notification: Notification;
+  acceptFriendRequest: (notification: Notification) => void;
+}
 
 export default function NotificationCard({
   notification,
   acceptFriendRequest,
-}: any) {
+}: NotificationCardProps) {
   const isRead = notification.isRead || notification.read;
 
   return (

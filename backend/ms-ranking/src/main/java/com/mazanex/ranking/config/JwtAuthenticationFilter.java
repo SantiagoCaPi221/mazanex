@@ -13,6 +13,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * Filtro de seguridad que valida los tokens JWT entrantes en el microservicio de ranking.
+ */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 

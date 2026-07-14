@@ -1,7 +1,9 @@
 import { BACKEND_URLS } from "@/app/config/endpoints";
+import type { AuthResponse, RegisterFormData } from "@/app/components/types/auth";
+import type { ProfileUser } from "@/app/components/types/user";
 
 export const authService = {
-  async register(userData: any) {
+  async register(userData: RegisterFormData): Promise<ProfileUser | null> {
     const adaptedData = {
       name: userData.nombre || userData.name,
       email: userData.email,
@@ -20,12 +22,14 @@ export const authService = {
     const newUser = await authResponse.json();
 
     try {
+      // Corregido: URL limpia sin duplicar /api/profile
       await fetch(`${BACKEND_URLS.PROFILE}/sync`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: newUser.id,
+          id: newUser.id, // Asegúrate que tu backend reciba 'id' y no 'userId' según tu modelo
           name: adaptedData.name,
+          email: adaptedData.email,
           bio: "¡Nuevo en la comunidad Mazanex!",
         }),
       });
@@ -36,7 +40,7 @@ export const authService = {
     return newUser;
   },
 
-  async login(credentials: any) {
+  async login(credentials: { email: string; password: string }) {
     const response = await fetch(`${BACKEND_URLS.AUTH}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -46,12 +50,14 @@ export const authService = {
     if (response.ok) {
       const data = await response.json();
       const token = data.token;
-      // Obtenemos el usuario básico desde auth
       let user = data.user || data;
 
-      // 🔥 AQUÍ ESTÁ LA MAGIA: "Hidratar" con los datos del perfil
+      // 🔥 HIDRATACIÓN DE PERFIL: Obtenemos datos completos (Bio, imágenes)
       try {
-        const profileResponse = await fetch(`${BACKEND_URLS.PROFILE}/api/profile/${user.id}`, {
+        // Corregido: URL limpia, sin el doble '/api/profile/'
+        const profileUrl = `${BACKEND_URLS.PROFILE}/${user.id}`;
+        
+        const profileResponse = await fetch(profileUrl, {
           headers: { 
             "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json"
@@ -60,14 +66,14 @@ export const authService = {
         
         if (profileResponse.ok) {
           const profileData = await profileResponse.json();
-          // Combinamos: Auth tiene el ID/Nombre, Profile tiene las fotos/bio
+          // Combinamos datos: Auth (ID/Email) + Profile (Bio/Imágenes)
           user = { ...user, ...profileData };
         }
       } catch (err) {
         console.warn("No se pudo cargar el perfil completo, usando datos básicos", err);
       }
 
-      // 🔥 Guardamos el objeto COMPLETO (Auth + Perfil)
+      // Guardado persistente
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", token); 
       

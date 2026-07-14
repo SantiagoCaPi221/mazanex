@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 
+/**
+ * Entidad que representa un comentario asociado a una publicación.
+ */
 @Entity
 @Table(name = "comments")
 @Data

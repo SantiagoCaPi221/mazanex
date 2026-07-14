@@ -13,6 +13,9 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Pruebas unitarias del servicio de ranking y puntuaciones.
+ */
 @ExtendWith(MockitoExtension.class)
 class RankingServiceTest {
 

@@ -1,13 +1,14 @@
 import { BACKEND_URLS } from "@/app/config/endpoints";
+import type { UpdateProfilePayload } from "@/app/components/types/user";
 
 // Funcion auxiliar para obtener los headers con el token
 const getAuthHeaders = () => {
-  let token = null;
+  let token: string | null = null;
   if (typeof window !== "undefined") {
     token = localStorage.getItem("token");
   }
 
-  const headers: any = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
 
@@ -45,24 +46,35 @@ export const profileService = {
   },
 
   // Actualiza los datos de un perfil
-  async updateProfile(id: number, profileData: any) {
+  async updateProfile(id: number, profileData: UpdateProfilePayload | FormData) {
     const headers = getAuthHeaders();
     const url = `${BACKEND_URLS.PROFILE}/${id}`;
+    
+    // 🔥 EL ARREGLO: Detectar si es FormData (imágenes + texto) o JSON normal
+    const isFormData = profileData instanceof FormData;
+    
+    if (isFormData) {
+      // Si es FormData, borramos el Content-Type para que el navegador lo asigne automáticamente con el "boundary"
+      delete headers["Content-Type"];
+    }
     
     try {
       const response = await fetch(url, {
         method: "PUT",
         headers,
-        body: JSON.stringify(profileData),
+        // Si es FormData se envía directo, si es JSON se convierte a texto
+        body: isFormData ? profileData : JSON.stringify(profileData),
       });
 
       if (response.ok) {
         const updatedData = await response.json();
         
-        // Sincronizar el localStorage
-        const localUser = JSON.parse(localStorage.getItem("user") || "{}");
-        const newUser = { ...localUser, ...updatedData };
-        localStorage.setItem("user", JSON.stringify(newUser));
+        // Sincronizar el localStorage (protegido para evitar errores de SSR en Next.js)
+        if (typeof window !== "undefined") {
+          const localUser = JSON.parse(localStorage.getItem("user") || "{}");
+          const newUser = { ...localUser, ...updatedData };
+          localStorage.setItem("user", JSON.stringify(newUser));
+        }
         
         return updatedData;
       }

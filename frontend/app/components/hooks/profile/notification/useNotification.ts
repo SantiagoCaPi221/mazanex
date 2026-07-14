@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { socialService } from "@/app/clients/socialService";
-import { Notification } from "@/app/components/types/notification";
+import type { Notification } from "@/app/components/types/notification";
+import type { ProfileUser } from "@/app/components/types/user";
 import {
   adaptNotifications,
   hasUnread,
 } from "@/app/components/utils/notification/notificationUtils";
 import { NOTIFICATION_MESSAGES } from "@/app/components/utils/message/notificationMessage";
 
-export function useNotificationsPage(rawUser: any, showNotification: any) {
+export function useNotificationsPage(rawUser: ProfileUser | { user?: ProfileUser | null } | null, showNotification: (message: string, type: "success" | "error") => void) {
   // Desempaquetado seguro del usuario
   const user = rawUser?.user || rawUser;
 

@@ -135,7 +135,22 @@ docker-compose up --build
 - El frontend consume este servicio a través del gateway en `frontend/app/api/gateway/[...path]/route.ts`.
 - `ProfileService` puede sincronizar con un endpoint de Auth vía RestTemplate.
 
-* * Volver al Inicio:** [Contexto de Negocio](../../../README.md)
-* **Raíz del Backend:** [Arquitectura General](../../README.md)
-* * Ir al Frontend:** [Configuración de Cliente](../../../frontend/README.md)
-* **Auth:** [Microservicio Auth](../../microservicio_auth/auth/README.md)
+ - **Volver al Inicio:** [Contexto de Negocio](../../README.md)
+ - **Raíz del Backend:** [Arquitectura General](../README.md)
+ - **Ir al Frontend:** [Configuración de Cliente](../../frontend/README.md)
+ - **Auth:** [Microservicio Auth](../ms-auth/README.md)
+
+## 14. Documentación y seguimiento de errores
+
+- **Javadocs:** Generar la documentación con `mvn javadoc:javadoc`. Salida en `target/site/apidocs`. Se recomienda publicar los Javadocs desde el CI para referencia de desarrolladores.
+
+- **GlitchTip (seguimiento de errores):** Integrar GlitchTip/Sentry para capturar excepciones y errores de producción. Configure la variable de entorno `SENTRY_DSN` (o `GLITCHTIP_DSN`) con la DSN del proyecto y añada el cliente Sentry apropiado (`io.sentry:sentry-spring-boot-starter`) si se desea captura automática.
+
+Ejemplo de configuración mínima en `application.properties`:
+
+```
+sentry.dsn=${SENTRY_DSN:}
+sentry.environment=${ENV:local}
+```
+
+Definir en el equipo las políticas de envío (qué excepciones reportar, niveles, muestreo).

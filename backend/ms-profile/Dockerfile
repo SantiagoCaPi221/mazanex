@@ -2,20 +2,22 @@
 FROM maven:3.8.5-openjdk-17 AS build
 WORKDIR /app
 
-# Al estar el Root Directory en 'perfil', el pom.xml está en la raíz del contexto
+# Copiamos primero solo el pom.xml para aprovechar la caché de capas de Docker
 COPY pom.xml .
-RUN mvn dependency:go-offline -B -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true
+RUN mvn dependency:go-offline -B
 
-# Copiamos la carpeta src (relativa a la carpeta perfil/)
+# Copiamos el código fuente y compilamos
 COPY src ./src
 RUN mvn clean package -DskipTests
 
 # ETAPA 2: Runtime
-FROM eclipse-temurin:17-jdk-alpine
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-# El JAR se genera en la carpeta target local del stage anterior
+# Copiamos solo el jar ejecutable (evitando archivos temporales de maven)
+# El asterisco busca el archivo .jar generado en target
 COPY --from=build /app/target/*.jar app.jar
 
-# Railway inyecta la variable $PORT. Usamos formato shell para que se expanda.
-ENTRYPOINT java -Dserver.port=${PORT:-8082} -jar app.jar
+# Exponemos el puerto y ejecutamos
+EXPOSE 8082
+ENTRYPOINT ["sh", "-c", "java -Dserver.port=${PORT:-8082} -jar app.jar"]

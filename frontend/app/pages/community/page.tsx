@@ -230,7 +230,7 @@ export default function CommunityPage() {
               <GameSelector
                 games={availableGames as string[]}
                 selected={selectedGame as string}
-                onChange={setSelectedGame as any}
+                onChange={setSelectedGame}
                 currentSubMode={selectedSnakeMode}
                 onSubModeChange={setSelectedSnakeMode}
                 snakeModes={snakeModes as string[]}

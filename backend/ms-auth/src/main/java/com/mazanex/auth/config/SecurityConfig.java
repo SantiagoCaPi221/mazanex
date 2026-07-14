@@ -16,6 +16,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
+/**
+ * Configuración de seguridad del microservicio de autenticación.
+ * Define filtros JWT, CORS y reglas de autorización para los endpoints.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -41,6 +45,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // 3. Abrimos las puertas explícitamente para registro y login (con y sin /api)
                 .requestMatchers("/auth/register", "/auth/login", "/api/auth/register", "/api/auth/login").permitAll()
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/api/auth/test-glitchtip/**", "/error").permitAll()
+                
                 // 4. Todo el resto de la aplicación requiere token
                 .anyRequest().authenticated()
             )
@@ -50,7 +57,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Configuración global de CORS para permitir que tu frontend en localhost:3000 se comunique
+    // Configuración global de CORS
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * Servicio de utilidades para generar y validar tokens JWT en el microservicio de publicaciones.
+ */
 @Service
 public class JwtService {
 

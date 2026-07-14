@@ -1,14 +1,15 @@
 import { BACKEND_URLS } from "@/app/config/endpoints";
+import type { RankingEntry } from "@/app/components/types/community";
 
 const BASE_RANKING = BACKEND_URLS.RANKING;
 
 const getAuthHeaders = () => {
-  let token = null;
+  let token: string | null = null;
   if (typeof window !== "undefined") {
     token = localStorage.getItem("token");
   }
 
-  const headers: any = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
 
@@ -44,7 +45,7 @@ export const gameService = {
     }
   },
 
-  async saveScore(scoreData: any) {
+  async saveScore(scoreData: Record<string, unknown>) {
     try {
       const response = await fetch(`${BASE_RANKING}/save-record`, {
         method: "POST",
