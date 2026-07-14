@@ -159,14 +159,32 @@ curl http://localhost:8082/api/perfil
 ```
 
 ---
+## 9. Links Swagger
+# Swagger mazanex
 
-## 9. Configuración
+# Auth
+http://localhost:8081/swagger-ui.html
+
+# Profile
+http://localhost:8082/swagger-ui.html
+
+# Publications
+http://localhost:8083/swagger-ui.html
+
+# Ranking
+http://localhost:8084/swagger-ui.html
+
+# Projects
+http://localhost:8085/swagger-ui.html
+
+
+## 10. Configuración
 
 ### Desarrollo (H2 en memoria)
 Configuración automática en memoria.
 Los archivos `application.properties` ya están configurados para H2. No requiere cambios.
 
-### 10. Producción (MySQL) Lo unico que cambia entre microservicios en el aplication.properties es el puerto (Auth 8081- Perfil 8082)
+### 11. Producción (MySQL) Lo unico que cambia entre microservicios en el aplication.properties es el puerto (Auth 8081- Perfil 8082)
 
 ```properties
 # El puerto es dinámico para Railway, local usa 8082
@@ -196,7 +214,7 @@ logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
 
 ```
 ---
-### 11. Funcionamiento del sistema 
+### 12. Funcionamiento del sistema 
 1. El cliente realiza una solicitud HTTP desde el frontend o un cliente REST (por ejemplo, `POST /auth/register` o `GET /perfil/usuarios`). Esta petición es recibida por el Controller correspondiente (`AuthController o PerfilController`), el cual valida los datos básicos de entrada y delega el procesamiento al servicio de negocio.
    
 2. El Service (`AuthService o PerfilService`) contiene la lógica principal del sistema, aplicando reglas de negocio, validaciones y, en el caso del módulo de perfil, utilizando el Strategy Pattern para definir distintos comportamientos de procesamiento.
@@ -207,7 +225,7 @@ logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
 
 ---
 
-### 12. Despliegue de los microservicios en Railway 
+### 13. Despliegue de los microservicios en Railway 
 <img width="684" height="528" alt="image" src="https://github.com/user-attachments/assets/34e03659-28b3-4ba7-900c-9bb3892ce538" />
 <img width="1138" height="478" alt="image" src="https://github.com/user-attachments/assets/1bbbbcf2-eb96-4d91-9947-1fccb0c9a036" />
 
