@@ -7,3 +7,4 @@ data:
   MYSQLHOST: "mysql-profile-service" 
   MYSQLPORT: "3306"
   MYSQLDATABASE: "db_profile"
+  AUTH_SERVICE_URL: "http://ms-auth-service:8081"
